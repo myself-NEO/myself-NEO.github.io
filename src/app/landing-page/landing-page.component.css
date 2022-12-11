@@ -1,0 +1,13 @@
+.main-con {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2%;
+    padding: 2%;
+    border-radius: 20px;
+    border: 2px lightgrey solid;
+}
+
+:host ::ng-deep .mat-tab-label, .mat-tab-link {
+    color: grey;
+}
