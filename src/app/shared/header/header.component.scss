@@ -1,3 +1,13 @@
-.example-spacer {
+@import "../styles/home.styles.scss";
+
+.nav-con {
     flex: 1 1 auto;
-  }
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 0 20%;
+}
+
+:host ::ng-deep mat-toolbar {
+  background-color: $bg-color;
+}

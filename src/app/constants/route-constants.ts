@@ -5,5 +5,5 @@ export class Routing {
     public static about: string = 'about';
     public static angular: string = 'angular';
     public static spring: string = 'spring';
-    public static diary: string = 'diary';
+    public static contact: string = 'contact';
 }
