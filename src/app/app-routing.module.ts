@@ -9,6 +9,18 @@ const routes: Routes = [
   },
   {
     path: Routing.home, component: LandingPageComponent
+  },
+  {
+    path: Routing.about, component: LandingPageComponent
+  },
+  {
+    path: Routing.angular, component: LandingPageComponent
+  },
+  {
+    path: Routing.spring, component: LandingPageComponent
+  },
+  {
+    path: Routing.contact, component: LandingPageComponent
   }
 ];
 

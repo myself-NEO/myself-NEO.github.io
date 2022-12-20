@@ -1,10 +1,16 @@
-<div>
-    <mat-toolbar color="primary">
+<div class="main-con">
+    <mat-toolbar>
         <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
             <mat-icon>menu</mat-icon>
         </button>
-        <span>My App</span>
-        <span class="example-spacer"></span>
+        <span>NEO Learning</span>
+        <div class="nav-con">
+            <button class="link-btn" [ngClass]="{'link-btn-selected': homeSelected}" (click)="goToHome()">Home</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': aboutSelected}" (click)="goToAbout()">About</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': angularSelected}" (click)="goToAngular()">Angular</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': springSelected}" (click)="goToSpring()">Spring Boot</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': contactSelected}" (click)="goToContact()">Contact</button>
+        </div>
         <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
             <mat-icon>favorite</mat-icon>
         </button>
