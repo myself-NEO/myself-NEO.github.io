@@ -1,21 +1,30 @@
 <div class="main-con">
     <mat-toolbar>
-        <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-            <mat-icon>menu</mat-icon>
-        </button>
-        <span>NEO Learning</span>
+        <div>
+            <button mat-icon-button class="example-icon"
+                aria-label="Example icon-button with menu icon">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <span *ngIf="!mobileView">NEO Learning</span>
+        </div>
         <div class="nav-con">
             <button class="link-btn" [ngClass]="{'link-btn-selected': homeSelected}" (click)="goToHome()">Home</button>
-            <button class="link-btn" [ngClass]="{'link-btn-selected': aboutSelected}" (click)="goToAbout()">About</button>
-            <button class="link-btn" [ngClass]="{'link-btn-selected': angularSelected}" (click)="goToAngular()">Angular</button>
-            <button class="link-btn" [ngClass]="{'link-btn-selected': springSelected}" (click)="goToSpring()">Spring Boot</button>
-            <button class="link-btn" [ngClass]="{'link-btn-selected': contactSelected}" (click)="goToContact()">Contact</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': aboutSelected}"
+                (click)="goToAbout()">About</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': angularSelected}"
+                (click)="goToAngular()">Angular</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': springSelected}" (click)="goToSpring()">Spring
+                Boot</button>
+            <button class="link-btn" [ngClass]="{'link-btn-selected': contactSelected}"
+                (click)="goToContact()">Contact</button>
         </div>
-        <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
-            <mat-icon>favorite</mat-icon>
-        </button>
-        <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
-            <mat-icon>share</mat-icon>
-        </button>
+        <div>
+            <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+                <mat-icon>favorite</mat-icon>
+            </button>
+            <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+                <mat-icon>share</mat-icon>
+            </button>
+        </div>
     </mat-toolbar>
 </div>
