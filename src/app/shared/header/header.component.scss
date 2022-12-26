@@ -1,13 +1,29 @@
 @import "../styles/home.styles.scss";
 
 .nav-con {
-    flex: 1 1 auto;
+    // flex: 1 1 auto;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    margin: 0 20%;
+    width: 50%;
+    margin: 0 10%;
 }
 
 :host ::ng-deep mat-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: $bg-color;
+  overflow: auto;
+}
+
+@media only screen and (max-width: 600px) {
+  .nav-con {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+    margin: 0 5%;
+    overflow: auto;
+  }
 }
