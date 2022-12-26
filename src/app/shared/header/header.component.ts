@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -14,11 +14,13 @@ export class HeaderComponent implements OnInit {
   springPageUrl = "/spring";
   contactPageUrl = "/contact";
 
-  homeSelected: Boolean = true; 
-  aboutSelected: Boolean = false;
-  angularSelected: Boolean = false;
-  springSelected: Boolean = false;
-  contactSelected: Boolean = false;
+  homeSelected: boolean = true; 
+  aboutSelected: boolean = false;
+  angularSelected: boolean = false;
+  springSelected: boolean = false;
+  contactSelected: boolean = false;
+
+  mobileView: boolean = false;
 
   constructor(
     private readonly router: Router
@@ -70,6 +72,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.mobileView = window.outerWidth <= 600;
   }
 
 }
