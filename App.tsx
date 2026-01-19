@@ -12,8 +12,10 @@ const App: React.FC = () => {
 
   const words = [
     "Keshav",
-    "Software Engineer",
-    "Java Full Stack Developer"
+    "a Backend Engineer",
+    "a Java Full-Stack Developer",
+    "a Software Engineer",
+    "a Competetive programmer"
   ];
   const speed = 100;
   const delay = 1000;
@@ -85,7 +87,7 @@ const App: React.FC = () => {
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.05),transparent_70%)]"></div>
         <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
           <div className="order-2 md:order-1">
-            <h2 className="text-sky-200 font-semibold mb-4 tracking-wider uppercase text-sm">Hello, I'm <span ref={typingRef}></span></h2>
+            <h2 className="text-sky-400 font-semibold mb-4 tracking-wider uppercase text-sm">Hello, I'm <span ref={typingRef}></span></h2>
             <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-[1.1]">
               Engineering the <span className="gradient-text">Future</span> of Ad Tech at Google.
             </h1>
