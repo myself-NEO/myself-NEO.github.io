@@ -20,6 +20,12 @@ export const MILESTONES: Milestone[] = [
     title: 'Bachelor of Technology',
     location: 'NIT Raipur',
     description: 'Deep-dived into algorithms, OS, and software engineering principles. Missed last year of college life, thanks to COVID'
+  },
+  {
+    year: '2014-2015',
+    title: 'RMO & INMO',
+    location: 'New Delhi',
+    description: 'Secured AIR 6 in KVS Regional Mathematical Olympiad.'
   }
 ];
 
@@ -33,5 +39,5 @@ export const SKILLS: Skill[] = [
   { name: 'Google Ad Manager', category: 'tools', icon: '📊' },
   { name: 'TypeScript', category: 'frontend', icon: '🟦' },
   { name: 'Microservices', category: 'backend', icon: '🧱' },
-  { name: 'Cloud Native', category: 'cloud', icon: '☁️' }
+  { name: 'CI/CD', category: 'cloud', icon: '☁️' }
 ];
