@@ -13,9 +13,9 @@ const App: React.FC = () => {
   const words = [
     "Keshav",
     "a Backend Engineer",
-    "a Java Full-Stack Developer",
-    "a Software Engineer",
-    "a Competetive programmer"
+    "Java Full-Stack Developer",
+    "Software Engineer",
+    "Competetive programmer"
   ];
   const speed = 100;
   const delay = 1000;
