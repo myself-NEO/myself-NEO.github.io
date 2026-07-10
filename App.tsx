@@ -98,7 +98,7 @@ const App: React.FC = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://drive.google.com/file/d/1rZmnX4e4sSSBPSuIoEX3I-GaHE7Nrtn0/view?usp=sharing" 
+                href="https://drive.google.com/file/d/1M7xogF_uIzbyv-O1jbGX1AFDZIYTLUYw/view?usp=sharing" 
                 className="px-8 py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition-all flex items-center gap-2 group shadow-xl"
                 target="_blank"
               >
@@ -210,8 +210,12 @@ const App: React.FC = () => {
               Have a project in mind or just want to chat about tech? 
               I'm always open to discussing new opportunities or cool technologies.
             </p>
+
+            <div style={{display: "flex", justifyContent: "center"}}>
+              <img src="https://www.svgrepo.com/show/356743/collaboration.svg" style={{maxWidth: "250px", width: "100%", height: "auto"}}></img>
+            </div>
             
-            <div className="space-y-6">
+            {/* <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-500">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,7 +239,7 @@ const App: React.FC = () => {
                   <p className="text-lg font-semibold">Hyderabad, India</p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 md:p-10 bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl space-y-6">
