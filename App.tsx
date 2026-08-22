@@ -98,7 +98,7 @@ const App: React.FC = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://drive.google.com/file/d/1eMjxu5l-5Pl3GZvfXx6auMoLJHBFhnpu/view?usp=sharing" 
+                href="https://drive.google.com/file/d/1i82DD55sptIqG6tZ2aOYfSod8mF9_4nS/view?usp=sharing" 
                 className="px-8 py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition-all flex items-center gap-2 group shadow-xl"
                 target="_blank"
               >
