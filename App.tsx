@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import AIChat from './components/AIChat';
+import CurrentlyWorking from './components/CurrentlyWorking';
 import { MILESTONES, SKILLS } from './constants';
 
 const App: React.FC = () => {
@@ -200,6 +201,8 @@ const App: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <CurrentlyWorking />
 
       {/* Contact Section */}
       <section id="contact" className="py-24 px-6 bg-slate-900/50">
