@@ -1,5 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { LEARNING_TOPICS } from '../constants';
 
 interface CodeforcesContest {
   id: number;
@@ -64,6 +65,18 @@ const getNextCodeChefContest = (): Date => {
 const CurrentlyWorking: React.FC = () => {
   const [cfContests, setCfContests] = useState<CodeforcesContest[] | null>(null);
   const [cfError, setCfError] = useState(false);
+  const [isLearningOpen, setIsLearningOpen] = useState(false);
+  const learningRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (learningRef.current && !learningRef.current.contains(event.target as Node)) {
+        setIsLearningOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetch('https://codeforces.com/api/contest.list?gym=false')
@@ -95,6 +108,7 @@ const CurrentlyWorking: React.FC = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-8">
           {/* Project Card */}
           <div className="p-8 bg-slate-800 border border-slate-700 rounded-3xl shadow-xl hover:border-sky-500/30 transition-colors">
             <div className="flex items-center gap-3 mb-4">
@@ -123,6 +137,45 @@ const CurrentlyWorking: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </a>
+          </div>
+
+          {/* Learning Card */}
+          <div className="p-8 bg-slate-800 border border-slate-700 rounded-3xl shadow-xl hover:border-sky-500/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-3xl">📘</span>
+              <h3 className="text-2xl font-bold">Learning</h3>
+            </div>
+            <p className="text-slate-400 leading-relaxed mb-6">
+              Compiling & deep-diving into DSA & Desiging System with low latency High Throughput, building strong fundamentals one topic at a time to help anyone looking for a guide.
+            </p>
+            <div className="relative inline-block" ref={learningRef}>
+              <button
+                onClick={() => setIsLearningOpen((open) => !open)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-sky-500/20"
+              >
+                Explore
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform ${isLearningOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isLearningOpen && (
+                <div className="absolute left-0 top-full mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-20">
+                  {LEARNING_TOPICS.map((topic) => (
+                    <a
+                      key={topic.slug}
+                      href={`#learning/${topic.slug}`}
+                      onClick={() => setIsLearningOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                    >
+                      <span>{topic.icon}</span>
+                      {topic.title}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
           </div>
 
           {/* Competitive Programming Card */}
