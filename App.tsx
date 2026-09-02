@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Navbar from './components/Navbar';
 import AIChat from './components/AIChat';
 import CurrentlyWorking from './components/CurrentlyWorking';
+import LearningPage from './components/LearningPage';
 import { MILESTONES, SKILLS } from './constants';
 
 const App: React.FC = () => {
@@ -10,6 +11,22 @@ const App: React.FC = () => {
   const charIndexRef = useRef(0);
   const isDeletingRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const [hash, setHash] = useState(() => window.location.hash);
+
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const learningMatch = hash.match(/^#learning\/(.+)$/);
+
+  useEffect(() => {
+    if (!learningMatch && hash) {
+      const target = document.querySelector(hash);
+      target?.scrollIntoView();
+    }
+  }, [hash]);
 
   const words = [
     "Keshav",
@@ -77,6 +94,10 @@ const App: React.FC = () => {
       alert('Please configure an email app to send this message.');
     }
   };
+
+  if (learningMatch) {
+    return <LearningPage slug={learningMatch[1]} />;
+  }
 
   return (
     <div className="min-h-screen selection:bg-sky-500/30">

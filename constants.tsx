@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Milestone, Skill } from './types';
+import { Milestone, Skill, LearningTopic } from './types';
 
 export const MILESTONES: Milestone[] = [
   {
@@ -40,4 +40,14 @@ export const SKILLS: Skill[] = [
   { name: 'TypeScript', category: 'frontend', icon: '🟦' },
   { name: 'Microservices', category: 'backend', icon: '🧱' },
   { name: 'CI/CD', category: 'cloud', icon: '☁️' }
+];
+
+export const LEARNING_TOPICS: LearningTopic[] = [
+  { slug: 'arrays-strings', title: 'Arrays & Strings', icon: '🔢' },
+  { slug: 'linked-list', title: 'Linked List', icon: '🔗' },
+  { slug: 'stacks-queues', title: 'Stacks & Queues', icon: '📚' },
+  { slug: 'trees', title: 'Trees', icon: '🌳' },
+  { slug: 'graphs', title: 'Graphs', icon: '🕸️' },
+  { slug: 'recursion-backtracking', title: 'Recursion & Backtracking', icon: '🔁' },
+  { slug: 'dynamic-programming', title: 'Dynamic Programming', icon: '🧩' },
 ];
