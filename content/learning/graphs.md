@@ -13,28 +13,28 @@ Read it top to bottom once. Then use the Table of Contents to jump back to whate
 ---
 
 ## Table of Contents
-1. What Is a Graph & Why It's Everywhere
-2. Core Terminology
-3. Representing a Graph in Code
-4. BFS — Breadth-First Search
-5. DFS — Depth-First Search
-6. Grids as Graphs
-7. Connected Components
-8. Cycle Detection
-9. Topological Sort
-10. Union-Find (Disjoint Set Union)
-11. Shortest Path Algorithms
-12. Minimum Spanning Tree
-13. Bipartite Graph Check
-14. Strongly Connected Components
-15. Bridges & Articulation Points
-16. Other Patterns Worth Knowing
-17. How to Recognize a Graph Problem
-18. Step-by-Step Framework for Any Graph Question
-19. Complexity Cheat Sheet
-20. Common Mistakes That Cost Marks
-21. Practice Problems by Pattern
-22. Copy-Paste Templates
+1. [What Is a Graph & Why It's Everywhere](#1-what-is-a-graph--why-its-everywhere)
+2. [Core Terminology](#2-core-terminology)
+3. [Representing a Graph in Code](#3-representing-a-graph-in-code)
+4. [BFS — Breadth-First Search](#4-bfs--breadth-first-search)
+5. [DFS — Depth-First Search](#5-dfs--depth-first-search)
+6. [Grids as Graphs](#6-grids-as-graphs)
+7. [Connected Components](#7-connected-components)
+8. [Cycle Detection](#8-cycle-detection)
+9. [Topological Sort](#9-topological-sort)
+10. [Union-Find (Disjoint Set Union)](#10-union-find-disjoint-set-union--dsu)
+11. [Shortest Path Algorithms](#11-shortest-path-algorithms)
+12. [Minimum Spanning Tree](#12-minimum-spanning-tree-mst)
+13. [Bipartite Graph Check](#13-bipartite-graph-check)
+14. [Strongly Connected Components](#14-strongly-connected-components-scc)
+15. [Bridges & Articulation Points](#15-bridges--articulation-points)
+16. [Other Patterns Worth Knowing](#16-other-patterns-worth-knowing)
+17. [How to Recognize a Graph Problem](#17-how-to-recognize-a-graph-problem)
+18. [Step-by-Step Framework for Any Graph Question](#18-step-by-step-framework-for-any-graph-question)
+19. [Complexity Cheat Sheet](#19-complexity-cheat-sheet)
+20. [Common Mistakes That Cost Marks](#20-common-mistakes-that-cost-marks)
+21. [Practice Problems by Pattern](#21-practice-problems-by-pattern)
+22. [Copy-Paste Templates](#22-copy-paste-templates)
 
 ---
 
