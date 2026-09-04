@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
 import { LEARNING_TOPICS } from '../constants';
 import { LEARNING_CONTENT } from '../content/learning';
 
@@ -16,6 +17,20 @@ const LearningPage: React.FC<LearningPageProps> = ({ slug }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  const handleArticleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const link = (event.target as HTMLElement).closest('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href') ?? '';
+    if (!href.startsWith('#') || href.startsWith('#learning/')) return;
+
+    const target = document.getElementById(decodeURIComponent(href.slice(1)));
+    if (!target) return;
+
+    event.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="min-h-screen">
@@ -51,8 +66,11 @@ const LearningPage: React.FC<LearningPageProps> = ({ slug }) => {
         </div>
 
         {topic && content ? (
-          <article className="prose prose-invert prose-sky max-w-none prose-headings:font-bold prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 prose-code:text-sky-300 prose-a:text-sky-400">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          <article
+            onClick={handleArticleClick}
+            className="prose prose-invert prose-sky max-w-none prose-headings:font-bold prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 prose-code:text-sky-300 prose-a:text-sky-400 [&_:is(h1,h2,h3,h4,h5,h6)]:scroll-mt-24"
+          >
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>{content}</ReactMarkdown>
           </article>
         ) : (
           <div className="text-center py-24">

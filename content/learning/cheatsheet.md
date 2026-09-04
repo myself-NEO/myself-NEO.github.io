@@ -6,28 +6,28 @@
 
 ## TABLE OF CONTENTS
 
-- **Part 0** — How Google L4 interviews actually work
-- **Part 1** — Big-O and how to think about complexity
-- **Part 2** — Java syntax cheat-sheet for interviews
-- **Part 3** — Arrays & Strings (+ two pointers, sliding window, prefix sums)
-- **Part 4** — Hashing
-- **Part 5** — Linked Lists
-- **Part 6** — Stacks & Queues (+ monotonic stack)
-- **Part 7** — Recursion & Backtracking
-- **Part 8** — Sorting algorithms
-- **Part 9** — Binary Search (+ binary search on the answer)
-- **Part 10** — Trees (traversal, BST, LCA, balanced trees)
-- **Part 11** — Heaps / Priority Queues
-- **Part 12** — Graphs (BFS, DFS, topo sort, union-find, Dijkstra, MST)
-- **Part 13** — Tries
-- **Part 14** — Dynamic Programming (the part everyone fears)
-- **Part 15** — Greedy Algorithms
-- **Part 16** — Bit Manipulation
-- **Part 17** — Advanced/rare-but-useful topics (Segment Tree, Fenwick Tree, KMP)
-- **Part 18** — The 15 Patterns Cheat-Sheet
-- **Part 19** — 10-Week Study Plan
-- **Part 20** — Interview-Day Framework & Communication Script
-- **Part 21** — Common Mistakes That Cost People L4 Offers
+- **[Part 0](#part-0--how-google-l4-interviews-actually-work)** — How Google L4 interviews actually work
+- **[Part 1](#part-1--big-o-and-how-to-think-about-complexity)** — Big-O and how to think about complexity
+- **[Part 2](#part-2--java-syntax-cheat-sheet-for-interviews)** — Java syntax cheat-sheet for interviews
+- **[Part 3](#part-3--arrays--strings)** — Arrays & Strings (+ two pointers, sliding window, prefix sums)
+- **[Part 4](#part-4--hashing)** — Hashing
+- **[Part 5](#part-5--linked-lists)** — Linked Lists
+- **[Part 6](#part-6--stacks--queues)** — Stacks & Queues (+ monotonic stack)
+- **[Part 7](#part-7--recursion--backtracking)** — Recursion & Backtracking
+- **[Part 8](#part-8--sorting-algorithms)** — Sorting algorithms
+- **[Part 9](#part-9--binary-search)** — Binary Search (+ binary search on the answer)
+- **[Part 10](#part-10--trees)** — Trees (traversal, BST, LCA, balanced trees)
+- **[Part 11](#part-11--heaps--priority-queues)** — Heaps / Priority Queues
+- **[Part 12](#part-12--graphs)** — Graphs (BFS, DFS, topo sort, union-find, Dijkstra, MST)
+- **[Part 13](#part-13--tries-prefix-trees)** — Tries
+- **[Part 14](#part-14--dynamic-programming)** — Dynamic Programming (the part everyone fears)
+- **[Part 15](#part-15--greedy-algorithms)** — Greedy Algorithms
+- **[Part 16](#part-16--bit-manipulation)** — Bit Manipulation
+- **[Part 17](#part-17--advanced--rare-but-useful-topics)** — Advanced/rare-but-useful topics (Segment Tree, Fenwick Tree, KMP)
+- **[Part 18](#part-18--the-15-patterns-cheat-sheet)** — The 15 Patterns Cheat-Sheet
+- **[Part 19](#part-19--10-week-study-plan-beginner--l4-ready)** — 10-Week Study Plan
+- **[Part 20](#part-20--interview-day-framework--communication-script)** — Interview-Day Framework & Communication Script
+- **[Part 21](#part-21--common-mistakes-that-cost-people-l4-offers)** — Common Mistakes That Cost People L4 Offers
 
 ---
 

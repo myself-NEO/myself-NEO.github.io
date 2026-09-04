@@ -7,18 +7,18 @@ This is the first file in a short series on Dynamic Programming. This one covers
 All code is Java, written LeetCode-style (assume it sits inside `class Solution { ... }`, with `import java.util.*;` available). Every solution in this file was compiled and run against the stated examples before being written down — not just hand-traced.
 
 **Contents**
-1. What Is Dynamic Programming, Really?
-2. Recursion Refresher — Why Naive Recursion Explodes
-3. The Universal 5-Step DP Framework
-4. Top-Down vs Bottom-Up (and Space Optimization)
-5. What Makes a Problem "1-D"?
-6. Worked Problems, Easy → Hard
-7. The Three Combinators — Your Pattern-Recognition Shortcut
-8. Signal-Words Cheat Sheet
-9. Common Mistakes & Pitfalls
-10. Quick-Reference Table
-11. Practice List — More Problems to Try Solo
-12. What's Next
+1. [What Is Dynamic Programming, Really?](#1-what-is-dynamic-programming-really)
+2. [Recursion Refresher — Why Naive Recursion Explodes](#2-recursion-refresher--why-naive-recursion-explodes)
+3. [The Universal 5-Step DP Framework](#3-the-universal-5-step-dp-framework)
+4. [Top-Down vs Bottom-Up (and Space Optimization)](#4-top-down-vs-bottom-up-and-space-optimization)
+5. [What Makes a Problem "1-D"?](#5-what-makes-a-problem-1-d)
+6. [Worked Problems, Easy → Hard](#6-worked-problems-easy--hard)
+7. [The Three Combinators — Your Pattern-Recognition Shortcut](#7-the-three-combinators--your-pattern-recognition-shortcut)
+8. [Signal-Words Cheat Sheet](#8-signal-words-cheat-sheet)
+9. [Common Mistakes & Pitfalls](#9-common-mistakes--pitfalls)
+10. [Quick-Reference Table](#10-quick-reference-table)
+11. [Practice List — More Problems to Try Solo](#11-practice-list--more-problems-to-try-solo)
+12. [What's Next](#12-whats-next)
 
 ---
 
@@ -764,17 +764,17 @@ Part 2 of the DP series. Part 1 covered 1-D DP — the 5-step framework, top-dow
 All code is Java, LeetCode-style, and every solution below was compiled and run against the stated examples before being written down.
 
 **Contents**
-1. What's Actually New: From One Index to Two
-2. The Three Families of 2-D DP
-3. Filling the Table: Order Matters More Now
-4. Grid DP — Worked Problems
-5. Two-String DP — Worked Problems
-6. Knapsack & Subset-Sum DP — Worked Problems
-7. Common Mistakes & Pitfalls
-8. Signal-Words Cheat Sheet
-9. Quick-Reference Table
-10. Practice List — More Problems to Try Solo
-11. What's Next
+1. [What's Actually New: From One Index to Two](#1-whats-actually-new-from-one-index-to-two)
+2. [The Three Families of 2-D DP](#2-the-three-families-of-2-d-dp)
+3. [Filling the Table: Order Matters More Now](#3-filling-the-table-order-matters-more-now)
+4. [Grid DP — Worked Problems](#4-grid-dp--worked-problems)
+5. [Two-String DP — Worked Problems](#5-two-string-dp--worked-problems)
+6. [Knapsack & Subset-Sum DP — Worked Problems](#6-knapsack--subset-sum-dp--worked-problems)
+7. [Common Mistakes & Pitfalls](#7-common-mistakes--pitfalls)
+8. [Signal-Words Cheat Sheet](#8-signal-words-cheat-sheet-1)
+9. [Quick-Reference Table](#9-quick-reference-table)
+10. [Practice List — More Problems to Try Solo](#10-practice-list--more-problems-to-try-solo)
+11. [What's Next](#11-whats-next)
 
 ---
 
@@ -1383,17 +1383,17 @@ The last file in the series — everything that didn't fit Part 1 (1-D) or Part 
 All code is Java, LeetCode-style, and every solution below — all twelve of them, across all five families — was compiled and run against verified examples before being written down. The digit-DP solution was additionally cross-checked against a brute-force count across 8 different values of N and 21 different target sums (168 comparisons, all agreeing).
 
 **Contents**
-1. Why These Five Don't Fit the Earlier Molds
-2. Interval DP — Worked Problems
-3. Bitmask DP — Worked Problems
-4. Digit DP — The Template
-5. Tree DP — Worked Problems
-6. DP on Graphs & DAGs — Worked Problems
-7. Common Mistakes & Pitfalls
-8. Signal-Words Cheat Sheet
-9. Quick-Reference Table
-10. Practice List — More Problems to Try Solo
-11. Closing — The Whole Toolkit, End to End
+1. [Why These Five Don't Fit the Earlier Molds](#1-why-these-five-dont-fit-the-earlier-molds)
+2. [Interval DP — Worked Problems](#2-interval-dp--worked-problems)
+3. [Bitmask DP — Worked Problems](#3-bitmask-dp--worked-problems)
+4. [Digit DP — The Template](#4-digit-dp--the-template)
+5. [Tree DP — Worked Problems](#5-tree-dp--worked-problems)
+6. [DP on Graphs & DAGs — Worked Problems](#6-dp-on-graphs--dags--worked-problems)
+7. [Common Mistakes & Pitfalls](#7-common-mistakes--pitfalls-1)
+8. [Signal-Words Cheat Sheet](#8-signal-words-cheat-sheet-2)
+9. [Quick-Reference Table](#9-quick-reference-table-1)
+10. [Practice List — More Problems to Try Solo](#10-practice-list--more-problems-to-try-solo-1)
+11. [Closing — The Whole Toolkit, End to End](#11-closing--the-whole-toolkit-end-to-end)
 
 ---
 
