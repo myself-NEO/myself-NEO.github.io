@@ -50,6 +50,7 @@ export const LEARNING_TOPICS: LearningTopic[] = [
   { slug: 'trees', title: 'Trees', icon: '🌳' },
   { slug: 'graphs', title: 'Graphs', icon: '🕸️' },
   { slug: 'dynamic-programming', title: 'Dynamic Programming', icon: '🧩' },
+  { slug: 'bit-manipulation', title: 'Bit Manipulation', icon: '🔟' },
   { slug: 'cheatsheet', title: 'Cheatsheet', icon: '💻' },
   { slug: 'core-cheatsheet', title: 'Core Cheatsheet', icon: '📚' },
   { slug: 'graphs-cheatsheet', title: 'Graphs Cheatsheet', icon: '💀' }
