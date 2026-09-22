@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
             </a>
           ))}
           <a 
-            href="https://drive.google.com/file/d/1i82DD55sptIqG6tZ2aOYfSod8mF9_4nS/view?usp=sharing" 
+            href="https://drive.google.com/file/d/1c43mVY8OEEq6v3GLmhromPMXPFjls-wm/view?usp=sharing" 
             className="px-5 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-sm font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-sky-500/20"
             target="_blank"
           >
