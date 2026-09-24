@@ -4,16 +4,22 @@ import { Milestone, Skill, LearningTopic } from './types';
 
 export const MILESTONES: Milestone[] = [
   {
-    year: '2024 - Present',
-    title: '',
-    location: 'Google',
+    year: '2025 - 2026',
+    title: 'Google',
+    location: '',
     description: 'Developing Ads partner tools and underlying infrastructure, enabling scalable, reliable communication between publishers and internal systems while improving partner workflows and user experience.'
   },
   {
-    year: '2021 - 2024',
-    title: 'Software Developer',
+    year: '2022 - 2025',
+    title: 'Senior Software Engineer',
     location: 'Optum (UnitedHealth Group)',
     description: 'Developed scalable microservices for healthcare platforms using Java Spring Boot. Focused on data integrity and high availability.'
+  },
+  {
+    year: '2021 - 2022',
+    title: 'Software Developer',
+    location: 'Datoms',
+    description: 'Enhanced Service APIs and created Dashboards'
   },
   {
     year: '2017 - 2021',
@@ -32,14 +38,19 @@ export const MILESTONES: Milestone[] = [
 export const SKILLS: Skill[] = [
   { name: 'Java', category: 'backend', icon: '☕' },
   { name: 'Spring Boot', category: 'backend', icon: '🍃' },
-  { name: 'Python', category: 'backend', icon: '🐍' },
   { name: 'REST API', category: 'backend', icon: '🔗' },
-  { name: 'Angular', category: 'frontend', icon: '🅰️' },
-  { name: 'React', category: 'frontend', icon: '⚛️' },
+  { name: 'Microservices', category: 'backend', icon: '🧱' },
+  { name: 'MySQL', category: 'backend', icon: '🐬' },
+  { name: 'GCP', category: 'cloud', icon: '☁️' },
+  { name: 'Agentic AI', category: 'cloud', icon: '🤖' },
+  { name: 'System Design', category: 'backend', icon: '⚙' },
+  { name: 'Kafka', category: 'cloud', icon: '📟' },
+  { name: 'CI/CD', category: 'cloud', icon: '☁️' },
+  { name: 'Python', category: 'backend', icon: '🐍' },
   { name: 'Google Ad Manager', category: 'tools', icon: '📊' },
   { name: 'TypeScript', category: 'frontend', icon: '🟦' },
-  { name: 'Microservices', category: 'backend', icon: '🧱' },
-  { name: 'CI/CD', category: 'cloud', icon: '☁️' }
+  { name: 'Angular', category: 'frontend', icon: '🅰️' },
+  { name: 'React', category: 'frontend', icon: '⚛️' }
 ];
 
 export const LEARNING_TOPICS: LearningTopic[] = [
