@@ -180,7 +180,7 @@ const App: React.FC = () => {
               <img 
                 src="https://picsum.photos/seed/Keshav/500/500" 
                 alt="Profile" 
-                className="relative rounded-3xl w-72 h-72 md:w-96 md:h-96 object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 hover:scale-105"
+                className="relative rounded-3xl w-60 h-60 min-[360px]:w-72 min-[360px]:h-72 md:w-96 md:h-96 object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 hover:scale-105"
               />
               <div className="absolute -bottom-6 -right-6 bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-2xl animate-bounce">
                 <span className="text-3xl">🚀</span>

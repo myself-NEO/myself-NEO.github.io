@@ -93,7 +93,7 @@ const CurrentlyWorking: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="flex flex-col gap-8">
           {/* Project Card */}
           <div className="p-8 bg-slate-800 border border-slate-700 rounded-3xl shadow-xl hover:border-sky-500/30 transition-colors">
@@ -134,15 +134,23 @@ const CurrentlyWorking: React.FC = () => {
             <p className="text-slate-400 leading-relaxed mb-6">
               Compiling & deep-diving into DSA & Desiging System with low latency High Throughput, building strong fundamentals one topic at a time to help anyone looking for a guide.
             </p>
-            <a
-              href="#dsa"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-sky-500/20"
-            >
-              Explore
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
+            <div className="flex flex-wrap gap-3">
+              {[
+                { label: 'DSA', href: '#dsa' },
+                { label: 'Design', href: '#system-design' },
+              ].map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-sky-500/20"
+                >
+                  {link.label}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              ))}
+            </div>
           </div>
           </div>
 
