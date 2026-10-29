@@ -1,16 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import Navbar from './components/Navbar';
 import AIChat from './components/AIChat';
 import CurrentlyWorking from './components/CurrentlyWorking';
 import LearningPage from './components/LearningPage';
 import { MILESTONES, SKILLS } from './constants';
 
+// Code-split: the System Design module is only downloaded when visited.
+const SystemDesignPage = lazy(() => import('./components/system-design/SystemDesignPage'));
+
 const App: React.FC = () => {
   const typingRef = useRef<HTMLSpanElement>(null);
   const wordIndexRef = useRef(0);
   const charIndexRef = useRef(0);
   const isDeletingRef = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [hash, setHash] = useState(() => window.location.hash);
 
   useEffect(() => {
@@ -20,9 +23,11 @@ const App: React.FC = () => {
   }, []);
 
   const learningMatch = hash.match(/^#learning\/(.+)$/);
+  const systemDesignMatch = hash.match(/^#system-design(?:\/(.*))?$/);
+  const isHome = !learningMatch && !systemDesignMatch;
 
   useEffect(() => {
-    if (!learningMatch && hash) {
+    if (!learningMatch && !systemDesignMatch && hash) {
       const target = document.querySelector(hash);
       target?.scrollIntoView();
     }
@@ -71,7 +76,8 @@ const App: React.FC = () => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, []);
+    // Restart when returning to the home page from a learning or System Design page.
+  }, [isHome]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -97,6 +103,20 @@ const App: React.FC = () => {
 
   if (learningMatch) {
     return <LearningPage slug={learningMatch[1]} />;
+  }
+
+  if (systemDesignMatch) {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center text-slate-400" role="status">
+            Loading System Design…
+          </div>
+        }
+      >
+        <SystemDesignPage path={systemDesignMatch[1] ?? ''} />
+      </Suspense>
+    );
   }
 
   return (
