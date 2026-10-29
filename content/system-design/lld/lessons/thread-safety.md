@@ -2,6 +2,9 @@
 
 Many LLD problems have a hidden concurrency requirement: several parking gates, many users booking the last seat, a rate limiter shared by request threads, a cache read by thousands of threads. Interviewers at SDE-2 level and above often ask *"what happens if two requests do this at the same time?"* You need a clear mental model and a few reliable tools.
 
+> [!NOTE] Where this fits
+> This lesson and the next three cover **correctness**: keeping shared state consistent. Threads that must *wait for each other* are covered in [Coordination](lesson:coordination), and limited resources in [Scarcity](lesson:scarcity). The [overview](lesson:concurrency-overview) explains how to tell them apart.
+
 ## What "thread-safe" means
 
 A class is **thread-safe** if it behaves correctly — keeps its invariants and gives sensible results — when used by multiple threads at once, **without callers needing extra synchronisation**.

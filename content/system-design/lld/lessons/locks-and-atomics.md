@@ -10,10 +10,10 @@ Once you've decided state must be shared and mutable (see [Thread Safety](lesson
 | `AtomicInteger` / `AtomicLong` / `AtomicReference` | Single-variable updates, compare-and-set (CAS) | Lock-free; retries on contention |
 | `LongAdder` | Hot counters updated by many threads | Faster than `AtomicLong` under contention; reads are slower |
 | `ConcurrentHashMap` | Shared maps; atomic per-key updates with `compute`/`merge` | Never use `HashMap` across threads |
-| `BlockingQueue` | Producer–consumer handoff | `ArrayBlockingQueue` (bounded), `LinkedBlockingQueue` |
+| `BlockingQueue` | Producer–consumer handoff | `ArrayBlockingQueue` (bounded), `LinkedBlockingQueue`. See [Coordination](lesson:coordination) |
 | `CopyOnWriteArrayList` | Listener lists: many reads, rare writes | Every write copies the array |
-| `Semaphore` | Limit concurrent access to N permits | Connection limits, rate limiting |
-| `CountDownLatch` / `CyclicBarrier` | Wait for N events, or synchronise phases | Common in tests |
+| `Semaphore` | Limit concurrent access to N permits | Connection limits, bulkheads. See [Scarcity](lesson:scarcity) |
+| `CountDownLatch` / `CyclicBarrier` | Wait for N events, or synchronise phases | Common in tests. See [Coordination](lesson:coordination) |
 
 ## `synchronized` — the default
 

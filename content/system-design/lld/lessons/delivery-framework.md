@@ -178,7 +178,7 @@ Tracing often reveals bugs, such as forgetting to remove the ticket from `active
 
 - **Errors:** *"Lot full → `LotFullException`; unknown ticket → `IllegalArgumentException`; unparking twice → `IllegalStateException`."*
 - **Edge cases:** zero-minute stays (minimum one hour), a truck when only small spots are free, clock skew (exit before entry).
-- **Concurrency:** *"Two gates could claim the same spot. I make `claimFreeSpot` synchronized per level, so gates on different levels don't block each other. `activeTickets` is a `ConcurrentHashMap`, and I use `putIfAbsent` so the same car can't be parked twice."* See [Thread Safety](lesson:thread-safety).
+- **Concurrency — run the three-question check** ([overview](lesson:concurrency-overview)): *correctness* (what shared state and invariant?), *coordination* (does anyone wait or hand off work?), *scarcity* (what's limited, and do we wait, time out or reject?). For the parking lot: *"Two gates could claim the same spot. I make `claimFreeSpot` synchronized per level, so gates on different levels don't block each other. `activeTickets` is a `ConcurrentHashMap`, and I use `putIfAbsent` so the same car can't be parked twice."* See [Thread Safety](lesson:thread-safety).
 
 ### Step 11: Write or describe unit tests
 

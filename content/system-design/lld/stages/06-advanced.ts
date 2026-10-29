@@ -6,7 +6,7 @@ export const ADVANCED: Stage = {
   title: 'Advanced LLD Engineering',
   levelLabel: 'Advanced',
   description:
-    'State machines, invariants, extensibility, persistence boundaries, concurrency and testing — what separates SDE-2 designs from textbook ones.',
+    'State machines, invariants, extensibility, persistence boundaries, concurrency (correctness, coordination, scarcity) and testing — what separates SDE-2 designs from textbook ones.',
   modules: [
     {
       id: 'domain-modeling',
@@ -123,8 +123,31 @@ export const ADVANCED: Stage = {
       ],
     },
     {
-      id: 'concurrency',
-      title: 'Concurrency',
+      id: 'concurrency-overview',
+      title: 'Concurrency: The Big Picture',
+      lessons: [
+        {
+          slug: 'concurrency-overview',
+          title: 'Concurrency in LLD: Correctness, Coordination & Scarcity',
+          summary: 'Almost every concurrency problem is about corrupted state, threads waiting on each other, or too few resources. Name the family and the tool follows.',
+          minutes: 12,
+          level: 'advanced',
+          essential: true,
+          objectives: [
+            'Classify a concurrency problem as correctness, coordination or scarcity',
+            'Map each family to the Java tools that address it',
+            'Spot the concurrency requirements hidden in an LLD prompt',
+          ],
+          prerequisites: ['immutability', 'collections-and-generics'],
+          related: ['thread-safety', 'coordination', 'scarcity'],
+          problems: ['movie-ticket-booking', 'task-scheduler', 'concurrent-parking-lot'],
+          tags: ['concurrency', 'correctness', 'coordination', 'scarcity'],
+        },
+      ],
+    },
+    {
+      id: 'concurrency-correctness',
+      title: 'Concurrency: Correctness',
       lessons: [
         {
           slug: 'thread-safety',
@@ -138,8 +161,8 @@ export const ADVANCED: Stage = {
             'Identify check-then-act and read-modify-write races',
             'Choose between confinement, immutability and synchronization',
           ],
-          prerequisites: ['immutability', 'collections-and-generics'],
-          related: ['locks-and-atomics', 'concurrent-state-transitions', 'immutability'],
+          prerequisites: ['concurrency-overview', 'immutability'],
+          related: ['locks-and-atomics', 'concurrent-state-transitions', 'concurrency-overview'],
           problems: ['concurrent-parking-lot', 'rate-limiter', 'key-value-store'],
           tags: ['concurrency', 'race conditions', 'synchronized', 'volatile'],
         },
@@ -156,7 +179,7 @@ export const ADVANCED: Stage = {
             'Use ConcurrentHashMap.compute for atomic updates',
           ],
           prerequisites: ['thread-safety'],
-          related: ['thread-safety', 'concurrent-state-transitions', 'data-structure-selection'],
+          related: ['thread-safety', 'coordination', 'scarcity'],
           problems: ['rate-limiter', 'flash-sale-inventory', 'cache-eviction', 'pub-sub'],
           tags: ['locks', 'atomics', 'concurrenthashmap', 'cas'],
         },
@@ -197,6 +220,54 @@ export const ADVANCED: Stage = {
       ],
     },
     {
+      id: 'concurrency-coordination',
+      title: 'Concurrency: Coordination',
+      lessons: [
+        {
+          slug: 'coordination',
+          title: 'Coordination: Producer–Consumer, Waiting & Backpressure',
+          summary: 'Hand work between threads efficiently: block instead of spinning, signal correctly, bound your queues, and shut down cleanly.',
+          minutes: 22,
+          level: 'advanced',
+          essential: true,
+          objectives: [
+            'Replace busy-waiting with blocking waits: wait/notifyAll, Condition and BlockingQueue',
+            'Build a bounded producer–consumer pipeline with backpressure',
+            'Shut consumers down cleanly with poison pills or interruption',
+            'Choose CountDownLatch, CyclicBarrier or CompletableFuture for one-shot coordination',
+          ],
+          prerequisites: ['thread-safety', 'locks-and-atomics'],
+          related: ['scarcity', 'resource-lifecycle', 'observer'],
+          problems: ['task-scheduler', 'pub-sub', 'logging-framework'],
+          tags: ['producer consumer', 'blockingqueue', 'wait notify', 'condition', 'backpressure', 'countdownlatch'],
+        },
+      ],
+    },
+    {
+      id: 'concurrency-scarcity',
+      title: 'Concurrency: Scarcity',
+      lessons: [
+        {
+          slug: 'scarcity',
+          title: 'Scarcity: Limited Resources, Semaphores & Pools',
+          summary: 'When requests outnumber resources: permits, pools, bounded executors, timeouts, fairness and bulkheads.',
+          minutes: 20,
+          level: 'advanced',
+          essential: true,
+          objectives: [
+            'Limit concurrent access to N resources with semaphores and pools',
+            'Choose between waiting, timing out and rejecting when resources run out',
+            'Size thread pools and queues, and pick rejection policies',
+            'Prevent leaks, starvation and cascading failures with finally-release, fairness and bulkheads',
+          ],
+          prerequisites: ['locks-and-atomics', 'coordination'],
+          related: ['coordination', 'resource-lifecycle', 'locks-and-atomics'],
+          problems: ['concurrent-parking-lot', 'rate-limiter', 'flash-sale-inventory'],
+          tags: ['semaphore', 'connection pool', 'thread pool', 'rejection policy', 'bulkhead', 'fairness'],
+        },
+      ],
+    },
+    {
       id: 'quality',
       title: 'Quality & Testing',
       lessons: [
@@ -213,7 +284,7 @@ export const ADVANCED: Stage = {
             'Model leases and expiry for held resources',
           ],
           prerequisites: ['exception-handling', 'thread-safety'],
-          related: ['exception-handling', 'locks-and-atomics', 'idempotency'],
+          related: ['exception-handling', 'scarcity', 'coordination'],
           problems: ['task-scheduler', 'flash-sale-inventory', 'logging-framework'],
           tags: ['autocloseable', 'try-with-resources', 'executors', 'leases'],
         },

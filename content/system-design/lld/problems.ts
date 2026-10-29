@@ -101,7 +101,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Limit requests per client with pluggable algorithms (token bucket, sliding window) and thread safety.',
     minutes: 40,
     patterns: ['Strategy', 'Factory Method'],
-    concepts: ['strategy', 'thread-safety', 'locks-and-atomics', 'testing-lld'],
+    concepts: ['strategy', 'thread-safety', 'scarcity', 'testing-lld'],
     tags: ['algorithms', 'concurrency', 'time'],
   },
   {
@@ -151,7 +151,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Loggers with levels, formatters and multiple appenders — a classic extensibility exercise.',
     minutes: 40,
     patterns: ['Chain of Responsibility', 'Strategy', 'Singleton (registry)'],
-    concepts: ['single-responsibility', 'chain-of-responsibility', 'extensible-apis', 'resource-lifecycle'],
+    concepts: ['single-responsibility', 'chain-of-responsibility', 'extensible-apis', 'coordination'],
     tags: ['extensibility', 'appenders', 'levels'],
   },
 
@@ -163,7 +163,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Many entry and exit gates at once: allocate spots without double assignment or global bottlenecks.',
     minutes: 45,
     patterns: ['Strategy', 'Lock striping'],
-    concepts: ['thread-safety', 'locks-and-atomics', 'concurrent-state-transitions'],
+    concepts: ['thread-safety', 'locks-and-atomics', 'concurrent-state-transitions', 'scarcity'],
     tags: ['concurrency', 'allocation', 'contention'],
   },
   {
@@ -173,7 +173,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Thousands of buyers reserve scarce stock; holds expire; checkout must never oversell.',
     minutes: 50,
     patterns: ['State', 'Idempotency key'],
-    concepts: ['concurrent-state-transitions', 'idempotency', 'locks-and-atomics', 'resource-lifecycle'],
+    concepts: ['concurrent-state-transitions', 'idempotency', 'scarcity', 'resource-lifecycle'],
     tags: ['concurrency', 'reservations', 'expiry'],
   },
   {
@@ -183,7 +183,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Schedule one-off and recurring tasks, run them on a worker pool, support cancellation and retries.',
     minutes: 50,
     patterns: ['Command', 'Strategy'],
-    concepts: ['command', 'data-structure-selection', 'thread-safety', 'resource-lifecycle'],
+    concepts: ['command', 'data-structure-selection', 'coordination', 'resource-lifecycle'],
     tags: ['priority queue', 'workers', 'time'],
   },
   {
@@ -223,7 +223,7 @@ export const LLD_PROBLEMS: ProblemMeta[] = [
     summary: 'Topics, subscribers with independent offsets, at-least-once delivery and backpressure.',
     minutes: 50,
     patterns: ['Observer', 'Strategy'],
-    concepts: ['observer', 'thread-safety', 'idempotency', 'locks-and-atomics'],
+    concepts: ['observer', 'coordination', 'idempotency', 'locks-and-atomics'],
     tags: ['messaging', 'offsets', 'delivery guarantees'],
   },
   {
