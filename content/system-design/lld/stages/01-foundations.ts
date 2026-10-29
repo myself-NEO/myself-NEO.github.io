@@ -1,4 +1,4 @@
-import { Stage } from '../../types';
+import { Stage } from '../../../shared/types';
 
 export const FOUNDATIONS: Stage = {
   id: 'foundations',

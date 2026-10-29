@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Level, Track } from '../../content/system-design/types';
-import { stageLessons } from '../../content/system-design';
-import { hasProblemBody } from '../../content/system-design/loaders';
+import { Level, Track } from '../../content/shared/types';
+import { availableLessons, stageLessons } from '../../content/shared/curriculum';
+import { hasProblemBody } from '../../content/shared/loaders';
 import { isLessonComplete, problemStatus, useProgress } from './progress';
-import { lessonHref, problemHref, problemsHref, ROOT_HREF } from './routes';
+import { lessonHref, problemHref, problemsHref } from './routes';
 import { matchesFilter } from './search';
 import { ArrowIcon, CheckCircleIcon, ChevronIcon, LEVEL_LABEL, ProgressBar, SearchIcon, StatusIcon } from './ui';
 
@@ -43,7 +43,8 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
       return next;
     });
 
-  const allLessons = track.stages.flatMap(stageLessons);
+  const allLessons = availableLessons(track.stages.flatMap(stageLessons));
+  const hasProblems = track.problems.length > 0;
   const completed = allLessons.filter((l) => isLessonComplete(progress, track.id, l.slug)).length;
   const filtering = filter.trim().length > 0;
 
@@ -67,14 +68,14 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
 
   return (
     <nav aria-label={`${track.title} curriculum`} className="flex flex-col gap-4 p-4">
-      <a href={ROOT_HREF} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-sky-400 transition-colors">
+      <a href={track.home.href} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-sky-400 transition-colors">
         <ArrowIcon direction="left" className="h-3.5 w-3.5" />
-        System Design home
+        {track.home.label} home
       </a>
 
       <div>
         <p className="text-sm font-bold text-white">
-          {track.title} <span className="text-slate-500 font-medium">· Java</span>
+          {track.title} {track.language && <span className="text-slate-500 font-medium">· {track.language}</span>}
         </p>
         <div className="mt-2 flex items-center gap-2">
           <ProgressBar value={completed} max={allLessons.length} label="Lessons completed" />
@@ -85,13 +86,13 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
       </div>
 
       <label className="relative block">
-        <span className="sr-only">Filter lessons and problems</span>
+        <span className="sr-only">{hasProblems ? 'Filter lessons and problems' : 'Filter lessons'}</span>
         <SearchIcon className="h-4 w-4 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="search"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter lessons & problems"
+          placeholder={hasProblems ? 'Filter lessons & problems' : 'Filter topics'}
           className="w-full rounded-lg bg-slate-950/60 border border-slate-700 pl-8 pr-3 py-2 text-[13px] text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
         />
       </label>
@@ -99,7 +100,8 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
       <div className="flex flex-col gap-1">
         {stageViews.map(({ stage, lessons }) => {
           if (filtering && lessons.length === 0) return null;
-          const done = stageLessons(stage).filter((l) => isLessonComplete(progress, track.id, l.slug)).length;
+          const stageAvailable = availableLessons(stageLessons(stage));
+          const done = stageAvailable.filter((l) => isLessonComplete(progress, track.id, l.slug)).length;
           const isOpen = filtering || open.has(stage.id);
           const panelId = `sidebar-stage-${stage.id}`;
           let lastModule = '';
@@ -119,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                 </span>
                 <span className="flex items-center gap-1.5 flex-shrink-0">
                   <span className="text-[11px] text-slate-500">
-                    {done}/{stageLessons(stage).length}
+                    {done}/{stageAvailable.length}
                   </span>
                   <ChevronIcon direction={isOpen ? 'down' : 'right'} className="h-4 w-4 text-slate-500" />
                 </span>
@@ -134,10 +136,11 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                     return (
                       <li key={lesson.slug}>
                         {showModule && <p className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600">{module}</p>}
-                        <a href={lessonHref(track.id, lesson.slug)} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
+                        <a href={lessonHref(track, lesson.slug)} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
                           <CheckCircleIcon filled={isDone} className={`h-4 w-4 mt-px flex-shrink-0 ${isDone ? 'text-emerald-400' : 'text-slate-600'}`} />
                           <span>
                             {lesson.title}
+                            {lesson.comingSoon && <span className="ml-1.5 text-[10px] uppercase tracking-wider text-slate-600">soon</span>}
                             {isDone && <span className="sr-only"> (completed)</span>}
                           </span>
                         </a>
@@ -150,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
           );
         })}
 
-        {(!filtering || visibleProblems.length > 0) && (
+        {hasProblems && (!filtering || visibleProblems.length > 0) && (
           <div>
             <button
               type="button"
@@ -184,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                           const status = problemStatus(progress, track.id, p.slug);
                           return (
                             <li key={p.slug}>
-                              <a href={problemHref(track.id, p.slug)} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
+                              <a href={problemHref(track, p.slug)} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
                                 <StatusIcon status={status} className="h-4 w-4 mt-px flex-shrink-0" />
                                 <span>
                                   {p.title}
@@ -200,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                     </div>
                   );
                 })}
-                <a href={problemsHref(track.id)} className="mt-2 inline-flex items-center gap-1 px-2.5 text-xs font-medium text-sky-400 hover:text-sky-300">
+                <a href={problemsHref(track)} className="mt-2 inline-flex items-center gap-1 px-2.5 text-xs font-medium text-sky-400 hover:text-sky-300">
                   Browse all problems <ArrowIcon className="h-3 w-3" />
                 </a>
               </div>

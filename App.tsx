@@ -2,11 +2,20 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import Navbar from './components/Navbar';
 import AIChat from './components/AIChat';
 import CurrentlyWorking from './components/CurrentlyWorking';
-import LearningPage from './components/LearningPage';
 import { MILESTONES, SKILLS } from './constants';
 
-// Code-split: the System Design module is only downloaded when visited.
+// Code-split: the learning sections are only downloaded when visited.
 const SystemDesignPage = lazy(() => import('./components/system-design/SystemDesignPage'));
+const DsaPage = lazy(() => import('./components/dsa/DsaPage'));
+
+/** Old DSA links (#learning/<topic>) now live under #dsa. */
+const LEGACY_LEARNING_ROUTE = /^#learning\/(.+)$/;
+
+const SectionFallback: React.FC<{ label: string }> = ({ label }) => (
+  <div className="min-h-screen flex items-center justify-center text-slate-400" role="status">
+    Loading {label}…
+  </div>
+);
 
 const App: React.FC = () => {
   const typingRef = useRef<HTMLSpanElement>(null);
@@ -22,12 +31,18 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const learningMatch = hash.match(/^#learning\/(.+)$/);
+  const legacyLearningMatch = hash.match(LEGACY_LEARNING_ROUTE);
   const systemDesignMatch = hash.match(/^#system-design(?:\/(.*))?$/);
-  const isHome = !learningMatch && !systemDesignMatch;
+  const dsaMatch = hash.match(/^#dsa(?:\/(.*))?$/);
+  const isHome = !legacyLearningMatch && !systemDesignMatch && !dsaMatch;
 
   useEffect(() => {
-    if (!learningMatch && !systemDesignMatch && hash) {
+    // Replace (not push) so the back button skips the old URL.
+    if (legacyLearningMatch) window.location.replace(`#dsa/learn/${legacyLearningMatch[1]}`);
+  }, [legacyLearningMatch?.[1]]);
+
+  useEffect(() => {
+    if (isHome && hash) {
       const target = document.querySelector(hash);
       target?.scrollIntoView();
     }
@@ -101,19 +116,21 @@ const App: React.FC = () => {
     }
   };
 
-  if (learningMatch) {
-    return <LearningPage slug={learningMatch[1]} />;
+  if (legacyLearningMatch) {
+    return <SectionFallback label="DSA" />;   // redirecting to #dsa/learn/<topic>
+  }
+
+  if (dsaMatch) {
+    return (
+      <Suspense fallback={<SectionFallback label="DSA" />}>
+        <DsaPage path={dsaMatch[1] ?? ''} />
+      </Suspense>
+    );
   }
 
   if (systemDesignMatch) {
     return (
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center text-slate-400" role="status">
-            Loading System Design…
-          </div>
-        }
-      >
+      <Suspense fallback={<SectionFallback label="System Design" />}>
         <SystemDesignPage path={systemDesignMatch[1] ?? ''} />
       </Suspense>
     );

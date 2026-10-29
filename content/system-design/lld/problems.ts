@@ -1,4 +1,4 @@
-import { ProblemMeta } from '../types';
+import { ProblemMeta } from '../../shared/types';
 
 export const LLD_PROBLEMS: ProblemMeta[] = [
   // ── Beginner ──────────────────────────────────────────────

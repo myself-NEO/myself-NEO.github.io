@@ -1,4 +1,4 @@
-import { Track } from '../types';
+import { Track } from '../../shared/types';
 
 // HLD is planned. Add stages/problems (and markdown under ./lessons, ./problems)
 // here when the track is built — the System Design pages render any track
@@ -13,6 +13,9 @@ export const HLD_TRACK: Track = {
     'Design the services, data stores, caches, queues and APIs that make up a whole system — and reason about scale, availability and consistency.',
   stages: [],
   problems: [],
+  basePath: '#system-design/hld',
+  home: { label: 'System Design', href: '#system-design' },
+  hasKnowledgeChecks: true,
   plannedTopics: [
     { title: 'Estimation & requirements', description: 'Back-of-the-envelope maths for QPS, storage and bandwidth.' },
     { title: 'Core building blocks', description: 'Load balancers, caches, CDNs, databases, queues and object storage.' },

@@ -1,11 +1,14 @@
 import { useSyncExternalStore } from 'react';
-import { ProblemStatus, TrackId } from '../../content/system-design/types';
+import { ProblemStatus, TrackId } from '../../content/shared/types';
 
 // Learner progress is kept in this browser only (localStorage). Every read and
 // write is guarded so the pages still work when storage is unavailable
 // (private windows, blocked site data) — progress simply won't persist.
 
-const STORAGE_KEY = 'system-design-progress-v1';
+// Shared by every learning section; entries are namespaced by track id.
+const STORAGE_KEY = 'learning-progress-v1';
+/** Key used before DSA joined the shared store; read once as a fallback so progress isn't lost. */
+const LEGACY_KEY = 'system-design-progress-v1';
 
 export interface ProgressState {
   /** `${track}:${slug}` → completion timestamp */
@@ -25,7 +28,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const read = (): ProgressState => {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_KEY);
     if (!raw) return EMPTY;
     const parsed: unknown = JSON.parse(raw);
     if (!isRecord(parsed)) return EMPTY;

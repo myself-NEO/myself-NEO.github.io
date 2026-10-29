@@ -1,4 +1,4 @@
-import { LessonMeta, Stage } from '../../types';
+import { LessonMeta, Stage } from '../../../shared/types';
 
 type PatternInput = Omit<LessonMeta, 'level' | 'objectives' | 'minutes'> & {
   level?: LessonMeta['level'];
