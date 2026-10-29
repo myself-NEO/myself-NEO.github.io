@@ -1,14 +1,15 @@
 import React, { useEffect, useLayoutEffect, useMemo } from 'react';
 import Navbar from '../Navbar';
-import { TRACKS, findLesson, findProblem } from '../../content/system-design';
-import { Track } from '../../content/system-design/types';
+import { SYSTEM_DESIGN_TRACKS as TRACKS } from '../../content/system-design';
+import { findLesson, findProblem } from '../../content/shared/curriculum';
+import { Track } from '../../content/shared/types';
 import { parseRoute, ROOT_HREF } from './routes';
 import Landing from './Landing';
-import LessonPage from './LessonPage';
-import ProblemPage from './ProblemPage';
-import ProblemLibrary from './ProblemLibrary';
+import LessonPage from '../learn/LessonPage';
+import ProblemPage from '../learn/ProblemPage';
+import ProblemLibrary from '../learn/ProblemLibrary';
 import PlannedTrack from './PlannedTrack';
-import { NotFound } from './States';
+import { NotFound } from '../learn/States';
 
 const SITE_TITLE = 'KESHAV.dev';
 
@@ -41,7 +42,7 @@ const SystemDesignPage: React.FC<{ path: string }> = ({ path }) => {
   } else if (route.kind === 'not-found' || !track) {
     content = (
       <main className="pt-[61px]">
-        <NotFound what="page" />
+        <NotFound what="page" home={{ label: 'System Design', href: ROOT_HREF }} />
       </main>
     );
   } else if (track.status === 'planned') {

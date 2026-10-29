@@ -1,13 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Track } from '../../content/system-design/types';
+import { Track } from '../../content/shared/types';
 import Sidebar, { SidebarCurrent } from './Sidebar';
 
 export interface Heading {
   id: string;
   text: string;
+  /** 1 = a part heading (multi-part notes), 2 = a section */
+  level: 1 | 2;
 }
 
-/** Collects the h2 headings rendered inside `container` once `ready` is true. */
+/** The notes' own in-text contents lists aren't repeated in the "On this page" rail. */
+const isContentsHeading = (text: string) => /^\s*table of contents\s*$/i.test(text);
+
+/** Collects the h1/h2 headings rendered inside `container` once `ready` is true. */
 export const useHeadings = (container: React.RefObject<HTMLElement | null>, ready: boolean, key: string) => {
   const [headings, setHeadings] = useState<Heading[]>([]);
   useEffect(() => {
@@ -15,10 +20,9 @@ export const useHeadings = (container: React.RefObject<HTMLElement | null>, read
       setHeadings([]);
       return;
     }
-    const found = Array.from(container.current.querySelectorAll<HTMLHeadingElement>('h2[id]')).map((h) => ({
-      id: h.id,
-      text: h.textContent ?? '',
-    }));
+    const found: Heading[] = Array.from(container.current.querySelectorAll<HTMLHeadingElement>('h1[id], h2[id]'))
+      .map((h) => ({ id: h.id, text: h.textContent ?? '', level: h.tagName === 'H1' ? (1 as const) : (2 as const) }))
+      .filter((h) => !isContentsHeading(h.text));
     setHeadings(found);
   }, [container, ready, key]);
   return headings;
@@ -71,8 +75,14 @@ export const TableOfContents: React.FC<{ headings: Heading[] }> = ({ headings })
             <button
               type="button"
               onClick={() => scrollToHeading(h.id)}
-              className={`block w-full text-left -ml-px border-l pl-3 py-1 text-[13px] leading-snug transition-colors focus:outline-none focus-visible:text-white ${
-                active === h.id ? 'border-sky-400 text-sky-300' : 'border-transparent text-slate-400 hover:text-slate-100'
+              className={`block w-full text-left -ml-px border-l py-1 leading-snug transition-colors focus:outline-none focus-visible:text-white ${
+                h.level === 1 ? 'pl-3 pt-3 text-[11px] font-semibold uppercase tracking-wider' : 'pl-3 text-[13px]'
+              } ${
+                active === h.id
+                  ? 'border-sky-400 text-sky-300'
+                  : h.level === 1
+                  ? 'border-transparent text-slate-500 hover:text-slate-200'
+                  : 'border-transparent text-slate-400 hover:text-slate-100'
               }`}
             >
               {h.text}
@@ -139,7 +149,10 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
             </svg>
             Curriculum
           </button>
-          <span className="text-xs text-slate-500 truncate">{track.title} · Java</span>
+          <span className="text-xs text-slate-500 truncate">
+            {track.title}
+            {track.language ? ` · ${track.language}` : ''}
+          </span>
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Track } from '../../content/system-design/types';
-import { ROOT_HREF, trackHref } from './routes';
-import { ArrowIcon, Breadcrumbs } from './ui';
+import { Track } from '../../content/shared/types';
+import { ROOT_HREF } from './routes';
+import { trackHref } from '../learn/routes';
+import { ArrowIcon, Breadcrumbs } from '../learn/ui';
 
 /** Shown for a track whose curriculum has not been built yet (currently HLD). */
 const PlannedTrack: React.FC<{ track: Track; activeTrack: Track }> = ({ track, activeTrack }) => (
@@ -33,7 +34,7 @@ const PlannedTrack: React.FC<{ track: Track; activeTrack: Track }> = ({ track, a
           <p className="font-semibold text-white">Start with {activeTrack.title}</p>
           <p className="text-sm text-slate-400">LLD is fully available and is the natural foundation for HLD.</p>
         </div>
-        <a href={trackHref(activeTrack.id)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm">
+        <a href={trackHref(activeTrack)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm">
           Go to the {activeTrack.shortTitle} roadmap <ArrowIcon className="h-4 w-4" />
         </a>
       </div>

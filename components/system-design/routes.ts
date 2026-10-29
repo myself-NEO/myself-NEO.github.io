@@ -1,6 +1,6 @@
-import { TrackId } from '../../content/system-design/types';
+import { TrackId } from '../../content/shared/types';
 
-// Hash routes, matching the rest of the site (#learning/<slug>):
+// System Design routes (track URLs are built with the helpers in ../learn/routes):
 //   #system-design                          landing page
 //   #system-design/<track>                  track overview (LLD) or planned page (HLD)
 //   #system-design/<track>/learn/<slug>     lesson
@@ -8,20 +8,17 @@ import { TrackId } from '../../content/system-design/types';
 //   #system-design/<track>/problems/<slug>  problem
 export const ROOT_HREF = '#system-design';
 
-export const trackHref = (track: TrackId) => `${ROOT_HREF}/${track}`;
-export const lessonHref = (track: TrackId, slug: string) => `${ROOT_HREF}/${track}/learn/${slug}`;
-export const problemsHref = (track: TrackId) => `${ROOT_HREF}/${track}/problems`;
-export const problemHref = (track: TrackId, slug: string) => `${ROOT_HREF}/${track}/problems/${slug}`;
+type SystemDesignTrackId = Extract<TrackId, 'lld' | 'hld'>;
 
 export type SystemDesignRoute =
   | { kind: 'landing' }
-  | { kind: 'track'; track: TrackId }
-  | { kind: 'lesson'; track: TrackId; slug: string }
-  | { kind: 'problems'; track: TrackId }
-  | { kind: 'problem'; track: TrackId; slug: string }
+  | { kind: 'track'; track: SystemDesignTrackId }
+  | { kind: 'lesson'; track: SystemDesignTrackId; slug: string }
+  | { kind: 'problems'; track: SystemDesignTrackId }
+  | { kind: 'problem'; track: SystemDesignTrackId; slug: string }
   | { kind: 'not-found' };
 
-const isTrack = (value: string): value is TrackId => value === 'lld' || value === 'hld';
+const isTrack = (value: string): value is SystemDesignTrackId => value === 'lld' || value === 'hld';
 
 /** Parses the part of the hash after "#system-design/". */
 export const parseRoute = (path: string): SystemDesignRoute => {

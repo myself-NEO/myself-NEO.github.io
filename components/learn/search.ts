@@ -1,5 +1,5 @@
-import { Level, Track } from '../../content/system-design/types';
-import { flattenLessons } from '../../content/system-design';
+import { Level, Track } from '../../content/shared/types';
+import { flattenLessons } from '../../content/shared/curriculum';
 import { lessonHref, problemHref } from './routes';
 
 export interface SearchResult {
@@ -34,7 +34,7 @@ export const searchTrack = (track: Track, query: string, limit = 20): SearchResu
         slug: lesson.slug,
         title: lesson.title,
         subtitle: `Stage ${stage.number} · ${moduleTitle}`,
-        href: lessonHref(track.id, lesson.slug),
+        href: lessonHref(track, lesson.slug),
         level: lesson.level,
       },
       [lesson.title, lesson.summary, moduleTitle, stage.title, ...(lesson.tags ?? [])].join(' '),
@@ -47,7 +47,7 @@ export const searchTrack = (track: Track, query: string, limit = 20): SearchResu
         slug: problem.slug,
         title: problem.title,
         subtitle: `Practice · ${problem.patterns.join(', ')}`,
-        href: problemHref(track.id, problem.slug),
+        href: problemHref(track, problem.slug),
         level: problem.difficulty,
       },
       [problem.title, problem.summary, ...problem.patterns, ...problem.tags].join(' '),

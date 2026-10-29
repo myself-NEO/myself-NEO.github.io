@@ -38,6 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ solid = false, activeHref }) => {
     { name: 'Skills', href: '#skills' },
     { name: 'Milestones', href: '#milestones' },
     { name: 'Now', href: '#currently-working' },
+    { name: 'DSA', href: '#dsa' },
     { name: 'System Design', href: '#system-design' },
     { name: 'Contact', href: '#contact' },
   ];

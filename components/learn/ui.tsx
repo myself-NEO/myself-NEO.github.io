@@ -1,5 +1,5 @@
 import React from 'react';
-import { Level, ProblemStatus } from '../../content/system-design/types';
+import { Level, ProblemStatus } from '../../content/shared/types';
 
 export const LEVEL_LABEL: Record<Level, string> = {
   beginner: 'Beginner',

@@ -1,4 +1,4 @@
-import { Stage } from '../../types';
+import { Stage } from '../../../shared/types';
 
 export const MODELING: Stage = {
   id: 'modeling',

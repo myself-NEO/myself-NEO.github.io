@@ -1,11 +1,11 @@
 import React, { useCallback, useRef } from 'react';
-import { ProblemStatus, Track } from '../../content/system-design/types';
-import { findLesson, findProblem } from '../../content/system-design';
-import { hasProblemBody, loadProblemBody } from '../../content/system-design/loaders';
+import { ProblemStatus, Track } from '../../content/shared/types';
+import { findLesson, findProblem } from '../../content/shared/curriculum';
+import { hasProblemBody, loadProblemBody } from '../../content/shared/loaders';
 import LearningLayout, { useHeadings } from './LearningLayout';
 import MarkdownContent from './MarkdownContent';
 import { isLessonComplete, problemStatus, progressActions, useProgress } from './progress';
-import { lessonHref, problemHref, problemsHref, ROOT_HREF, trackHref } from './routes';
+import { lessonHref, problemHref, problemsHref, trackCrumbs } from './routes';
 import { useMarkdownBody } from './useMarkdownBody';
 import { ArrowIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, LevelBadge, STATUS_LABEL, StatusIcon } from './ui';
 import { ContentError, ContentSkeleton, NotFound } from './States';
@@ -58,11 +58,11 @@ const BreakdownComingSoon: React.FC<{ track: Track }> = ({ track }) => (
       typically uses.
     </p>
     <ol className="list-decimal list-inside space-y-1.5 text-sm text-slate-300 mb-5">
-      <li>Run the <a href={lessonHref(track.id, 'delivery-framework')} className="text-sky-400 hover:underline">LLD interview framework</a> against the statement, with a timer.</li>
+      <li>Run the <a href={lessonHref(track, 'delivery-framework')} className="text-sky-400 hover:underline">LLD interview framework</a> against the statement, with a timer.</li>
       <li>Review the lessons under <em>Review first</em> if any of them feel shaky.</li>
       <li>Compare your design with a fully worked problem that uses similar ideas.</li>
     </ol>
-    <a href={problemsHref(track.id)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
+    <a href={problemsHref(track)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
       See problems with full breakdowns <ArrowIcon className="h-3.5 w-3.5" />
     </a>
   </section>
@@ -83,7 +83,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
   if (!problem) {
     return (
       <LearningLayout track={track} headings={[]}>
-        <NotFound what="problem" />
+        <NotFound what="problem" home={track.home} />
       </LearningLayout>
     );
   }
@@ -96,9 +96,8 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
     <LearningLayout track={track} current={{ type: 'problem', slug }} headings={headings}>
       <Breadcrumbs
         items={[
-          { label: 'System Design', href: ROOT_HREF },
-          { label: track.title, href: trackHref(track.id) },
-          { label: 'Practice problems', href: problemsHref(track.id) },
+          ...trackCrumbs(track),
+          { label: 'Practice problems', href: problemsHref(track) },
           { label: problem.title },
         ]}
       />
@@ -128,7 +127,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
               const done = isLessonComplete(progress, track.id, c);
               return (
                 <li key={c}>
-                  <a href={lessonHref(track.id, c)} className="flex items-start gap-2 text-sm text-slate-300 hover:text-sky-400 transition-colors">
+                  <a href={lessonHref(track, c)} className="flex items-start gap-2 text-sm text-slate-300 hover:text-sky-400 transition-colors">
                     <CheckCircleIcon filled={done} className={`h-4 w-4 mt-0.5 flex-shrink-0 ${done ? 'text-emerald-400' : 'text-slate-600'}`} />
                     {lesson.title}
                   </a>
@@ -152,7 +151,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
         {!hasBreakdown && <BreakdownComingSoon track={track} />}
         {hasBreakdown && state.status === 'loading' && <ContentSkeleton />}
         {hasBreakdown && state.status === 'error' && <ContentError onRetry={retry} />}
-        {hasBreakdown && state.status === 'ready' && <MarkdownContent markdown={state.body} track={track.id} onReveal={onReveal} />}
+        {hasBreakdown && state.status === 'ready' && <MarkdownContent markdown={state.body} basePath={track.basePath} onReveal={onReveal} />}
       </div>
 
       <div className="mt-14 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-slate-700/80 bg-slate-900/60 p-5">
@@ -168,7 +167,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
 
       <nav aria-label="Problem navigation" className="mt-8 grid sm:grid-cols-2 gap-4">
         {prev ? (
-          <a href={problemHref(track.id, prev.slug)} className="group rounded-xl border border-slate-700/80 p-4 hover:border-sky-500/50 transition-colors">
+          <a href={problemHref(track, prev.slug)} className="group rounded-xl border border-slate-700/80 p-4 hover:border-sky-500/50 transition-colors">
             <span className="flex items-center gap-1 text-xs text-slate-400 mb-1">
               <ArrowIcon direction="left" className="h-3.5 w-3.5" /> Previous problem
             </span>
@@ -178,14 +177,14 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
           <span />
         )}
         {next ? (
-          <a href={problemHref(track.id, next.slug)} className="group rounded-xl border border-slate-700/80 p-4 text-right hover:border-sky-500/50 transition-colors">
+          <a href={problemHref(track, next.slug)} className="group rounded-xl border border-slate-700/80 p-4 text-right hover:border-sky-500/50 transition-colors">
             <span className="flex items-center justify-end gap-1 text-xs text-slate-400 mb-1">
               Next problem <ArrowIcon className="h-3.5 w-3.5" />
             </span>
             <span className="font-semibold text-slate-200 group-hover:text-sky-300">{next.title}</span>
           </a>
         ) : (
-          <a href={problemsHref(track.id)} className="group rounded-xl border border-slate-700/80 p-4 text-right hover:border-sky-500/50 transition-colors">
+          <a href={problemsHref(track)} className="group rounded-xl border border-slate-700/80 p-4 text-right hover:border-sky-500/50 transition-colors">
             <span className="flex items-center justify-end gap-1 text-xs text-slate-400 mb-1">
               Back to <ArrowIcon className="h-3.5 w-3.5" />
             </span>
