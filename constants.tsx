@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Milestone, Skill, LearningTopic } from './types';
+import { Milestone, Skill } from './types';
 
 export const MILESTONES: Milestone[] = [
   {
@@ -51,18 +51,4 @@ export const SKILLS: Skill[] = [
   { name: 'TypeScript', category: 'frontend', icon: '🟦' },
   { name: 'Angular', category: 'frontend', icon: '🅰️' },
   { name: 'React', category: 'frontend', icon: '⚛️' }
-];
-
-export const LEARNING_TOPICS: LearningTopic[] = [
-  { slug: 'arrays-strings', title: 'Arrays & Strings', icon: '🔢' },
-  { slug: 'linked-list', title: 'Linked List', icon: '🔗' },
-  { slug: 'stacks-queues', title: 'Stacks & Queues', icon: '📚' },
-  { slug: 'recursion-backtracking', title: 'Recursion & Backtracking', icon: '🔁' },
-  { slug: 'trees', title: 'Trees', icon: '🌳' },
-  { slug: 'graphs', title: 'Graphs', icon: '🕸️' },
-  { slug: 'dynamic-programming', title: 'Dynamic Programming', icon: '🧩' },
-  { slug: 'bit-manipulation', title: 'Bit Manipulation', icon: '🔟' },
-  { slug: 'cheatsheet', title: 'Cheatsheet', icon: '💻' },
-  { slug: 'core-cheatsheet', title: 'Core Cheatsheet', icon: '📚' },
-  { slug: 'graphs-cheatsheet', title: 'Graphs Cheatsheet', icon: '💀' }
 ];

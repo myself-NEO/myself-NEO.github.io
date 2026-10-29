@@ -1,4 +1,4 @@
-import { Track } from '../types';
+import { Track } from '../../shared/types';
 import { FOUNDATIONS } from './stages/01-foundations';
 import { PRINCIPLES } from './stages/02-principles';
 import { MODELING } from './stages/03-modeling';
@@ -17,4 +17,8 @@ export const LLD_TRACK: Track = {
     'Design the classes, interfaces, relationships and behaviour inside one service — and write the Java that implements them.',
   stages: [FOUNDATIONS, PRINCIPLES, MODELING, PATTERNS, METHODOLOGY, ADVANCED],
   problems: LLD_PROBLEMS,
+  basePath: '#system-design/lld',
+  home: { label: 'System Design', href: '#system-design' },
+  language: 'Java',
+  hasKnowledgeChecks: true,
 };

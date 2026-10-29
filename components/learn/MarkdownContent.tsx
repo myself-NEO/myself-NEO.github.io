@@ -6,8 +6,7 @@ import CodeBlock from './CodeBlock';
 import UmlDiagram from './UmlDiagram';
 import StateDiagram from './StateDiagram';
 import Quiz from './Quiz';
-import { lessonHref, problemHref } from './routes';
-import { TrackId } from '../../content/system-design/types';
+import { LEARNING_ROUTE_PREFIXES } from './routes';
 
 // Authoring conventions for lesson/problem markdown (in addition to GFM):
 //
@@ -18,16 +17,18 @@ import { TrackId } from '../../content/system-design/types';
 //   ````hint title="Hint 1"  (four backticks, may contain code)      → collapsed hint
 //   ````solution title="..." / ````reveal title="..."                → collapsed solution / explanation
 //   [text](lesson:slug) and [text](problem:slug)                     → links within the current track
+//   <details><summary>Title</summary> … </details>                   → same as a solution/hint/reveal block
 
 interface MarkdownEnv {
-  track: TrackId;
+  /** The track's route prefix, used to resolve lesson: and problem: links. */
+  basePath: string;
   /** Called when a hint or solution is opened. */
   onReveal?: () => void;
   onQuizPassed?: () => void;
   quizAlreadyPassed?: boolean;
 }
 
-const MarkdownEnvContext = createContext<MarkdownEnv>({ track: 'lld' });
+const MarkdownEnvContext = createContext<MarkdownEnv>({ basePath: '' });
 
 type HastNode = {
   type: string;
@@ -154,7 +155,7 @@ const Link: Components['a'] = ({ href = '', children }) => {
       </a>
     );
   }
-  if (href.startsWith('#') && !href.startsWith('#system-design')) {
+  if (href.startsWith('#') && !LEARNING_ROUTE_PREFIXES.some((prefix) => href.startsWith(prefix))) {
     // In-page anchor: scroll without touching the hash (the hash is the route).
     return (
       <a
@@ -177,14 +178,68 @@ const Link: Components['a'] = ({ href = '', children }) => {
 // quizzes and reveals would remount and lose their state).
 const COMPONENTS: Components = { pre: PreBlock, blockquote: Callout, table: Table, a: Link };
 
-const makeUrlTransform = (track: TrackId) => (url: string) => {
-  if (url.startsWith('lesson:')) return lessonHref(track, url.slice('lesson:'.length));
-  if (url.startsWith('problem:')) return problemHref(track, url.slice('problem:'.length));
+const makeUrlTransform = (basePath: string) => (url: string) => {
+  if (url.startsWith('lesson:')) return `${basePath}/learn/${url.slice('lesson:'.length)}`;
+  if (url.startsWith('problem:')) return `${basePath}/problems/${url.slice('problem:'.length)}`;
   return defaultUrlTransform(url);
 };
 
+const DETAILS_OPEN = /^\s*<details>\s*<summary>(.*?)<\/summary>(.*)$/;
+const FENCE = /^\s*(```|~~~)/;
+
+const revealKind = (title: string) => {
+  if (/solution|answer/i.test(title)) return 'solution';
+  if (/hint/i.test(title)) return 'hint';
+  return 'reveal';
+};
+
+/**
+ * Rewrites HTML <details><summary>…</summary>…</details> blocks (raw HTML isn't rendered)
+ * into the reveal-block syntax above, so collapsible answers in authored notes work and
+ * look like every other hint and solution. Handles the single-line form and the
+ * multi-line form whose body may contain fenced code.
+ */
+export const htmlDetailsToReveals = (markdown: string): string => {
+  if (!markdown.includes('<details')) return markdown;
+  const out: string[] = [];
+  let inFence = false;
+  let inDetails = false;
+  // Notes may be checked out with CRLF endings (git autocrlf on Windows); match per line without the \r.
+  for (const line of markdown.replace(/\r\n?/g, '\n').split('\n')) {
+    const isFence = FENCE.test(line);
+    if (inDetails) {
+      if (isFence) inFence = !inFence;
+      if (!inFence && line.includes('</details>')) {
+        const before = line.slice(0, line.indexOf('</details>'));
+        if (before.trim()) out.push(before);
+        out.push('````');
+        inDetails = false;
+      } else {
+        out.push(line);
+      }
+      continue;
+    }
+    if (isFence) inFence = !inFence;
+    const open = inFence ? null : line.match(DETAILS_OPEN);
+    if (!open) {
+      out.push(line);
+      continue;
+    }
+    const title = open[1].replace(/"/g, "'").trim() || 'Details';
+    let rest = open[2];
+    const closesHere = rest.includes('</details>');
+    if (closesHere) rest = rest.slice(0, rest.indexOf('</details>'));
+    out.push('````' + revealKind(title) + ' title="' + title + '"');
+    if (rest.trim()) out.push(rest.trim());
+    if (closesHere) out.push('````');
+    else inDetails = true;
+  }
+  if (inDetails) out.push('````');   // unterminated block: close it rather than swallow the page
+  return out.join('\n');
+};
+
 const MarkdownBody: React.FC<{ markdown: string }> = ({ markdown }) => {
-  const { track } = useContext(MarkdownEnvContext);
+  const { basePath } = useContext(MarkdownEnvContext);
   // Parsing is the expensive part; context consumers inside still update.
   const rendered = useMemo(
     () => (
@@ -192,15 +247,15 @@ const MarkdownBody: React.FC<{ markdown: string }> = ({ markdown }) => {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSlug, rehypeCallouts]}
         components={COMPONENTS}
-        urlTransform={makeUrlTransform(track)}
+        urlTransform={makeUrlTransform(basePath)}
       >
-        {markdown}
+        {htmlDetailsToReveals(markdown)}
       </ReactMarkdown>
     ),
-    [markdown, track],
+    [markdown, basePath],
   );
   return (
-    <div className="prose prose-invert prose-slate max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-h2:text-2xl prose-h2:mt-12 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-800 prose-h3:text-lg prose-p:leading-7 prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 prose-a:text-sky-400 prose-a:no-underline hover:prose-a:underline prose-code:text-sky-300 prose-code:bg-slate-800/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-th:text-slate-200 prose-th:px-3 prose-td:px-3 prose-td:text-slate-300 prose-thead:bg-slate-900/80 prose-hr:border-slate-800">
+    <div className="prose prose-invert prose-slate max-w-none prose-headings:font-bold prose-headings:scroll-mt-24 prose-h1:text-3xl prose-h1:mt-16 prose-h1:mb-6 prose-h1:pb-3 prose-h1:border-b prose-h1:border-sky-500/30 prose-h2:text-2xl prose-h2:mt-12 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-800 prose-h3:text-lg prose-p:leading-7 prose-p:text-slate-300 prose-li:text-slate-300 prose-strong:text-slate-100 prose-a:text-sky-400 prose-a:no-underline hover:prose-a:underline prose-code:text-sky-300 prose-code:bg-slate-800/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-normal prose-code:before:content-none prose-code:after:content-none prose-th:text-slate-200 prose-th:px-3 prose-td:px-3 prose-td:text-slate-300 prose-thead:bg-slate-900/80 prose-hr:border-slate-800">
       {rendered}
     </div>
   );

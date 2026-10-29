@@ -1,8 +1,8 @@
-// Content model for the System Design learning module.
-// Tracks (LLD, HLD) are independent so HLD can be filled in later
-// without touching the LLD curriculum or the page components.
+// Content model shared by the learning sections of the site (System Design, DSA).
+// A Track is self-describing: its base route, home link and content drive the shared
+// learning UI in components/learn, so a new track needs data, not new components.
 
-export type TrackId = 'lld' | 'hld';
+export type TrackId = 'lld' | 'hld' | 'dsa';
 export type Level = 'beginner' | 'intermediate' | 'advanced';
 
 export interface LessonMeta {
@@ -21,6 +21,8 @@ export interface LessonMeta {
   /** problem slugs */
   problems: string[];
   tags?: string[];
+  /** Listed in the curriculum, but its content has not been written yet. */
+  comingSoon?: boolean;
 }
 
 export interface CurriculumModule {
@@ -65,6 +67,14 @@ export interface Track {
   description: string;
   stages: Stage[];
   problems: ProblemMeta[];
+  /** Route prefix for this track, e.g. "#system-design/lld" or "#dsa". */
+  basePath: string;
+  /** The section the track belongs to: first breadcrumb and the sidebar "home" link. */
+  home: { label: string; href: string };
+  /** Language of the code examples, shown next to the track title. */
+  language?: string;
+  /** Whether lessons end with knowledge-check quizzes (drives progress stats and hints). */
+  hasKnowledgeChecks: boolean;
   /** shown while a track is planned */
   plannedTopics?: PlannedTopic[];
 }

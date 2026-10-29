@@ -1,5 +1,4 @@
 import React from 'react';
-import { ROOT_HREF } from './routes';
 
 export const ContentSkeleton: React.FC = () => (
   <div role="status" aria-live="polite" className="space-y-4 animate-pulse">
@@ -37,13 +36,13 @@ export const ContentError: React.FC<{ onRetry: () => void }> = ({ onRetry }) => 
   </div>
 );
 
-export const NotFound: React.FC<{ what: string }> = ({ what }) => (
+export const NotFound: React.FC<{ what: string; home: { label: string; href: string } }> = ({ what, home }) => (
   <div className="text-center py-20">
     <p className="text-sm font-semibold text-sky-400 mb-2">404</p>
     <h1 className="text-2xl font-bold text-white mb-3">We couldn’t find that {what}</h1>
     <p className="text-slate-400 mb-6">It may have been renamed or moved.</p>
-    <a href={ROOT_HREF} className="inline-flex px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm">
-      Back to System Design
+    <a href={home.href} className="inline-flex px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm">
+      Back to {home.label}
     </a>
   </div>
 );

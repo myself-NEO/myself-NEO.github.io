@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Level, ProblemStatus, Track } from '../../content/system-design/types';
-import { hasProblemBody } from '../../content/system-design/loaders';
+import { Level, ProblemStatus, Track } from '../../content/shared/types';
+import { hasProblemBody } from '../../content/shared/loaders';
 import { problemStatus, useProgress } from './progress';
-import { problemHref, ROOT_HREF, trackHref } from './routes';
+import { problemHref, trackCrumbs } from './routes';
 import { matchesFilter } from './search';
 import { Breadcrumbs, Chip, ClockIcon, LEVEL_LABEL, LevelBadge, ProgressBar, SearchIcon, STATUS_LABEL, StatusBadge } from './ui';
 
@@ -49,8 +49,7 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <Breadcrumbs
           items={[
-            { label: 'System Design', href: ROOT_HREF },
-            { label: track.title, href: trackHref(track.id) },
+            ...trackCrumbs(track),
             { label: 'Practice problems' },
           ]}
         />
@@ -144,7 +143,7 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
                   {items.map((p) => (
                     <li key={p.slug}>
                       <a
-                        href={problemHref(track.id, p.slug)}
+                        href={problemHref(track, p.slug)}
                         className="group flex h-full flex-col rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 hover:border-sky-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                       >
                         <div className="flex items-start justify-between gap-3 mb-2">
