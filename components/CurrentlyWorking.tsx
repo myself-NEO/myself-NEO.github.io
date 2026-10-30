@@ -138,6 +138,7 @@ const CurrentlyWorking: React.FC = () => {
               {[
                 { label: 'DSA', href: '#dsa' },
                 { label: 'Design', href: '#system-design' },
+                { label: 'Java', href: '#java' },
               ].map((link) => (
                 <a
                   key={link.href}
