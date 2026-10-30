@@ -14,6 +14,7 @@ import type { QuizAnswer } from './progress';
 //   > [!NOTE] / [!TIP] / [!WARNING] / [!INTERVIEW] Optional title   → callout
 //   ```java title="Ticket.java"                                     → highlighted, copyable code
 //   ```java file="Demo.java" java="21"                               → … with a "Java 21+" badge
+//   ```java file="Demo.java" java="25" preview="true"                → … with a "Java 25 preview" badge
 //   ```uml / ```states                                              → class / state diagrams
 //   ```quiz                                                          → knowledge check (see Quiz.tsx)
 //   ````hint title="Hint 1"  (four backticks, may contain code)      → collapsed hint
@@ -140,6 +141,7 @@ const PreBlock: Components['pre'] = ({ node }) => {
       language={language}
       title={meta.title ?? meta.file}
       version={version}
+      preview={meta.preview === 'true'}
       onSave={onSave ? (code) => onSave({ code, language: language ?? 'text', title: meta.title ?? meta.file }) : undefined}
     />
   );
