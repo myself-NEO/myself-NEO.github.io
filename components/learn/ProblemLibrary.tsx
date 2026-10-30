@@ -59,9 +59,10 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
             <p className="text-sm font-semibold text-sky-400 mb-2">Stage {track.stages.length + 1} · Practice library</p>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">{track.shortTitle} practice problems</h1>
             <p className="text-slate-400 max-w-2xl">
-              {track.problems.length} interview problems from simple to complex. {withBreakdown} have full breakdowns that walk from
-              clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups; the rest are marked
-              “breakdown coming soon” and can be practised from their statements.
+              {track.problems.length} interview problems from simple to complex.{' '}
+              {withBreakdown === track.problems.length
+                ? 'Each has a full breakdown that walks from clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups.'
+                : `${withBreakdown} have full breakdowns that walk from clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups; the rest are marked “breakdown coming soon” and can be practised from their statements.`}
             </p>
           </div>
           <div className="w-full md:w-64 rounded-xl border border-slate-700/80 bg-slate-800/40 p-4">
