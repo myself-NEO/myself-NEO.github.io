@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Track } from '../../content/shared/types';
 import Sidebar, { SidebarCurrent } from './Sidebar';
+import { SidebarIcon } from './ui';
 
 export interface Heading {
   id: string;
@@ -29,7 +30,7 @@ export const useHeadings = (container: React.RefObject<HTMLElement | null>, read
 };
 
 /** The active heading is the last one whose top has scrolled above a line just below the navbar. */
-const useActiveHeading = (headings: Heading[]) => {
+export const useActiveHeading = (headings: Heading[]) => {
   const [active, setActive] = useState<string | null>(null);
   useEffect(() => {
     if (headings.length === 0) return;
@@ -63,8 +64,7 @@ const scrollToHeading = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-export const TableOfContents: React.FC<{ headings: Heading[] }> = ({ headings }) => {
-  const active = useActiveHeading(headings);
+export const TableOfContents: React.FC<{ headings: Heading[]; active: string | null }> = ({ headings, active }) => {
   if (headings.length === 0) return null;
   return (
     <nav aria-label="On this page">
@@ -98,14 +98,58 @@ interface LearningLayoutProps {
   track: Track;
   current?: SidebarCurrent;
   headings: Heading[];
+  /** Called when the section being read changes (also on small screens, where the contents rail is hidden). */
+  onActiveHeading?: (id: string | null) => void;
   children: React.ReactNode;
 }
 
+const COLLAPSED_KEY = 'learning-sidebar-collapsed';
+
+const readCollapsed = () => {
+  try {
+    return window.localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
 /** Three-column learning layout: curriculum sidebar, content, and "on this page" contents. */
-const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, headings, children }) => {
+const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, headings, onActiveHeading, children }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(readCollapsed);
   const closeButton = useRef<HTMLButtonElement>(null);
   const openButton = useRef<HTMLButtonElement>(null);
+  const expandButton = useRef<HTMLButtonElement>(null);
+  const collapseButton = useRef<HTMLButtonElement>(null);
+  const active = useActiveHeading(headings);
+
+  useEffect(() => {
+    onActiveHeading?.(active);
+  }, [active, onActiveHeading]);
+
+  const setSidebarCollapsed = (value: boolean) => {
+    setCollapsed(value);
+    try {
+      window.localStorage.setItem(COLLAPSED_KEY, value ? '1' : '0');
+    } catch {
+      // Preference just won't persist.
+    }
+    // Keep keyboard focus on the control that replaced the one just pressed.
+    requestAnimationFrame(() => (value ? expandButton : collapseButton).current?.focus());
+  };
+
+  const collapseControl = (
+    <button
+      ref={collapseButton}
+      type="button"
+      onClick={() => setSidebarCollapsed(true)}
+      aria-label="Collapse curriculum sidebar"
+      title="Collapse sidebar"
+      className="hidden lg:inline-flex w-7 h-7 items-center justify-center rounded-md text-slate-500 hover:text-white hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+    >
+      <SidebarIcon className="h-4 w-4" />
+    </button>
+  );
 
   useEffect(() => {
     const close = () => setDrawerOpen(false);
@@ -156,9 +200,33 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
         </div>
       </div>
 
-      <div className="max-w-[90rem] mx-auto lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_13rem]">
+      <div
+        className={`max-w-[90rem] mx-auto lg:grid ${
+          collapsed
+            ? 'lg:grid-cols-[3.25rem_minmax(0,1fr)] xl:grid-cols-[3.25rem_minmax(0,1fr)_13rem]'
+            : 'lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_13rem]'
+        }`}
+      >
         <aside className="hidden lg:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto border-r border-slate-800/80">
-          <Sidebar track={track} current={current} />
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <button
+                ref={expandButton}
+                type="button"
+                onClick={() => setSidebarCollapsed(false)}
+                aria-label="Expand curriculum sidebar"
+                title="Show curriculum"
+                className="w-8 h-8 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              >
+                <SidebarIcon collapsed className="h-5 w-5" />
+              </button>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600 [writing-mode:vertical-rl] rotate-180 select-none">
+                Curriculum
+              </span>
+            </div>
+          ) : (
+            <Sidebar track={track} current={current} headerAction={collapseControl} />
+          )}
         </aside>
 
         <main id="main-content" tabIndex={-1} className="focus:outline-none min-w-0 px-4 sm:px-8 lg:px-10 py-8 lg:py-10">
@@ -166,7 +234,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
         </main>
 
         <aside className="hidden xl:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto py-10 pr-6">
-          <TableOfContents headings={headings} />
+          <TableOfContents headings={headings} active={active} />
         </aside>
       </div>
 

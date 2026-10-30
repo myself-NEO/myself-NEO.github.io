@@ -1,5 +1,6 @@
 import { Level, Track } from '../../content/shared/types';
 import { flattenLessons } from '../../content/shared/curriculum';
+import { hasProblemBody } from '../../content/shared/loaders';
 import { lessonHref, problemHref } from './routes';
 
 export interface SearchResult {
@@ -33,7 +34,7 @@ export const searchTrack = (track: Track, query: string, limit = 20): SearchResu
         type: 'lesson',
         slug: lesson.slug,
         title: lesson.title,
-        subtitle: `Stage ${stage.number} · ${moduleTitle}`,
+        subtitle: `Stage ${stage.number} · ${moduleTitle}${lesson.comingSoon ? ' · coming soon' : ''}`,
         href: lessonHref(track, lesson.slug),
         level: lesson.level,
       },
@@ -46,7 +47,7 @@ export const searchTrack = (track: Track, query: string, limit = 20): SearchResu
         type: 'problem',
         slug: problem.slug,
         title: problem.title,
-        subtitle: `Practice · ${problem.patterns.join(', ')}`,
+        subtitle: `Practice · ${problem.patterns.join(', ')}${hasProblemBody(track.id, problem.slug) ? '' : ' · coming soon'}`,
         href: problemHref(track, problem.slug),
         level: problem.difficulty,
       },

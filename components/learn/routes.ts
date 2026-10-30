@@ -8,7 +8,7 @@ import { Track } from '../../content/shared/types';
 //   <basePath>/problems/<slug>    problem
 
 /** Hash prefixes owned by learning sections: links starting with these are routes, not in-page anchors. */
-export const LEARNING_ROUTE_PREFIXES = ['#system-design', '#dsa'];
+export const LEARNING_ROUTE_PREFIXES = ['#system-design', '#dsa', '#java'];
 
 export const trackHref = (track: Track) => track.basePath;
 export const lessonHref = (track: Track, slug: string) => `${track.basePath}/learn/${slug}`;

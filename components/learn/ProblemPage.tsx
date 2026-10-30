@@ -9,6 +9,7 @@ import { lessonHref, problemHref, problemsHref, trackCrumbs } from './routes';
 import { useMarkdownBody } from './useMarkdownBody';
 import { ArrowIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, LevelBadge, STATUS_LABEL, StatusIcon } from './ui';
 import { ContentError, ContentSkeleton, NotFound } from './States';
+import { practiceCopy } from './practice';
 
 const STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'completed'];
 
@@ -42,6 +43,40 @@ export const StatusControl: React.FC<{ track: Track; slug: string; title: string
         );
       })}
     </div>
+  );
+};
+
+/** Shown for exercises (tracks with their own practice wording) that haven't been written yet. */
+const ExerciseComingSoon: React.FC<{ track: Track; concepts: string[] }> = ({ track, concepts }) => {
+  const ready = concepts.map((c) => findLesson(track, c)?.lesson).filter((l): l is NonNullable<typeof l> => Boolean(l && !l.comingSoon));
+  return (
+    <section aria-labelledby="coming-soon-heading" className="rounded-xl border border-dashed border-slate-600 bg-slate-900/40 p-6">
+      <p className="text-xs font-semibold uppercase tracking-wider text-amber-300 mb-2">Coming soon</p>
+      <h2 id="coming-soon-heading" className="text-xl font-bold text-white mb-3">
+        This exercise hasn't been written yet
+      </h2>
+      <p className="text-sm text-slate-300 mb-4">
+        It's listed so the practice path is visible. The summary above describes the task; its starter code, hints, tests and reference
+        solution will be published with the lessons it depends on.
+      </p>
+      {ready.length > 0 ? (
+        <>
+          <p className="text-sm text-slate-300 mb-2">You can already study:</p>
+          <ul className="space-y-1.5 mb-4">
+            {ready.map((l) => (
+              <li key={l.slug}>
+                <a href={lessonHref(track, l.slug)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
+                  {l.title} <ArrowIcon className="h-3.5 w-3.5" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      <a href={problemsHref(track)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
+        Back to all exercises <ArrowIcon className="h-3.5 w-3.5" />
+      </a>
+    </section>
   );
 };
 
@@ -88,6 +123,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
     );
   }
 
+  const practice = practiceCopy(track);
   const index = track.problems.indexOf(problem);
   const prev = track.problems[index - 1];
   const next = track.problems[index + 1];
@@ -97,7 +133,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
       <Breadcrumbs
         items={[
           ...trackCrumbs(track),
-          { label: 'Practice problems', href: problemsHref(track) },
+          { label: practice.groupTitle, href: problemsHref(track) },
           { label: problem.title },
         ]}
       />
@@ -112,7 +148,10 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
             <Chip key={p}>{p}</Chip>
           ))}
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">Design a {problem.title}</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+          {practice.titlePrefix}
+          {problem.title}
+        </h1>
         <p className="text-lg text-slate-400 leading-relaxed mb-6">{problem.summary}</p>
         <StatusControl track={track} slug={slug} title={problem.title} />
       </header>
@@ -140,18 +179,21 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
           <h2 className="text-xs font-semibold uppercase tracking-wider text-sky-300 mb-3">How to practise</h2>
           <ol className="space-y-1.5 text-sm text-slate-300 list-decimal list-inside">
             <li>Set a timer for ~{problem.minutes} minutes.</li>
-            <li>Read the statement, then write your own clarifying questions.</li>
-            <li>Sketch entities and classes before opening any hint.</li>
+            {practice.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
             <li>{hasBreakdown ? 'Reveal hints one at a time; compare with the solution last.' : 'Compare with a related worked problem when you are done.'}</li>
           </ol>
         </div>
       </section>
 
       <div ref={articleRef}>
-        {!hasBreakdown && <BreakdownComingSoon track={track} />}
+        {!hasBreakdown && (track.practice ? <ExerciseComingSoon track={track} concepts={problem.concepts} /> : <BreakdownComingSoon track={track} />)}
         {hasBreakdown && state.status === 'loading' && <ContentSkeleton />}
         {hasBreakdown && state.status === 'error' && <ContentError onRetry={retry} />}
-        {hasBreakdown && state.status === 'ready' && <MarkdownContent markdown={state.body} basePath={track.basePath} onReveal={onReveal} />}
+        {hasBreakdown && state.status === 'ready' && (
+          <MarkdownContent markdown={state.body} basePath={track.basePath} onReveal={onReveal} javaVersion={track.javaVersion} />
+        )}
       </div>
 
       <div className="mt-14 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-slate-700/80 bg-slate-900/60 p-5">
@@ -169,7 +211,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
         {prev ? (
           <a href={problemHref(track, prev.slug)} className="group rounded-xl border border-slate-700/80 p-4 hover:border-sky-500/50 transition-colors">
             <span className="flex items-center gap-1 text-xs text-slate-400 mb-1">
-              <ArrowIcon direction="left" className="h-3.5 w-3.5" /> Previous problem
+              <ArrowIcon direction="left" className="h-3.5 w-3.5" /> Previous
             </span>
             <span className="font-semibold text-slate-200 group-hover:text-sky-300">{prev.title}</span>
           </a>
@@ -179,7 +221,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
         {next ? (
           <a href={problemHref(track, next.slug)} className="group rounded-xl border border-slate-700/80 p-4 text-right hover:border-sky-500/50 transition-colors">
             <span className="flex items-center justify-end gap-1 text-xs text-slate-400 mb-1">
-              Next problem <ArrowIcon className="h-3.5 w-3.5" />
+              Next <ArrowIcon className="h-3.5 w-3.5" />
             </span>
             <span className="font-semibold text-slate-200 group-hover:text-sky-300">{next.title}</span>
           </a>
@@ -188,7 +230,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
             <span className="flex items-center justify-end gap-1 text-xs text-slate-400 mb-1">
               Back to <ArrowIcon className="h-3.5 w-3.5" />
             </span>
-            <span className="font-semibold text-slate-200 group-hover:text-sky-300">All practice problems</span>
+            <span className="font-semibold text-slate-200 group-hover:text-sky-300">All {practice.noun}</span>
           </a>
         )}
       </nav>

@@ -145,3 +145,61 @@ export const Breadcrumbs: React.FC<{ items: { label: string; href?: string }[] }
 );
 
 export const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900';
+
+export const BookmarkIcon: React.FC<IconProps & { filled?: boolean }> = ({ className = 'h-4 w-4', filled }) => (
+  <svg className={className} viewBox="0 0 20 20" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+    <path strokeLinejoin="round" d="M5.5 3.5h9a.5.5 0 01.5.5v12.6a.4.4 0 01-.64.32L10 13.75l-4.36 3.17A.4.4 0 015 16.6V4a.5.5 0 01.5-.5z" />
+  </svg>
+);
+
+export const FlagIcon: React.FC<IconProps & { filled?: boolean }> = ({ className = 'h-4 w-4', filled }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+    <path strokeLinecap="round" d="M4.5 17.5v-14" />
+    <path strokeLinejoin="round" fill={filled ? 'currentColor' : 'none'} d="M4.5 3.5h10l-2 3.5 2 3.5h-10" />
+  </svg>
+);
+
+export const NoteIcon: React.FC<IconProps> = ({ className = 'h-4 w-4' }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+    <path strokeLinejoin="round" d="M5 2.75h7l3 3v11.5H5z" />
+    <path strokeLinecap="round" d="M7.5 9.5h5M7.5 12.5h5M7.5 6.5h2.5" />
+  </svg>
+);
+
+export const SidebarIcon: React.FC<IconProps & { collapsed?: boolean }> = ({ className = 'h-4 w-4', collapsed }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+    <rect x="2.75" y="3.75" width="14.5" height="12.5" rx="2" />
+    <path d="M7.5 3.75v12.5" />
+    <path strokeLinecap="round" strokeLinejoin="round" d={collapsed ? 'M11 8.5l1.75 1.5L11 11.5' : 'M13 8.5L11.25 10 13 11.5'} />
+  </svg>
+);
+
+/** Small toggle used for bookmark / difficult / revise flags. */
+export const ToggleChip: React.FC<{
+  pressed: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  pressedLabel: string;
+  tone?: 'sky' | 'amber' | 'violet';
+  className?: string;
+}> = ({ pressed, onClick, icon, label, pressedLabel, tone = 'sky', className = '' }) => {
+  const on = {
+    sky: 'bg-sky-500/15 border-sky-500/50 text-sky-200',
+    amber: 'bg-amber-500/15 border-amber-500/50 text-amber-200',
+    violet: 'bg-violet-500/15 border-violet-500/50 text-violet-200',
+  }[tone];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={pressed}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${focusRing} ${
+        pressed ? on : 'border-slate-700 text-slate-300 hover:text-white hover:border-slate-500'
+      } ${className}`}
+    >
+      {icon}
+      {pressed ? pressedLabel : label}
+    </button>
+  );
+};

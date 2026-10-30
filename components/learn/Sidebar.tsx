@@ -5,6 +5,7 @@ import { hasProblemBody } from '../../content/shared/loaders';
 import { isLessonComplete, problemStatus, useProgress } from './progress';
 import { lessonHref, problemHref, problemsHref } from './routes';
 import { matchesFilter } from './search';
+import { practiceCopy } from './practice';
 import { ArrowIcon, CheckCircleIcon, ChevronIcon, LEVEL_LABEL, ProgressBar, SearchIcon, StatusIcon } from './ui';
 
 export interface SidebarCurrent {
@@ -15,13 +16,16 @@ export interface SidebarCurrent {
 interface SidebarProps {
   track: Track;
   current?: SidebarCurrent;
+  /** Rendered at the end of the top row (e.g. a collapse button). */
+  headerAction?: React.ReactNode;
 }
 
 const PROBLEMS_GROUP = 'problems';
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
 
-const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
+const Sidebar: React.FC<SidebarProps> = ({ track, current, headerAction }) => {
   const progress = useProgress();
+  const practice = practiceCopy(track);
   const [filter, setFilter] = useState('');
 
   const currentGroup = useMemo(() => {
@@ -68,10 +72,13 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
 
   return (
     <nav aria-label={`${track.title} curriculum`} className="flex flex-col gap-4 p-4">
-      <a href={track.home.href} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-sky-400 transition-colors">
-        <ArrowIcon direction="left" className="h-3.5 w-3.5" />
-        {track.home.label} home
-      </a>
+      <div className="flex items-center justify-between gap-2 -my-1">
+        <a href={track.home.href} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-sky-400 transition-colors">
+          <ArrowIcon direction="left" className="h-3.5 w-3.5" />
+          {track.home.label} home
+        </a>
+        {headerAction}
+      </div>
 
       <div>
         <p className="text-sm font-bold text-white">
@@ -83,16 +90,30 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
             {completed}/{allLessons.length}
           </span>
         </div>
+        {track.sectionLinks && track.sectionLinks.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {track.sectionLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="inline-flex rounded-md border border-slate-700 px-2 py-1 text-[11px] font-medium text-slate-300 hover:border-sky-500/50 hover:text-sky-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <label className="relative block">
-        <span className="sr-only">{hasProblems ? 'Filter lessons and problems' : 'Filter lessons'}</span>
+        <span className="sr-only">{hasProblems ? `Filter lessons and ${practice.noun}` : 'Filter lessons'}</span>
         <SearchIcon className="h-4 w-4 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="search"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder={hasProblems ? 'Filter lessons & problems' : 'Filter topics'}
+          placeholder={hasProblems ? `Filter lessons & ${practice.noun}` : 'Filter topics'}
           className="w-full rounded-lg bg-slate-950/60 border border-slate-700 pl-8 pr-3 py-2 text-[13px] text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
         />
       </label>
@@ -121,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                 </span>
                 <span className="flex items-center gap-1.5 flex-shrink-0">
                   <span className="text-[11px] text-slate-500">
-                    {done}/{stageAvailable.length}
+                    {stageAvailable.length === 0 ? 'soon' : `${done}/${stageAvailable.length}`}
                   </span>
                   <ChevronIcon direction={isOpen ? 'down' : 'right'} className="h-4 w-4 text-slate-500" />
                 </span>
@@ -164,7 +185,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
             >
               <span>
                 <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Stage {track.stages.length + 1}</span>
-                <span className="block text-[13px] font-semibold text-slate-200">Practice Problems</span>
+                <span className="block text-[13px] font-semibold text-slate-200">{practice.groupTitle}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="text-[11px] text-slate-500">
@@ -204,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
                   );
                 })}
                 <a href={problemsHref(track)} className="mt-2 inline-flex items-center gap-1 px-2.5 text-xs font-medium text-sky-400 hover:text-sky-300">
-                  Browse all problems <ArrowIcon className="h-3 w-3" />
+                  Browse all {practice.noun} <ArrowIcon className="h-3 w-3" />
                 </a>
               </div>
             )}
@@ -213,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({ track, current }) => {
 
         {filtering && visibleCount === 0 && (
           <p className="px-2 py-4 text-[13px] text-slate-500" role="status">
-            No lessons or problems match “{filter}”.
+            No lessons or {practice.noun} match “{filter}”.
           </p>
         )}
       </div>
