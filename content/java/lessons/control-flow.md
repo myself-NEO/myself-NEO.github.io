@@ -107,6 +107,7 @@ public class ControlFlowDemo {
         return type;
     }
 
+    @SuppressWarnings("fallthrough")      // deliberate: this method demonstrates fall-through
     static int fallThroughCount(int start) {
         int count = 0;
         switch (start) {
