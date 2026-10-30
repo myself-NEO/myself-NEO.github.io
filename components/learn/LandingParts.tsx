@@ -117,11 +117,16 @@ export const StageRoadmap: React.FC<{ track: Track; after?: React.ReactNode }> =
         const isOpen = expanded.has(stage.id);
         const first = all.find((l) => !isLessonComplete(progress, track.id, l.slug)) ?? all[0] ?? listed[0];
         const minutes = all.reduce((sum, l) => sum + l.minutes, 0);
+        const planned = all.length === 0;
         return (
           <li key={stage.id} className="relative pl-14">
             <span
               className={`absolute left-0 top-4 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-                complete ? 'bg-emerald-500/15 border-emerald-400 text-emerald-300' : 'bg-slate-900 border-sky-500/60 text-sky-300'
+                complete
+                  ? 'bg-emerald-500/15 border-emerald-400 text-emerald-300'
+                  : planned
+                  ? 'bg-slate-900 border-slate-700 text-slate-500'
+                  : 'bg-slate-900 border-sky-500/60 text-sky-300'
               }`}
               aria-hidden="true"
             >
@@ -136,24 +141,38 @@ export const StageRoadmap: React.FC<{ track: Track; after?: React.ReactNode }> =
                   <h3 className="text-lg font-bold text-white">{stage.title}</h3>
                   <p className="text-sm text-slate-400 mt-1">{stage.description}</p>
                 </div>
-                <a
-                  href={lessonHref(track, first.slug)}
-                  className="flex-shrink-0 inline-flex items-center gap-1.5 self-start px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm font-semibold text-slate-200 hover:border-sky-500/60 hover:text-sky-300 transition-colors"
-                >
-                  {done === 0 ? 'Start' : complete ? 'Review' : 'Continue'}
-                  <ArrowIcon className="h-3.5 w-3.5" />
-                </a>
+                {planned ? (
+                  <span className="flex-shrink-0 self-start px-3 py-1.5 rounded-lg border border-dashed border-slate-600 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Coming soon
+                  </span>
+                ) : (
+                  <a
+                    href={lessonHref(track, first.slug)}
+                    className="flex-shrink-0 inline-flex items-center gap-1.5 self-start px-3.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-sm font-semibold text-slate-200 hover:border-sky-500/60 hover:text-sky-300 transition-colors"
+                  >
+                    {done === 0 ? 'Start' : complete ? 'Review' : 'Continue'}
+                    <ArrowIcon className="h-3.5 w-3.5" />
+                  </a>
+                )}
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <div className="flex items-center gap-2 w-full sm:w-64">
-                  <ProgressBar value={done} max={all.length} label={`Stage ${stage.number} lessons completed`} />
-                  <span className="text-xs text-slate-400 whitespace-nowrap">
-                    {done}/{all.length}
+                {planned ? (
+                  <span className="text-xs text-slate-500">
+                    {listed.length} lesson{listed.length === 1 ? '' : 's'} planned · ~{Math.round(listed.reduce((sum, l) => sum + l.minutes, 0) / 6) / 10} h
                   </span>
-                </div>
-                <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                  <ClockIcon /> ~{Math.round(minutes / 6) / 10} h
-                </span>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 w-full sm:w-64">
+                      <ProgressBar value={done} max={all.length} label={`Stage ${stage.number} lessons completed`} />
+                      <span className="text-xs text-slate-400 whitespace-nowrap">
+                        {done}/{all.length}
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <ClockIcon /> ~{Math.round(minutes / 6) / 10} h
+                    </span>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={() => toggleStage(stage.id)}
@@ -167,9 +186,17 @@ export const StageRoadmap: React.FC<{ track: Track; after?: React.ReactNode }> =
               </div>
               {isOpen && (
                 <div id={`roadmap-${stage.id}`} className="mt-4 grid md:grid-cols-2 gap-x-6 gap-y-4">
-                  {stage.modules.map((module) => (
+                  {stage.modules.map((module) => {
+                    const moduleLessons = availableLessons(module.lessons);
+                    const moduleDone = moduleLessons.filter((l) => isLessonComplete(progress, track.id, l.slug)).length;
+                    return (
                     <div key={module.id}>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">{module.title}</p>
+                      <p className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                        <span>{module.title}</span>
+                        <span className={`normal-case tracking-normal font-medium ${moduleLessons.length > 0 && moduleDone === moduleLessons.length ? 'text-emerald-400' : 'text-slate-500'}`}>
+                          {moduleLessons.length === 0 ? 'soon' : `${moduleDone}/${moduleLessons.length}`}
+                        </span>
+                      </p>
                       <ul className="space-y-1">
                         {module.lessons.map((l) => {
                           const isDone = isLessonComplete(progress, track.id, l.slug);
@@ -188,7 +215,8 @@ export const StageRoadmap: React.FC<{ track: Track; after?: React.ReactNode }> =
                         })}
                       </ul>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

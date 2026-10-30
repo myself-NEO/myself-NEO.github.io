@@ -38,6 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ solid = false, activeHref }) => {
     { name: 'Skills', href: '#skills' },
     { name: 'Milestones', href: '#milestones' },
     { name: 'Now', href: '#currently-working' },
+    { name: 'Java', href: '#java' },
     { name: 'DSA', href: '#dsa' },
     { name: 'System Design', href: '#system-design' },
     { name: 'Contact', href: '#contact' },
@@ -52,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ solid = false, activeHref }) => {
           KESHAV<span className="text-sky-500">.DEV</span>
         </a>
 
-        <div className="hidden lg:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
           {navItems.map((item) => (
             <a
               key={item.name}
