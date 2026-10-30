@@ -222,7 +222,7 @@ const LessonPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) =
         )}
       </header>
 
-      <section aria-label="Lesson overview" className="grid sm:grid-cols-2 gap-4 mb-10">
+      <section aria-label="Lesson overview" className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 [overflow-wrap:anywhere]">
         <div className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-5">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Learning objectives</h2>
           <ul className="space-y-2">

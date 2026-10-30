@@ -88,7 +88,7 @@ const Question: React.FC<{
                   disabled={answeredCorrectly}
                   onChange={() => onSelect(i)}
                 />
-                <span className="flex-1">
+                <span className="flex-1 min-w-0 [overflow-wrap:anywhere]">
                   <Inline text={option.text} />
                 </span>
                 {state === 'correct' && <span className="text-emerald-400 text-xs font-semibold">Correct</span>}
