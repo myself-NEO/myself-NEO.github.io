@@ -60,7 +60,7 @@ const Question: React.FC<{
   return (
     <div className="rounded-xl border border-slate-700/80 bg-slate-900/50 p-4 sm:p-5">
       <fieldset className="min-w-0 m-0 p-0 border-0">
-        <legend className="font-semibold text-slate-100 mb-3">
+        <legend className="font-semibold text-slate-100 mb-3 max-w-full [overflow-wrap:anywhere]">
           <span className="text-sky-400 mr-2">Q{index + 1}.</span>
           <Inline text={question.prompt} />
         </legend>
