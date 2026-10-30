@@ -7,6 +7,8 @@ interface CodeBlockProps {
   title?: string;
   /** Minimum Java release the example needs, shown as a badge. */
   version?: number;
+  /** The example uses a preview feature of `version` (needs --enable-preview). */
+  preview?: boolean;
   /** Shows a "Save" button (e.g. to the revision notebook). */
   onSave?: (code: string) => void;
 }
@@ -39,7 +41,7 @@ const copyText = async (text: string) => {
   if (!ok) throw new Error('Copy failed');
 };
 
-const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, title, version, onSave }) => {
+const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, title, version, preview, onSave }) => {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [saved, setSaved] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -92,8 +94,11 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, title, version, o
         <span className="flex items-center gap-2 min-w-0">
           <span className="text-xs font-mono text-slate-400 truncate">{label}</span>
           {version !== undefined && (
-            <span className="flex-shrink-0 rounded border border-orange-400/30 bg-orange-400/10 px-1.5 py-px text-[10px] font-semibold text-orange-200" title={`Needs Java ${version} or newer`}>
-              Java {version}+
+            <span
+              className="flex-shrink-0 rounded border border-orange-400/30 bg-orange-400/10 px-1.5 py-px text-[10px] font-semibold text-orange-200"
+              title={preview ? `Preview feature in Java ${version}: compile and run with --enable-preview` : `Needs Java ${version} or newer`}
+            >
+              {preview ? `Java ${version} preview` : `Java ${version}+`}
             </span>
           )}
         </span>
