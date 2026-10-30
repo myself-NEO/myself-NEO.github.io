@@ -45,8 +45,10 @@ const Landing: React.FC<{ track: Track; plannedTrack: Track; focusRoadmap?: bool
             </p>
             <p className="text-slate-400 leading-relaxed mb-8 max-w-2xl">
               The LLD track takes you from object-oriented basics to solving advanced interview problems in Java 17+, with runnable
-              examples, knowledge checks and {track.problems.length} practice problems ({workedProblems} with fully worked, tested
-              solutions so far).
+              examples, knowledge checks and {track.problems.length} practice problems
+              {workedProblems === track.problems.length
+                ? ', each with a fully worked, tested solution.'
+                : ` (${workedProblems} with fully worked, tested solutions so far).`}
             </p>
             <div className="flex flex-wrap gap-3">
               <a

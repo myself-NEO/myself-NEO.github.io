@@ -1,8 +1,8 @@
-// Content model shared by the learning sections of the site (System Design, DSA).
+// Content model shared by the learning sections of the site (System Design, DSA, Java).
 // A Track is self-describing: its base route, home link and content drive the shared
 // learning UI in components/learn, so a new track needs data, not new components.
 
-export type TrackId = 'lld' | 'hld' | 'dsa';
+export type TrackId = 'lld' | 'hld' | 'dsa' | 'java';
 export type Level = 'beginner' | 'intermediate' | 'advanced';
 
 export interface LessonMeta {
@@ -23,6 +23,8 @@ export interface LessonMeta {
   tags?: string[];
   /** Listed in the curriculum, but its content has not been written yet. */
   comingSoon?: boolean;
+  /** Minimum Java release the lesson's examples need, when newer than the track baseline. */
+  javaVersion?: number;
 }
 
 export interface CurriculumModule {
@@ -53,6 +55,22 @@ export interface ProblemMeta {
   tags: string[];
 }
 
+/** Wording for a track's practice library, sidebar group and problem pages. */
+export interface PracticeCopy {
+  /** Name of the practice group, e.g. "Practice Problems" or "Coding Exercises". */
+  groupTitle: string;
+  /** Plural noun used in links and counts, e.g. "problems" or "exercises". */
+  noun: string;
+  libraryTitle: string;
+  libraryIntro: string;
+  levelBlurbs: Record<Level, string>;
+  /** Prepended to a problem's title on its page, e.g. "Design a ". */
+  titlePrefix: string;
+  /** "How to practise" steps shown on every problem page. */
+  steps: string[];
+  searchPlaceholder: string;
+}
+
 export interface PlannedTopic {
   title: string;
   description: string;
@@ -77,6 +95,16 @@ export interface Track {
   hasKnowledgeChecks: boolean;
   /** shown while a track is planned */
   plannedTopics?: PlannedTopic[];
+  /** Practice-library wording; System Design's LLD wording is used when absent. */
+  practice?: PracticeCopy;
+  /** Baseline Java release of runnable examples, shown as a version badge on code blocks. */
+  javaVersion?: number;
+  /** Extra pages of the section (interview prep, notebook, …) linked from the sidebar. */
+  sectionLinks?: { label: string; href: string }[];
+  /** Turns on the personal revision tools (bookmarks, notes, saved snippets) on lesson pages. */
+  notebook?: boolean;
+  /** Shown for lessons without prerequisites; defaults to "Basic <language> syntax is assumed." */
+  assumedKnowledge?: string;
 }
 
 export type ProblemStatus = 'not-started' | 'in-progress' | 'completed';

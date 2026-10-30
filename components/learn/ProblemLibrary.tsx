@@ -5,15 +5,10 @@ import { problemStatus, useProgress } from './progress';
 import { problemHref, trackCrumbs } from './routes';
 import { matchesFilter } from './search';
 import { Breadcrumbs, Chip, ClockIcon, LEVEL_LABEL, LevelBadge, ProgressBar, SearchIcon, STATUS_LABEL, StatusBadge } from './ui';
+import { practiceCopy } from './practice';
 
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
 const STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'completed'];
-
-const LEVEL_BLURB: Record<Level, string> = {
-  beginner: 'One main entity lifecycle, a handful of classes. Focus on clean modelling and encapsulation.',
-  intermediate: 'Several interacting entities, a state machine or two, and at least one extensibility follow-up.',
-  advanced: 'Concurrency, scarce resources, delivery guarantees or pluggable engines. Expect deep follow-ups.',
-};
 
 const FilterButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
   <button
@@ -28,8 +23,10 @@ const FilterButton: React.FC<{ active: boolean; onClick: () => void; children: R
   </button>
 );
 
-const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
+/** `header` renders above the breadcrumbs (e.g. a section's tab bar). */
+const ProblemLibrary: React.FC<{ track: Track; header?: React.ReactNode }> = ({ track, header }) => {
   const progress = useProgress();
+  const practice = practiceCopy(track);
   const [level, setLevel] = useState<Level | 'all'>('all');
   const [status, setStatus] = useState<ProblemStatus | 'all'>('all');
   const [query, setQuery] = useState('');
@@ -46,22 +43,34 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
 
   return (
     <main id="main-content" tabIndex={-1} className="focus:outline-none pt-[61px]">
+      {header}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <Breadcrumbs
           items={[
             ...trackCrumbs(track),
-            { label: 'Practice problems' },
+            { label: practice.groupTitle },
           ]}
         />
 
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
             <p className="text-sm font-semibold text-sky-400 mb-2">Stage {track.stages.length + 1} · Practice library</p>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">{track.shortTitle} practice problems</h1>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">{practice.libraryTitle}</h1>
             <p className="text-slate-400 max-w-2xl">
-              {track.problems.length} interview problems from simple to complex. {withBreakdown} have full breakdowns that walk from
-              clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups; the rest are marked
-              “breakdown coming soon” and can be practised from their statements.
+              {track.practice ? (
+                <>
+                  {practice.libraryIntro}
+                  {withBreakdown < track.problems.length &&
+                    ` They are being written stage by stage: ${withBreakdown} of ${track.problems.length} are available now; the rest are marked “coming soon” so you can see what's ahead.`}
+                </>
+              ) : (
+                <>
+                  {track.problems.length} interview problems from simple to complex.{' '}
+                  {withBreakdown === track.problems.length
+                    ? 'Each has a full breakdown that walks from clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups.'
+                    : `${withBreakdown} have full breakdowns that walk from clarifying questions to a complete, tested Java 17 solution with hints, edge cases and follow-ups; the rest are marked “breakdown coming soon” and can be practised from their statements.`}
+                </>
+              )}
             </p>
           </div>
           <div className="w-full md:w-64 rounded-xl border border-slate-700/80 bg-slate-800/40 p-4">
@@ -74,13 +83,13 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
 
         <div className="rounded-xl border border-slate-700/80 bg-slate-900/60 p-4 mb-8 space-y-3">
           <label className="relative block">
-            <span className="sr-only">Search problems</span>
+            <span className="sr-only">Search {practice.noun}</span>
             <SearchIcon className="h-4 w-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, pattern or topic (e.g. “state”, “concurrency”)"
+              placeholder={practice.searchPlaceholder}
               className="w-full rounded-lg bg-slate-950/60 border border-slate-700 pl-9 pr-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </label>
@@ -105,12 +114,12 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
         </div>
 
         <p className="sr-only" role="status">
-          {filtered.length} problems shown
+          {filtered.length} {practice.noun} shown
         </p>
 
         {filtered.length === 0 ? (
           <div className="text-center py-16 rounded-xl border border-dashed border-slate-700">
-            <p className="text-slate-300 font-semibold mb-1">No problems match these filters.</p>
+            <p className="text-slate-300 font-semibold mb-1">No {practice.noun} match these filters.</p>
             <p className="text-sm text-slate-500 mb-4">Try a different search term or clear the filters.</p>
             {hasFilters && (
               <button
@@ -136,10 +145,12 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
                   <h2 id={`level-${l}`} className="text-xl font-bold text-white">
                     {LEVEL_LABEL[l]}
                   </h2>
-                  <span className="text-sm text-slate-500">{items.length} problems</span>
+                  <span className="text-sm text-slate-500">
+                    {items.length} {practice.noun}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-400 mb-4">{LEVEL_BLURB[l]}</p>
-                <ul className="grid md:grid-cols-2 gap-3">
+                <p className="text-sm text-slate-400 mb-4">{practice.levelBlurbs[l]}</p>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {items.map((p) => (
                     <li key={p.slug}>
                       <a
@@ -147,10 +158,12 @@ const ProblemLibrary: React.FC<{ track: Track }> = ({ track }) => {
                         className="group flex h-full flex-col rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 hover:border-sky-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                       >
                         <div className="flex items-start justify-between gap-3 mb-2">
-                          <h3 className="font-semibold text-slate-100 group-hover:text-sky-300">
+                          <h3 className="min-w-0 font-semibold text-slate-100 group-hover:text-sky-300">
                             {p.title}
                             {!hasProblemBody(track.id, p.slug) && (
-                              <span className="ml-2 align-middle text-[10px] font-semibold uppercase tracking-wider text-amber-300/90">Breakdown soon</span>
+                              <span className="ml-2 align-middle text-[10px] font-semibold uppercase tracking-wider text-amber-300/90">
+                                {track.practice ? 'Coming soon' : 'Breakdown soon'}
+                              </span>
                             )}
                           </h3>
                           <StatusBadge status={problemStatus(progress, track.id, p.slug)} />

@@ -7,6 +7,7 @@ import { MILESTONES, SKILLS } from './constants';
 // Code-split: the learning sections are only downloaded when visited.
 const SystemDesignPage = lazy(() => import('./components/system-design/SystemDesignPage'));
 const DsaPage = lazy(() => import('./components/dsa/DsaPage'));
+const JavaPage = lazy(() => import('./components/java/JavaPage'));
 
 /** Old DSA links (#learning/<topic>) now live under #dsa. */
 const LEGACY_LEARNING_ROUTE = /^#learning\/(.+)$/;
@@ -34,7 +35,8 @@ const App: React.FC = () => {
   const legacyLearningMatch = hash.match(LEGACY_LEARNING_ROUTE);
   const systemDesignMatch = hash.match(/^#system-design(?:\/(.*))?$/);
   const dsaMatch = hash.match(/^#dsa(?:\/(.*))?$/);
-  const isHome = !legacyLearningMatch && !systemDesignMatch && !dsaMatch;
+  const javaMatch = hash.match(/^#java(?:\/(.*))?$/);
+  const isHome = !legacyLearningMatch && !systemDesignMatch && !dsaMatch && !javaMatch;
 
   useEffect(() => {
     // Replace (not push) so the back button skips the old URL.
@@ -124,6 +126,14 @@ const App: React.FC = () => {
     return (
       <Suspense fallback={<SectionFallback label="DSA" />}>
         <DsaPage path={dsaMatch[1] ?? ''} />
+      </Suspense>
+    );
+  }
+
+  if (javaMatch) {
+    return (
+      <Suspense fallback={<SectionFallback label="Java" />}>
+        <JavaPage path={javaMatch[1] ?? ''} />
       </Suspense>
     );
   }

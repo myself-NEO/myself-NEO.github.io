@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { CheckCircleIcon } from './ui';
+import type { QuizAnswer } from './progress';
 
 // Quiz block format (one or more questions):
 //
@@ -123,9 +124,11 @@ interface QuizProps {
   /** Called once every question has been answered correctly. */
   onPassed?: () => void;
   alreadyPassed?: boolean;
+  /** Called on every choice, so accuracy and mistakes can be tracked. */
+  onAnswer?: (answer: QuizAnswer) => void;
 }
 
-const Quiz: React.FC<QuizProps> = ({ source, onPassed, alreadyPassed }) => {
+const Quiz: React.FC<QuizProps> = ({ source, onPassed, alreadyPassed, onAnswer }) => {
   const questions = useMemo(() => parseQuiz(source), [source]);
   const [selected, setSelected] = useState<Record<number, number>>({});
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
@@ -159,7 +162,16 @@ const Quiz: React.FC<QuizProps> = ({ source, onPassed, alreadyPassed }) => {
           index={i}
           selected={selected[i]}
           revealed={Boolean(revealed[i])}
-          onSelect={(option) => setSelected((s) => ({ ...s, [i]: option }))}
+          onSelect={(option) => {
+            setSelected((s) => ({ ...s, [i]: option }));
+            onAnswer?.({
+              prompt: q.prompt,
+              correct: q.options[option].correct,
+              chosen: q.options[option].text,
+              correctText: q.options.filter((o) => o.correct).map((o) => o.text).join(' / '),
+              explanation: q.explanation,
+            });
+          }}
           onReveal={() => setRevealed((r) => ({ ...r, [i]: true }))}
         />
       ))}
