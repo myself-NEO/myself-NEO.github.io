@@ -120,8 +120,12 @@ const JavaLanding: React.FC<{ track: Track }> = ({ track }) => {
                 </>
               ) : (
                 <>
-                  {lessons.length} lessons in {track.stages.length} stages (about {formatHours(totalMinutes)}), {writtenExercises.length} coding exercises
-                  and an interview question bank.{' '}
+                  {lessons.length} lessons in {track.stages.length} stages (about {formatHours(totalMinutes)}) and an interview question bank
+                  {writtenExercises.length === track.problems.length
+                    ? `, plus ${writtenExercises.length} coding exercises.`
+                    : writtenExercises.length > 0
+                    ? `; ${writtenExercises.length} of ${track.problems.length} coding exercises are available so far.`
+                    : `; the ${track.problems.length} coding exercises are being written next.`}{' '}
                 </>
               )}
               Every runnable example targets Java 17 unless it is marked with a newer version, and every output shown comes from a real run.
@@ -270,8 +274,8 @@ const JavaLanding: React.FC<{ track: Track }> = ({ track }) => {
             Quick access: <span className="text-sky-500">most-asked topics</span>
           </h2>
           <p className="text-slate-400 mb-6 max-w-3xl">
-            The topics that come up in almost every SDE-2 Java interview. Lessons from later stages are marked “coming soon” until they're
-            written.
+            The topics that come up in almost every SDE-2 Java interview.
+            {plannedLessons > 0 && ' Lessons from later stages are marked “coming soon” until they’re written.'}
           </p>
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {KEY_TOPICS.map((slug) => {
@@ -354,7 +358,11 @@ const JavaLanding: React.FC<{ track: Track }> = ({ track }) => {
                       <h3 className="text-lg font-bold text-white">Interview Question Bank & Tricky Questions</h3>
                       <p className="text-sm text-slate-400 mt-1">
                         Conceptual, internals, output-prediction, debugging, scenario and coding questions
-                        {bank ? ` — ${bank.length} so far, covering the stages written to date.` : '.'}
+                        {bank
+                          ? plannedLessons > 0
+                            ? ` — ${bank.length} so far, covering the stages written to date.`
+                            : ` — ${bank.length} questions across ${INTERVIEW_TOPICS.length} topics.`
+                          : '.'}
                       </p>
                     </div>
                     <a
