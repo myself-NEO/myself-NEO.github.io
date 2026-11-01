@@ -8,7 +8,8 @@ const FOUNDATIONS: Stage = {
   number: 1,
   title: 'Foundations',
   levelLabel: 'Beginner',
-  description: 'Start with the complete guide, then master the linear data structures every interview builds on.',
+  description:
+    'Start with the complete guide, then master the linear data structures every interview builds on, and the sorting and binary search that run through them.',
   modules: [
     {
       id: 'start-here',
@@ -53,7 +54,7 @@ const FOUNDATIONS: Stage = {
             'Follow a problem-solving framework from brute force to optimal',
           ],
           prerequisites: [],
-          related: ['stacks-queues', 'bit-manipulation', 'dynamic-programming'],
+          related: ['stacks-queues', 'sorting-binary-search', 'string-algorithms', 'dynamic-programming'],
           problems: [],
           tags: ['two pointers', 'sliding window', 'prefix sum', 'kadane', 'binary search', 'hashing', 'strings', 'matrix'],
         },
@@ -97,6 +98,31 @@ const FOUNDATIONS: Stage = {
         },
       ],
     },
+    {
+      id: 'sorting-searching',
+      title: 'Sorting & searching',
+      lessons: [
+        {
+          slug: 'sorting-binary-search',
+          title: 'Sorting & Binary Search',
+          summary:
+            "Java's sorts and comparators, merge sort, 3-way quicksort, quickselect and linear-time sorts; then one binary-search template for bounds, rotated arrays, peaks, matrices, searching on the answer and the median of two sorted arrays.",
+          minutes: 45,
+          level: 'intermediate',
+          essential: true,
+          objectives: [
+            'Write merge sort, 3-way quicksort and quickselect, and know when counting or radix sort wins',
+            'Use Java comparators correctly, including multi-key and custom orders',
+            'Apply one binary-search template to bounds, rotated arrays, peaks and 2D matrices',
+            'Recognise binary search on the answer and check that the predicate is monotonic',
+          ],
+          prerequisites: ['arrays-strings'],
+          related: ['arrays-strings', 'greedy-intervals', 'stacks-queues'],
+          problems: [],
+          tags: ['sorting', 'merge sort', 'quicksort', 'quickselect', 'radix sort', 'comparator', 'binary search', 'search on answer'],
+        },
+      ],
+    },
   ],
 };
 
@@ -105,7 +131,7 @@ const RECURSION_AND_TREES: Stage = {
   number: 2,
   title: 'Recursion & Trees',
   levelLabel: 'Intermediate',
-  description: 'Think recursively, backtrack systematically, and handle every family of tree problems.',
+  description: 'Think recursively, backtrack systematically, and handle every family of tree problems, tries included.',
   modules: [
     {
       id: 'recursion',
@@ -150,9 +176,28 @@ const RECURSION_AND_TREES: Stage = {
             'Use segment trees and Fenwick trees for range queries',
           ],
           prerequisites: ['recursion-backtracking'],
-          related: ['recursion-backtracking', 'graphs', 'stacks-queues'],
+          related: ['recursion-backtracking', 'tries', 'graphs', 'stacks-queues'],
           problems: [],
           tags: ['binary tree', 'bst', 'traversal', 'lca', 'trie', 'segment tree', 'fenwick', 'avl'],
+        },
+        {
+          slug: 'tries',
+          title: 'Tries',
+          summary:
+            'Build a trie from scratch with arrays or maps, then the patterns: wildcard search, prefix counts, autocomplete, Word Search II, word break, replace words, binary tries for maximum XOR, palindrome pairs, and Aho–Corasick for many patterns at once.',
+          minutes: 40,
+          level: 'intermediate',
+          essential: true,
+          objectives: [
+            'Implement insert, search, startsWith and delete with array or map children',
+            'Combine tries with DFS and backtracking for wildcard search and Word Search II',
+            'Answer maximum-XOR queries with a binary trie',
+            'Explain autocomplete ranking and Aho–Corasick multi-pattern matching',
+          ],
+          prerequisites: ['trees'],
+          related: ['trees', 'string-algorithms', 'recursion-backtracking'],
+          problems: [],
+          tags: ['trie', 'prefix tree', 'autocomplete', 'word search', 'xor', 'aho-corasick'],
         },
       ],
     },
@@ -162,9 +207,10 @@ const RECURSION_AND_TREES: Stage = {
 const ADVANCED: Stage = {
   id: 'advanced',
   number: 3,
-  title: 'Graphs, DP & Bits',
+  title: 'Graphs, DP & Greedy',
   levelLabel: 'Advanced',
-  description: 'The topics that separate medium from hard problems: graph algorithms, dynamic programming and bit tricks.',
+  description:
+    'The topics that separate medium from hard problems: graph algorithms, dynamic programming, and the greedy and interval patterns that are its cheaper cousins.',
   modules: [
     {
       id: 'graphs',
@@ -210,9 +256,95 @@ const ADVANCED: Stage = {
             'Tackle interval, bitmask, digit, tree and graph DP',
           ],
           prerequisites: ['recursion-backtracking'],
-          related: ['recursion-backtracking', 'graphs', 'graphs-cheatsheet'],
+          related: ['recursion-backtracking', 'greedy-intervals', 'graphs', 'graphs-cheatsheet'],
           problems: [],
           tags: ['dynamic programming', 'memoization', 'tabulation', 'knapsack', 'lcs', 'interval dp', 'bitmask dp'],
+        },
+      ],
+    },
+    {
+      id: 'greedy',
+      title: 'Greedy & intervals',
+      lessons: [
+        {
+          slug: 'greedy-intervals',
+          title: 'Greedy & Intervals',
+          summary:
+            'When greedy is safe and how to prove it; the greedy shapes interviews reuse (reach, running balance, sort and match, regret heaps, two passes); then every interval pattern: merge, insert, select by end, sweep lines, difference arrays and online bookings.',
+          minutes: 40,
+          level: 'advanced',
+          essential: true,
+          objectives: [
+            'Prove a greedy choice with an exchange argument, or break it with a counterexample',
+            'Use a heap to let a greedy change its mind (deadlines, refuelling, capital)',
+            'Pick the right sort key for intervals: start to merge, end to select',
+            'Count overlaps with sweep lines and difference arrays, and handle online bookings with a TreeMap',
+          ],
+          prerequisites: ['sorting-binary-search'],
+          related: ['dynamic-programming', 'sorting-binary-search', 'stacks-queues'],
+          problems: [],
+          tags: ['greedy', 'intervals', 'exchange argument', 'sweep line', 'difference array', 'meeting rooms', 'scheduling'],
+        },
+      ],
+    },
+  ],
+};
+
+const STRINGS_MATH: Stage = {
+  id: 'strings-math',
+  number: 4,
+  title: 'Strings, Math & Bits',
+  levelLabel: 'Intermediate → Advanced',
+  description:
+    'The specialist toolkits: linear-time string matching and palindromes, number theory and randomized algorithms, and bit tricks.',
+  modules: [
+    {
+      id: 'strings',
+      title: 'Strings',
+      lessons: [
+        {
+          slug: 'string-algorithms',
+          title: 'String Algorithms',
+          summary:
+            'Pattern matching in linear time with the prefix function, KMP and the Z-function; Rabin–Karp and substring hashing; palindromes from two pointers and center expansion to Manacher; and suffix arrays with LCP.',
+          minutes: 35,
+          level: 'advanced',
+          essential: true,
+          objectives: [
+            'Compute the prefix function and use it for KMP search, periods and borders',
+            'Use the Z-function and rolling hashes, and handle hash collisions safely',
+            'Solve palindrome problems by center expansion and explain Manacher’s algorithm',
+            'Build a suffix array with LCP to count distinct substrings and find repeats',
+          ],
+          prerequisites: ['arrays-strings'],
+          related: ['arrays-strings', 'tries', 'dynamic-programming'],
+          problems: [],
+          tags: ['strings', 'kmp', 'z-function', 'rabin-karp', 'hashing', 'palindrome', 'manacher', 'suffix array'],
+        },
+      ],
+    },
+    {
+      id: 'math',
+      title: 'Math',
+      lessons: [
+        {
+          slug: 'math-number-theory',
+          title: 'Math & Number Theory',
+          summary:
+            'Overflow-safe integer arithmetic, GCD and extended Euclid, primes and sieves, fast and modular exponentiation, combinatorics, matrix power and big numbers; the geometry interviews use; and randomized algorithms such as shuffling, reservoir sampling and weighted picks.',
+          minutes: 45,
+          level: 'intermediate',
+          essential: true,
+          objectives: [
+            'Keep integer arithmetic overflow-free and use modular arithmetic correctly',
+            'Apply Euclid, sieves, fast exponentiation and modular inverses',
+            'Count with binomial coefficients and Catalan numbers, modulo a prime',
+            'Implement Fisher–Yates, reservoir sampling, weighted picks and rejection sampling',
+          ],
+          prerequisites: ['arrays-strings'],
+          related: ['bit-manipulation', 'sorting-binary-search', 'dynamic-programming'],
+          problems: [],
+          tags: ['math', 'gcd', 'primes', 'sieve', 'modular arithmetic', 'combinatorics', 'geometry', 'randomized'],
         },
       ],
     },
@@ -235,7 +367,7 @@ const ADVANCED: Stage = {
             'Recognise bit-manipulation patterns in interview problems',
           ],
           prerequisites: [],
-          related: ['arrays-strings', 'dynamic-programming', 'graphs-cheatsheet'],
+          related: ['arrays-strings', 'math-number-theory', 'dynamic-programming', 'graphs-cheatsheet'],
           problems: [],
           tags: ['bits', 'xor', 'bitmask', 'twos complement'],
         },
@@ -246,7 +378,7 @@ const ADVANCED: Stage = {
 
 const DEEP_DIVES: Stage = {
   id: 'deep-dives',
-  number: 4,
+  number: 5,
   title: 'Deep Dives & Revision',
   levelLabel: 'Intermediate → Advanced',
   description:
@@ -305,7 +437,7 @@ export const DSA_TRACK: Track = {
   tagline: 'Interview-ready DSA in Java',
   description:
     'Patterns, templates and worked problems for every major data structure and algorithm, written for Java engineers preparing for coding interviews.',
-  stages: [FOUNDATIONS, RECURSION_AND_TREES, ADVANCED, DEEP_DIVES],
+  stages: [FOUNDATIONS, RECURSION_AND_TREES, ADVANCED, STRINGS_MATH, DEEP_DIVES],
   problems: [],
   basePath: '#dsa',
   home: { label: 'DSA', href: '#dsa' },
