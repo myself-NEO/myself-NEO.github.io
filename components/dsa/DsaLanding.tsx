@@ -4,6 +4,7 @@ import { isLessonComplete, progressActions, useProgress } from '../learn/progres
 import { lessonHref } from '../learn/routes';
 import { ProgressStat, SearchPanel, StageRoadmap, useTrackProgress } from '../learn/LandingParts';
 import { ArrowIcon, Chip } from '../learn/ui';
+import DsaSectionNav from './DsaSectionNav';
 
 const STUDY_STEPS: { title: string; body: string }[] = [
   {
@@ -38,6 +39,7 @@ const DsaLanding: React.FC<{ track: Track }> = ({ track }) => {
 
   return (
     <main id="main-content" tabIndex={-1} className="focus:outline-none pt-[61px]">
+      <DsaSectionNav active="home" />
       <section className="relative pt-14 pb-12 border-b border-slate-800/80">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,rgba(129,140,248,0.08),transparent_60%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[minmax(0,1fr)_22rem] gap-10 items-start">

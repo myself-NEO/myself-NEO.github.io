@@ -31,6 +31,8 @@ export interface Note {
   topic: string;
   /** Set for the note attached to a lesson page. */
   lesson?: string;
+  /** Set for the note attached to a practice problem (its ref, e.g. "lc-1"). */
+  problem?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -192,3 +194,5 @@ export const notebookActions = {
 export const isSaved = (n: NotebookState, kind: SavedKind, track: TrackId, ref: string) => Boolean(n.saved[savedKey(kind, track, ref)]);
 export const lessonNote = (n: NotebookState, track: TrackId, lesson: string) =>
   Object.values(n.notes).find((note) => note.track === track && note.lesson === lesson);
+export const problemNote = (n: NotebookState, track: TrackId, problem: string) =>
+  Object.values(n.notes).find((note) => note.track === track && note.problem === problem);

@@ -443,4 +443,9 @@ export const DSA_TRACK: Track = {
   home: { label: 'DSA', href: '#dsa' },
   language: 'Java',
   hasKnowledgeChecks: false,
+  sectionLinks: [
+    { label: 'Coding questions', href: '#dsa/problems' },
+    { label: 'Interview notes', href: '#dsa/notes' },
+    { label: 'Progress', href: '#dsa/progress' },
+  ],
 };
