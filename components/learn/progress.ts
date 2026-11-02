@@ -42,6 +42,8 @@ export interface ProgressState {
   quizzes: Record<string, number>;
   /** `${track}:${slug}` → status (absent means not started) */
   problems: Record<string, ProblemStatus>;
+  /** `${track}:${slug}` → when the problem's status last changed */
+  problemsAt: Record<string, number>;
   /** `${track}:${slug}` → last time the lesson was opened (opened but not completed = in progress) */
   visited: Record<string, number>;
   /** track id → the lesson and section the learner was last reading */
@@ -50,7 +52,7 @@ export interface ProgressState {
   answers: Record<string, QuizAnswerRecord>;
 }
 
-const EMPTY: ProgressState = { lessons: {}, quizzes: {}, problems: {}, visited: {}, resume: {}, answers: {} };
+const EMPTY: ProgressState = { lessons: {}, quizzes: {}, problems: {}, problemsAt: {}, visited: {}, resume: {}, answers: {} };
 
 const key = (track: TrackId, slug: string) => `${track}:${slug}`;
 
@@ -67,6 +69,7 @@ export const sanitizeProgress = (parsed: unknown): ProgressState => {
     lessons: recordField(parsed, 'lessons'),
     quizzes: recordField(parsed, 'quizzes'),
     problems: recordField(parsed, 'problems'),
+    problemsAt: recordField(parsed, 'problemsAt'),
     visited: recordField(parsed, 'visited'),
     resume: recordField(parsed, 'resume'),
     answers: recordField(parsed, 'answers'),
@@ -124,6 +127,7 @@ export const progressActions = {
     store.set({
       ...state,
       problems: status === 'not-started' ? without(state.problems, k) : { ...state.problems, [k]: status },
+      problemsAt: status === 'not-started' ? without(state.problemsAt, k) : { ...state.problemsAt, [k]: Date.now() },
     });
   },
   /** Moves a problem from "not started" to "in progress" (used when a hint or solution is opened). */
@@ -176,6 +180,7 @@ export const progressActions = {
       lessons: withoutTrack(state.lessons, track),
       quizzes: withoutTrack(state.quizzes, track),
       problems: withoutTrack(state.problems, track),
+      problemsAt: withoutTrack(state.problemsAt, track),
       visited: withoutTrack(state.visited, track),
       resume: without(state.resume, track),
       answers: withoutTrack(state.answers, track),

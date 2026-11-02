@@ -6,27 +6,9 @@ import { hasProblemBody } from '../../content/shared/loaders';
 import { isLessonComplete, isLessonVisited, isQuizPassed, problemStatus, trackAnswers, useProgress } from '../learn/progress';
 import { useNotebook } from '../learn/notebook';
 import { lessonHref, problemsHref } from '../learn/routes';
-import { ArrowIcon, Breadcrumbs, CheckCircleIcon, ClockIcon, HalfCircleIcon, ProgressBar } from '../learn/ui';
+import { ArrowIcon, Breadcrumbs, CheckCircleIcon, ClockIcon, HalfCircleIcon, ProgressBar, StatTile } from '../learn/ui';
 import JavaSectionNav from './JavaSectionNav';
 import { revisionItems } from './revision';
-
-const StatTile: React.FC<{ label: string; value: React.ReactNode; detail?: React.ReactNode; href?: string }> = ({ label, value, detail, href }) => {
-  const body = (
-    <>
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
-      {detail && <p className="mt-1 text-xs text-slate-500">{detail}</p>}
-    </>
-  );
-  const classes = 'block h-full rounded-2xl border border-slate-700/80 bg-slate-800/40 p-4';
-  return href ? (
-    <a href={href} className={`${classes} hover:border-sky-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500`}>
-      {body}
-    </a>
-  ) : (
-    <div className={classes}>{body}</div>
-  );
-};
 
 const formatDate = (at: number) => new Date(at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 
