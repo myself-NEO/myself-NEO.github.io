@@ -1,24 +1,69 @@
-import React, { useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useMemo } from 'react';
 import Navbar from '../Navbar';
 import { DSA_TRACK } from '../../content/learning';
+import { practiceTopic } from '../../content/learning/practiceTopics';
 import { findLesson } from '../../content/shared/curriculum';
 import LessonPage from '../learn/LessonPage';
 import { NotFound } from '../learn/States';
 import DsaLanding from './DsaLanding';
 
+// The practice tools are their own chunks: guide pages don't need them.
+const ProblemList = lazy(() => import('./ProblemList'));
+const InterviewNotes = lazy(() => import('./InterviewNotes'));
+const DsaProgress = lazy(() => import('./DsaProgress'));
+
 const SITE_TITLE = 'KESHAV.dev';
 
 // Routes (single track, so no track segment):
-//   #dsa                  landing page
-//   #dsa/learn/<slug>     guide
-type DsaRoute = { kind: 'landing' } | { kind: 'lesson'; slug: string } | { kind: 'not-found' };
+//   #dsa                    landing page (roadmap)
+//   #dsa/learn/<slug>       guide
+//   #dsa/problems           coding questions (LeetCode list)
+//   #dsa/problems/<topic>   coding questions, filtered to one practice topic
+//   #dsa/notes              interview notes
+//   #dsa/progress           progress dashboard
+type DsaRoute =
+  | { kind: 'landing' }
+  | { kind: 'lesson'; slug: string }
+  | { kind: 'problems'; topic?: string }
+  | { kind: 'notes' }
+  | { kind: 'progress' }
+  | { kind: 'not-found' };
 
 const parseRoute = (path: string): DsaRoute => {
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent);
-  if (parts.length === 0) return { kind: 'landing' };
-  if (parts.length === 2 && parts[0] === 'learn') return { kind: 'lesson', slug: parts[1] };
+  const [section, slug, ...rest] = parts;
+  if (rest.length > 0) return { kind: 'not-found' };
+  if (!section) return { kind: 'landing' };
+  if (section === 'learn' && slug) return { kind: 'lesson', slug };
+  if (section === 'problems') {
+    if (!slug) return { kind: 'problems' };
+    return practiceTopic(slug) ? { kind: 'problems', topic: slug } : { kind: 'not-found' };
+  }
+  if (section === 'notes' && !slug) return { kind: 'notes' };
+  if (section === 'progress' && !slug) return { kind: 'progress' };
   return { kind: 'not-found' };
 };
+
+const pageTitle = (route: DsaRoute) => {
+  switch (route.kind) {
+    case 'lesson':
+      return findLesson(DSA_TRACK, route.slug)?.lesson.title ?? 'DSA';
+    case 'problems':
+      return route.topic ? `${practiceTopic(route.topic)?.title} · DSA Coding Questions` : 'DSA Coding Questions';
+    case 'notes':
+      return 'My DSA Interview Notes';
+    case 'progress':
+      return 'DSA Progress';
+    default:
+      return 'DSA';
+  }
+};
+
+const ToolFallback: React.FC = () => (
+  <div className="min-h-[50vh] flex items-center justify-center text-slate-400 pt-[61px]" role="status">
+    Loading…
+  </div>
+);
 
 /** Entry point for every #dsa/* route. */
 const DsaPage: React.FC<{ path: string }> = ({ path }) => {
@@ -31,22 +76,48 @@ const DsaPage: React.FC<{ path: string }> = ({ path }) => {
   }, [path]);
 
   useEffect(() => {
-    const title = route.kind === 'lesson' ? findLesson(track, route.slug)?.lesson.title ?? 'DSA' : 'DSA';
-    document.title = `${title} · ${SITE_TITLE}`;
+    document.title = `${pageTitle(route)} · ${SITE_TITLE}`;
     return () => {
       document.title = SITE_TITLE;
     };
-  }, [route, track]);
+  }, [route]);
 
   let content: React.ReactNode;
-  if (route.kind === 'landing') content = <DsaLanding track={track} />;
-  else if (route.kind === 'lesson') content = <LessonPage key={route.slug} track={track} slug={route.slug} />;
-  else
-    content = (
-      <main className="pt-[61px]">
-        <NotFound what="page" home={track.home} />
-      </main>
-    );
+  switch (route.kind) {
+    case 'landing':
+      content = <DsaLanding track={track} />;
+      break;
+    case 'lesson':
+      content = <LessonPage key={route.slug} track={track} slug={route.slug} />;
+      break;
+    case 'problems':
+      content = (
+        <Suspense fallback={<ToolFallback />}>
+          <ProblemList key={route.topic ?? 'all'} track={track} presetTopic={route.topic} />
+        </Suspense>
+      );
+      break;
+    case 'notes':
+      content = (
+        <Suspense fallback={<ToolFallback />}>
+          <InterviewNotes track={track} />
+        </Suspense>
+      );
+      break;
+    case 'progress':
+      content = (
+        <Suspense fallback={<ToolFallback />}>
+          <DsaProgress track={track} />
+        </Suspense>
+      );
+      break;
+    default:
+      content = (
+        <main className="pt-[61px]">
+          <NotFound what="page" home={track.home} />
+        </main>
+      );
+  }
 
   return (
     <div className="min-h-screen selection:bg-sky-500/30">

@@ -13,9 +13,10 @@ const LEVEL_CLASSES: Record<Level, string> = {
   advanced: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
 };
 
-export const LevelBadge: React.FC<{ level: Level; className?: string }> = ({ level, className = '' }) => (
+/** `label` overrides the level name, e.g. LeetCode's Easy / Medium / Hard. */
+export const LevelBadge: React.FC<{ level: Level; label?: string; className?: string }> = ({ level, label, className = '' }) => (
   <span className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-md border ${LEVEL_CLASSES[level]} ${className}`}>
-    {LEVEL_LABEL[level]}
+    {label ?? LEVEL_LABEL[level]}
   </span>
 );
 
@@ -31,7 +32,8 @@ export const STATUS_LABEL: Record<ProblemStatus, string> = {
   completed: 'Completed',
 };
 
-export const StatusBadge: React.FC<{ status: ProblemStatus }> = ({ status }) => {
+/** `label` overrides the status name, e.g. "Solved" for a coding question. */
+export const StatusBadge: React.FC<{ status: ProblemStatus; label?: string }> = ({ status, label }) => {
   const classes: Record<ProblemStatus, string> = {
     'not-started': 'text-slate-400 bg-slate-800 border-slate-700',
     'in-progress': 'text-amber-300 bg-amber-500/10 border-amber-500/30',
@@ -40,8 +42,27 @@ export const StatusBadge: React.FC<{ status: ProblemStatus }> = ({ status }) => 
   return (
     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded-md border ${classes[status]}`}>
       <StatusIcon status={status} className="h-3.5 w-3.5" />
-      {STATUS_LABEL[status]}
+      {label ?? STATUS_LABEL[status]}
     </span>
+  );
+};
+
+/** A dashboard figure; links somewhere when given an href. */
+export const StatTile: React.FC<{ label: string; value: React.ReactNode; detail?: React.ReactNode; href?: string }> = ({ label, value, detail, href }) => {
+  const body = (
+    <>
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
+      {detail && <p className="mt-1 text-xs text-slate-500">{detail}</p>}
+    </>
+  );
+  const classes = 'block h-full rounded-2xl border border-slate-700/80 bg-slate-800/40 p-4';
+  return href ? (
+    <a href={href} className={`${classes} hover:border-sky-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500`}>
+      {body}
+    </a>
+  ) : (
+    <div className={classes}>{body}</div>
   );
 };
 
@@ -163,6 +184,12 @@ export const NoteIcon: React.FC<IconProps> = ({ className = 'h-4 w-4' }) => (
   <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinejoin="round" d="M5 2.75h7l3 3v11.5H5z" />
     <path strokeLinecap="round" d="M7.5 9.5h5M7.5 12.5h5M7.5 6.5h2.5" />
+  </svg>
+);
+
+export const ExternalLinkIcon: React.FC<IconProps> = ({ className = 'h-3.5 w-3.5' }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M11 3.5h5.5V9M16.5 3.5L9 11M8 4.5H4.5v11h11V12" />
   </svg>
 );
 
