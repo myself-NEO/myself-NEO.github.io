@@ -27,6 +27,7 @@ const LANGUAGE_LABEL: Record<string, string> = {
   protobuf: 'Protocol Buffers',
   properties: 'Properties',
   yaml: 'YAML',
+  lua: 'Lua',
 };
 
 export const copyText = async (text: string) => {
