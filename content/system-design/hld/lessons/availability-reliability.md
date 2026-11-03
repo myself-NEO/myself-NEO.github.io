@@ -32,7 +32,7 @@ downtime by ten:
 Two consequences follow immediately. First, at four nines there is no time for a human to wake up, diagnose and fix an outage by
 hand — failover must be automatic. Second, availability depends on *both* how often things fail and how fast they recover:
 
-```text
+```text title="Formula"
 availability = MTBF / (MTBF + MTTR)
 ```
 

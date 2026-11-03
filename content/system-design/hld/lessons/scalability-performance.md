@@ -58,7 +58,7 @@ requests (send a duplicate after a short delay and take the first reply) and by 
 For any stable system, the average number of requests in flight `L` equals the arrival rate `λ` times the average time each spends
 in the system `W`:
 
-```text
+```text title="Formula"
 L = λ × W
 ```
 

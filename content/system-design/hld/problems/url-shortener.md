@@ -115,7 +115,7 @@ Divide a daily number by about 100,000 (86,400 rounded up) to get a per-second r
 > [!TIP] Try it first
 > One endpoint per functional requirement. What does each take and return, and which status codes matter?
 
-```text
+```text title="API"
 POST /v1/links
   Headers: Authorization: Bearer <api key>   (optional; anonymous allowed, rate-limited by IP)
            Idempotency-Key: <uuid>             (optional; safe retries)
@@ -154,7 +154,7 @@ Think about what happens to click counts and expiry if browsers are allowed to c
 > [!TIP] Try it first
 > List the entities, their keys and the access pattern for each. Which store would you choose, and why?
 
-```text
+```text title="Schema"
 links
   short_code    VARCHAR(16)  PRIMARY KEY      -- generated base-62 code or custom alias
   long_url      TEXT         NOT NULL
