@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Level, ProblemStatus, Track } from '../../content/shared/types';
+import { DEFAULT_PROBLEM_STATUSES, Level, ProblemMeta, ProblemStatus, Track } from '../../content/shared/types';
 import { hasProblemBody } from '../../content/shared/loaders';
 import { problemStatus, useProgress } from './progress';
 import { problemHref, trackCrumbs } from './routes';
@@ -8,7 +8,6 @@ import { Breadcrumbs, Chip, ClockIcon, LEVEL_LABEL, LevelBadge, ProgressBar, Sea
 import { practiceCopy } from './practice';
 
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
-const STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'completed'];
 
 const FilterButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({ active, onClick, children }) => (
   <button
@@ -23,8 +22,9 @@ const FilterButton: React.FC<{ active: boolean; onClick: () => void; children: R
   </button>
 );
 
-/** `header` renders above the breadcrumbs (e.g. a section's tab bar). */
-const ProblemLibrary: React.FC<{ track: Track; header?: React.ReactNode }> = ({ track, header }) => {
+/** `header` renders above the breadcrumbs (e.g. a section's tab bar); `badge` adds a chip to a problem card. */
+const ProblemLibrary: React.FC<{ track: Track; header?: React.ReactNode; badge?: (problem: ProblemMeta) => React.ReactNode }> = ({ track, header, badge }) => {
+  const statuses = track.problemStatuses ?? DEFAULT_PROBLEM_STATUSES;
   const progress = useProgress();
   const practice = practiceCopy(track);
   const [level, setLevel] = useState<Level | 'all'>('all');
@@ -105,7 +105,7 @@ const ProblemLibrary: React.FC<{ track: Track; header?: React.ReactNode }> = ({ 
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by status">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 w-20">Status</span>
             <FilterButton active={status === 'all'} onClick={() => setStatus('all')}>All</FilterButton>
-            {STATUSES.map((s) => (
+            {statuses.map((s) => (
               <FilterButton key={s} active={status === s} onClick={() => setStatus(s)}>
                 {STATUS_LABEL[s]}
               </FilterButton>
@@ -177,6 +177,7 @@ const ProblemLibrary: React.FC<{ track: Track; header?: React.ReactNode }> = ({ 
                           {p.patterns.map((pattern) => (
                             <Chip key={pattern}>{pattern}</Chip>
                           ))}
+                          {badge?.(p)}
                         </div>
                       </a>
                     </li>

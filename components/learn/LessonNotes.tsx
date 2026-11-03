@@ -6,6 +6,8 @@ import { NoteIcon } from './ui';
 const SAVE_DELAY_MS = 600;
 
 /** A personal note attached to a lesson, autosaved to the revision notebook. */
+const DEFAULT_PLACEHOLDER = 'e.g. HashMap treeifies a bucket at 8 entries only when the table has at least 64 buckets…';
+
 const LessonNotes: React.FC<{ track: Track; lesson: LessonMeta; topic: string; notebookHref?: string }> = ({
   track,
   lesson,
@@ -73,7 +75,7 @@ const LessonNotes: React.FC<{ track: Track; lesson: LessonMeta; topic: string; n
         value={text}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        placeholder="e.g. HashMap treeifies a bucket at 8 entries only when the table has at least 64 buckets…"
+        placeholder={track.notePlaceholder ?? DEFAULT_PLACEHOLDER}
         className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
       />
     </section>

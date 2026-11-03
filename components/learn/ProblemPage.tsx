@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { ProblemStatus, Track } from '../../content/shared/types';
+import { DEFAULT_PROBLEM_STATUSES, ProblemStatus, Track } from '../../content/shared/types';
 import { findLesson, findProblem } from '../../content/shared/curriculum';
 import { hasProblemBody, loadProblemBody } from '../../content/shared/loaders';
 import LearningLayout, { useHeadings } from './LearningLayout';
@@ -10,15 +10,21 @@ import { useMarkdownBody } from './useMarkdownBody';
 import { ArrowIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, LevelBadge, STATUS_LABEL, StatusIcon } from './ui';
 import { ContentError, ContentSkeleton, NotFound } from './States';
 import { practiceCopy } from './practice';
+import { useSaveTools } from './saveTools';
 
-const STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'completed'];
+const ACTIVE_STATUS_CLASSES: Record<ProblemStatus, string> = {
+  'not-started': 'bg-slate-800 text-slate-200',
+  'in-progress': 'bg-amber-500/15 text-amber-300',
+  attempted: 'bg-violet-500/15 text-violet-300',
+  completed: 'bg-emerald-500/15 text-emerald-300',
+};
 
 export const StatusControl: React.FC<{ track: Track; slug: string; title: string }> = ({ track, slug, title }) => {
   const progress = useProgress();
   const status = problemStatus(progress, track.id, slug);
   return (
     <div role="radiogroup" aria-label={`Status of ${title}`} className="inline-flex flex-wrap rounded-xl border border-slate-700 bg-slate-950/50 p-1 gap-1">
-      {STATUSES.map((s) => {
+      {(track.problemStatuses ?? DEFAULT_PROBLEM_STATUSES).map((s) => {
         const active = s === status;
         return (
           <button
@@ -28,13 +34,7 @@ export const StatusControl: React.FC<{ track: Track; slug: string; title: string
             aria-checked={active}
             onClick={() => progressActions.setProblemStatus(track.id, slug, s)}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
-              active
-                ? s === 'completed'
-                  ? 'bg-emerald-500/15 text-emerald-300'
-                  : s === 'in-progress'
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : 'bg-slate-800 text-slate-200'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              active ? ACTIVE_STATUS_CLASSES[s] : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
             <StatusIcon status={s} className="h-4 w-4" />
@@ -49,15 +49,16 @@ export const StatusControl: React.FC<{ track: Track; slug: string; title: string
 /** Shown for exercises (tracks with their own practice wording) that haven't been written yet. */
 const ExerciseComingSoon: React.FC<{ track: Track; concepts: string[] }> = ({ track, concepts }) => {
   const ready = concepts.map((c) => findLesson(track, c)?.lesson).filter((l): l is NonNullable<typeof l> => Boolean(l && !l.comingSoon));
+  const copy = track.practice?.comingSoon;
   return (
     <section aria-labelledby="coming-soon-heading" className="rounded-xl border border-dashed border-slate-600 bg-slate-900/40 p-6">
       <p className="text-xs font-semibold uppercase tracking-wider text-amber-300 mb-2">Coming soon</p>
       <h2 id="coming-soon-heading" className="text-xl font-bold text-white mb-3">
-        This exercise hasn't been written yet
+        {copy?.title ?? "This exercise hasn't been written yet"}
       </h2>
       <p className="text-sm text-slate-300 mb-4">
-        It's listed so the practice path is visible. The summary above describes the task; its starter code, hints, tests and reference
-        solution will be published with the lessons it depends on.
+        {copy?.body ??
+          "It's listed so the practice path is visible. The summary above describes the task; its starter code, hints, tests and reference solution will be published with the lessons it depends on."}
       </p>
       {ready.length > 0 ? (
         <>
@@ -74,7 +75,7 @@ const ExerciseComingSoon: React.FC<{ track: Track; concepts: string[] }> = ({ tr
         </>
       ) : null}
       <a href={problemsHref(track)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
-        Back to all exercises <ArrowIcon className="h-3.5 w-3.5" />
+        Back to all {practiceCopy(track).noun} <ArrowIcon className="h-3.5 w-3.5" />
       </a>
     </section>
   );
@@ -103,7 +104,16 @@ const BreakdownComingSoon: React.FC<{ track: Track }> = ({ track }) => (
   </section>
 );
 
-const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) => {
+interface ProblemPageProps {
+  track: Track;
+  slug: string;
+  /** Rendered under the status control (e.g. mock-interview and revisit actions). */
+  headerExtra?: React.ReactNode;
+  /** Rendered after the breakdown, before the progress box (e.g. personal notes). */
+  footerExtra?: React.ReactNode;
+}
+
+const ProblemPage: React.FC<ProblemPageProps> = ({ track, slug, headerExtra, footerExtra }) => {
   const problem = findProblem(track, slug);
   const progress = useProgress();
   const hasBreakdown = hasProblemBody(track.id, slug);
@@ -114,6 +124,8 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
   const articleRef = useRef<HTMLDivElement>(null);
   const headings = useHeadings(articleRef, state.status === 'ready', slug);
   const onReveal = useCallback(() => progressActions.markProblemStarted(track.id, slug), [track.id, slug]);
+  const tools = useSaveTools(track, { kind: 'problem', slug, title: problem?.title ?? slug, topic: 'problems', href: problemHref(track, slug) });
+  const withNotebook = Boolean(track.notebook);
 
   if (!problem) {
     return (
@@ -154,6 +166,7 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
         </h1>
         <p className="text-lg text-slate-400 leading-relaxed mb-6">{problem.summary}</p>
         <StatusControl track={track} slug={slug} title={problem.title} />
+        {headerExtra}
       </header>
 
       <section aria-label="Before you start" className="grid sm:grid-cols-2 gap-4 mb-10">
@@ -192,9 +205,20 @@ const ProblemPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) 
         {hasBreakdown && state.status === 'loading' && <ContentSkeleton />}
         {hasBreakdown && state.status === 'error' && <ContentError onRetry={retry} />}
         {hasBreakdown && state.status === 'ready' && (
-          <MarkdownContent markdown={state.body} basePath={track.basePath} onReveal={onReveal} javaVersion={track.javaVersion} />
+          <MarkdownContent
+            markdown={state.body}
+            basePath={track.basePath}
+            onReveal={onReveal}
+            javaVersion={track.javaVersion}
+            onSaveDiagram={withNotebook ? tools.onSaveDiagram : undefined}
+            onToggleQuestion={withNotebook ? tools.onToggleQuestion : undefined}
+            savedQuestions={withNotebook ? tools.savedQuestions : undefined}
+            pageKey={withNotebook ? tools.pageKey : undefined}
+          />
         )}
       </div>
+
+      {footerExtra}
 
       <div className="mt-14 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-slate-700/80 bg-slate-900/60 p-5">
         <div>
