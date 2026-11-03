@@ -20,8 +20,15 @@ export interface SavedItem {
   context: string;
   /** Stage id (lessons, sections) or interview topic id (questions), for filtering. */
   topic: string;
+  /** Model answer of a question saved from a lesson or problem page, so the notebook can show it offline. */
+  body?: string;
+  /** Page the item was saved from, when `ref` alone can't locate it. */
+  href?: string;
   at: number;
 }
+
+/** What a note records; plain notes have no kind. */
+export type NoteKind = 'note' | 'tradeoff' | 'formula' | 'mistake';
 
 export interface Note {
   id: string;
@@ -33,6 +40,7 @@ export interface Note {
   lesson?: string;
   /** Set for the note attached to a practice problem (its ref, e.g. "lc-1"). */
   problem?: string;
+  kind?: NoteKind;
   createdAt: number;
   updatedAt: number;
 }
@@ -45,6 +53,8 @@ export interface Snippet {
   language: string;
   topic: string;
   lesson?: string;
+  /** Page the snippet came from (used for diagrams saved from problem pages). */
+  href?: string;
   createdAt: number;
 }
 
@@ -166,6 +176,9 @@ export const notebookActions = {
   },
   deleteSnippet(id: string) {
     update((s) => ({ snippets: without(s.snippets, id) }));
+  },
+  updateSnippet(id: string, change: Partial<Pick<Snippet, 'title' | 'code' | 'topic'>>) {
+    update((s) => (s.snippets[id] ? { snippets: { ...s.snippets, [id]: { ...s.snippets[id], ...change } } } : {}));
   },
   markReviewed(itemKeyValue: string, on = true) {
     update((s) => ({ reviewed: on ? { ...s.reviewed, [itemKeyValue]: Date.now() } : without(s.reviewed, itemKeyValue) }));

@@ -36,6 +36,7 @@ const FilterButton: React.FC<{ active: boolean; onClick: () => void; children: R
 const STATUS_SELECT_CLASSES: Record<ProblemStatus, string> = {
   'not-started': 'text-slate-300 border-slate-700',
   'in-progress': 'text-amber-200 border-amber-500/50 bg-amber-500/10',
+  attempted: 'text-violet-200 border-violet-500/50 bg-violet-500/10',
   completed: 'text-emerald-200 border-emerald-500/50 bg-emerald-500/10',
 };
 

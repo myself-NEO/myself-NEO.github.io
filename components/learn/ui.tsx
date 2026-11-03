@@ -29,6 +29,7 @@ export const Chip: React.FC<{ children: React.ReactNode; className?: string }> =
 export const STATUS_LABEL: Record<ProblemStatus, string> = {
   'not-started': 'Not started',
   'in-progress': 'In progress',
+  attempted: 'Attempted',
   completed: 'Completed',
 };
 
@@ -37,6 +38,7 @@ export const StatusBadge: React.FC<{ status: ProblemStatus; label?: string }> = 
   const classes: Record<ProblemStatus, string> = {
     'not-started': 'text-slate-400 bg-slate-800 border-slate-700',
     'in-progress': 'text-amber-300 bg-amber-500/10 border-amber-500/30',
+    attempted: 'text-violet-300 bg-violet-500/10 border-violet-500/30',
     completed: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30',
   };
   return (
@@ -108,9 +110,18 @@ export const HalfCircleIcon: React.FC<IconProps> = ({ className = 'h-4 w-4' }) =
   </svg>
 );
 
+/** A ring with a filled centre: worked through once, not yet solid. */
+export const AttemptedIcon: React.FC<IconProps> = ({ className = 'h-4 w-4' }) => (
+  <svg className={className} viewBox="0 0 20 20" aria-hidden="true">
+    <circle cx="10" cy="10" r="7.25" fill="none" stroke="currentColor" strokeWidth={1.5} />
+    <circle cx="10" cy="10" r="3.5" fill="currentColor" />
+  </svg>
+);
+
 export const StatusIcon: React.FC<IconProps & { status: ProblemStatus }> = ({ status, className = 'h-4 w-4' }) => {
   if (status === 'completed') return <CheckCircleIcon filled className={`${className} text-emerald-400`} />;
   if (status === 'in-progress') return <HalfCircleIcon className={`${className} text-amber-400`} />;
+  if (status === 'attempted') return <AttemptedIcon className={`${className} text-violet-400`} />;
   return <CheckCircleIcon className={`${className} text-slate-600`} />;
 };
 

@@ -16,6 +16,7 @@ export const useTrackProgress = (track: Track) => {
   const quizzesPassed = lessons.filter((l) => isQuizPassed(progress, track.id, l.slug)).length;
   const problemsDone = track.problems.filter((p) => problemStatus(progress, track.id, p.slug) === 'completed').length;
   const problemsStarted = track.problems.filter((p) => problemStatus(progress, track.id, p.slug) === 'in-progress').length;
+  const problemsAttempted = track.problems.filter((p) => problemStatus(progress, track.id, p.slug) === 'attempted').length;
   const nextLesson = lessons.find((l) => !isLessonComplete(progress, track.id, l.slug));
   return {
     lessons,
@@ -23,8 +24,9 @@ export const useTrackProgress = (track: Track) => {
     quizzesPassed,
     problemsDone,
     problemsStarted,
+    problemsAttempted,
     nextLesson,
-    hasProgress: lessonsDone + quizzesPassed + problemsDone + problemsStarted > 0,
+    hasProgress: lessonsDone + quizzesPassed + problemsDone + problemsStarted + problemsAttempted > 0,
   };
 };
 

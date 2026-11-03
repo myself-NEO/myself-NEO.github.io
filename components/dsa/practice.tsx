@@ -14,6 +14,8 @@ export const PRACTICE_STATUSES: ProblemStatus[] = ['not-started', 'in-progress',
 export const PRACTICE_STATUS_LABEL: Record<ProblemStatus, string> = {
   'not-started': 'Not started',
   'in-progress': 'Attempted',
+  // Not offered for coding questions (PRACTICE_STATUSES); here so every status has a label.
+  attempted: 'Attempted',
   completed: 'Solved',
 };
 
