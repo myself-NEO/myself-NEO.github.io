@@ -11,6 +11,7 @@ import { lessonHref, problemHref, problemsHref, trackCrumbs } from './routes';
 import { practiceCopy } from './practice';
 import { takeJumpTarget } from './jump';
 import { useMarkdownBody } from './useMarkdownBody';
+import { useSaveTools } from './saveTools';
 import { ArrowIcon, BookmarkIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, FlagIcon, LevelBadge, StatusIcon, ToggleChip } from './ui';
 import { ContentError, ContentSkeleton, NotFound } from './States';
 
@@ -137,6 +138,7 @@ const LessonPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) =
     },
     [track.id, slug, lessonTitle, stageId],
   );
+  const tools = useSaveTools(track, { kind: 'lesson', slug, title: lessonTitle, topic: stageId, href: lessonHref(track, slug) });
 
   if (!location) {
     return (
@@ -298,6 +300,10 @@ const LessonPage: React.FC<{ track: Track; slug: string }> = ({ track, slug }) =
             onToggleSection={withNotebook ? onToggleSection : undefined}
             savedSections={withNotebook ? savedSections : undefined}
             onSaveSnippet={withNotebook ? onSaveSnippet : undefined}
+            onSaveDiagram={withNotebook ? tools.onSaveDiagram : undefined}
+            onToggleQuestion={withNotebook ? tools.onToggleQuestion : undefined}
+            savedQuestions={withNotebook ? tools.savedQuestions : undefined}
+            pageKey={withNotebook ? tools.pageKey : undefined}
           />
         )}
       </div>

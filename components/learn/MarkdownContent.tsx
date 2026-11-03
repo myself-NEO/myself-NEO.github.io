@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, lazy, Suspense, useContext, useMemo } from 'react';
 import ReactMarkdown, { Components, defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -7,7 +7,14 @@ import UmlDiagram from './UmlDiagram';
 import StateDiagram from './StateDiagram';
 import Quiz from './Quiz';
 import { LEARNING_ROUTE_PREFIXES } from './routes';
+import { questionHash } from './progress';
 import type { QuizAnswer } from './progress';
+
+// Interactive widgets are their own chunks: only pages that use them download them.
+const MermaidDiagram = lazy(() => import('./widgets/MermaidDiagram'));
+const Estimator = lazy(() => import('./widgets/Estimator'));
+const Drill = lazy(() => import('./widgets/Drill'));
+const Checklist = lazy(() => import('./widgets/Checklist'));
 
 // Authoring conventions for lesson/problem markdown (in addition to GFM):
 //
@@ -16,9 +23,12 @@ import type { QuizAnswer } from './progress';
 //   ```java file="Demo.java" java="21"                               → … with a "Java 21+" badge
 //   ```java file="Demo.java" java="25" preview="true"                → … with a "Java 25 preview" badge
 //   ```uml / ```states                                              → class / state diagrams
+//   ```mermaid title="..."                                           → Mermaid diagram (widgets/MermaidDiagram.tsx)
 //   ```quiz                                                          → knowledge check (see Quiz.tsx)
+//   ```drill / ```estimator / ```checklist title="..."               → estimation drill, calculator, checklist
 //   ````hint title="Hint 1"  (four backticks, may contain code)      → collapsed hint
 //   ````solution title="..." / ````reveal title="..."                → collapsed solution / explanation
+//   ````question title="The question?"                               → interview question; body is the model answer
 //   [text](lesson:slug) and [text](problem:slug)                     → links within the current track
 //   <details><summary>Title</summary> … </details>                   → same as a solution/hint/reveal block
 
@@ -38,7 +48,17 @@ interface MarkdownEnv {
   /** Shows a bookmark button on section headings; `savedSections` holds the ids already saved. */
   onToggleSection?: (id: string, title: string) => void;
   savedSections?: ReadonlySet<string>;
+  /** Shows "Save" on diagrams. */
+  onSaveDiagram?: (diagram: { source: string; title?: string }) => void;
+  /** Shows a bookmark on interview questions; `savedQuestions` holds the ids (questionId) already saved. */
+  onToggleQuestion?: (question: { id: string; title: string; body: string }) => void;
+  savedQuestions?: ReadonlySet<string>;
+  /** Identifies the page, so checklists can remember their ticks (e.g. "hld:problem:url-shortener"). */
+  pageKey?: string;
 }
+
+/** Stable id of an interview question block, derived from its title. */
+export const questionId = (title: string) => `q-${questionHash(title)}`;
 
 const MarkdownEnvContext = createContext<MarkdownEnv>({ basePath: '' });
 
@@ -91,20 +111,29 @@ const REVEAL_STYLES: Record<string, { icon: string; defaultTitle: string; classe
   hint: { icon: '💡', defaultTitle: 'Hint', classes: 'border-amber-500/30 bg-amber-500/[0.03]', summaryClass: 'text-amber-200' },
   solution: { icon: '✅', defaultTitle: 'Reference solution', classes: 'border-emerald-500/30 bg-emerald-500/[0.03]', summaryClass: 'text-emerald-200' },
   reveal: { icon: '🔍', defaultTitle: 'Show explanation', classes: 'border-slate-600 bg-slate-900/40', summaryClass: 'text-slate-200' },
+  question: { icon: '💬', defaultTitle: 'Interview question', classes: 'border-violet-500/30 bg-violet-500/[0.03]', summaryClass: 'text-violet-100' },
 };
+
+const BOOKMARK_PATH = 'M5.5 3.5h9a.5.5 0 01.5.5v12.6a.4.4 0 01-.64.32L10 13.75l-4.36 3.17A.4.4 0 015 16.6V4a.5.5 0 01.5-.5z';
 
 const Reveal: React.FC<{ kind: string; title?: string; body: string }> = ({ kind, title, body }) => {
   const env = useContext(MarkdownEnvContext);
   const style = REVEAL_STYLES[kind];
-  return (
+  const isQuestion = kind === 'question';
+  const qTitle = title ?? style.defaultTitle;
+  const qId = isQuestion ? questionId(qTitle) : '';
+  const canSave = isQuestion && Boolean(env.onToggleQuestion);
+  const saved = canSave && (env.savedQuestions?.has(qId) ?? false);
+  const details = (
     <details
-      className={`group my-5 rounded-xl border ${style.classes}`}
+      className={`group ${canSave ? '' : 'my-5 '}rounded-xl border ${style.classes}`}
+      data-question={isQuestion ? qId : undefined}
       onToggle={(e) => {
-        if (e.currentTarget.open && kind !== 'reveal') env.onReveal?.();
+        if (e.currentTarget.open && (kind === 'hint' || kind === 'solution')) env.onReveal?.();
       }}
     >
       <summary
-        className={`flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold ${style.summaryClass} rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 [&::-webkit-details-marker]:hidden`}
+        className={`flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 ${canSave ? 'pr-12 ' : ''}text-sm font-semibold ${style.summaryClass} rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 [&::-webkit-details-marker]:hidden`}
       >
         <span className="flex items-center gap-2">
           <span aria-hidden="true">{style.icon}</span>
@@ -118,7 +147,34 @@ const Reveal: React.FC<{ kind: string; title?: string; body: string }> = ({ kind
       </div>
     </details>
   );
+  if (!canSave) return details;
+  // The bookmark sits beside the summary, not inside it, so pressing it doesn't toggle the answer.
+  return (
+    <div className="relative my-5">
+      {details}
+      <button
+        type="button"
+        onClick={() => env.onToggleQuestion?.({ id: qId, title: qTitle, body })}
+        aria-pressed={saved}
+        aria-label={saved ? `Remove “${qTitle}” from saved questions` : `Save “${qTitle}” to your notebook`}
+        title={saved ? 'Saved to your notebook' : 'Save this question to your notebook'}
+        className={`absolute right-2 top-2 rounded-md p-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+          saved ? 'text-violet-300' : 'text-slate-500 hover:text-slate-200'
+        }`}
+      >
+        <svg className="h-4 w-4" viewBox="0 0 20 20" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+          <path strokeLinejoin="round" d={BOOKMARK_PATH} />
+        </svg>
+      </button>
+    </div>
+  );
 };
+
+const WidgetFallback: React.FC<{ label: string }> = ({ label }) => (
+  <div className="not-prose my-6 flex min-h-[8rem] items-center justify-center rounded-xl border border-slate-800 bg-slate-900/40 text-xs text-slate-500" role="status">
+    Loading {label}…
+  </div>
+);
 
 const PreBlock: Components['pre'] = ({ node }) => {
   const env = useContext(MarkdownEnvContext);
@@ -132,6 +188,32 @@ const PreBlock: Components['pre'] = ({ node }) => {
     return <Quiz source={source} onPassed={env.onQuizPassed} alreadyPassed={env.quizAlreadyPassed} onAnswer={env.onQuizAnswer} />;
   if (language === 'uml') return <UmlDiagram source={source} title={meta.title} />;
   if (language === 'states') return <StateDiagram source={source} title={meta.title} />;
+  if (language === 'mermaid') {
+    const onSaveDiagram = env.onSaveDiagram;
+    return (
+      <Suspense fallback={<WidgetFallback label="diagram" />}>
+        <MermaidDiagram source={source} title={meta.title} onSave={onSaveDiagram ? (src, t) => onSaveDiagram({ source: src, title: t }) : undefined} />
+      </Suspense>
+    );
+  }
+  if (language === 'estimator')
+    return (
+      <Suspense fallback={<WidgetFallback label="estimator" />}>
+        <Estimator preset={source} title={meta.title} />
+      </Suspense>
+    );
+  if (language === 'drill')
+    return (
+      <Suspense fallback={<WidgetFallback label="drill" />}>
+        <Drill source={source} onAnswer={env.onQuizAnswer} />
+      </Suspense>
+    );
+  if (language === 'checklist')
+    return (
+      <Suspense fallback={<WidgetFallback label="checklist" />}>
+        <Checklist source={source} title={meta.title} pageKey={env.pageKey} />
+      </Suspense>
+    );
   if (language && language in REVEAL_STYLES) return <Reveal kind={language} title={meta.title} body={source} />;
   const version = meta.java ? Number(meta.java) : language === 'java' && meta.file ? env.javaVersion : undefined;
   const onSave = env.onSaveSnippet;
@@ -290,6 +372,9 @@ export const htmlDetailsToReveals = (markdown: string): string => {
   return out.join('\n');
 };
 
+/** `<!-- match: … -->` comments are keyword hints for the HLD mock interview, not page content. */
+const stripMatchComments = (markdown: string) => (markdown.includes('<!--') ? markdown.replace(/[ \t]*<!--\s*match:[^>]*-->/g, '') : markdown);
+
 const MarkdownBody: React.FC<{ markdown: string }> = ({ markdown }) => {
   const { basePath } = useContext(MarkdownEnvContext);
   // Parsing is the expensive part; context consumers inside still update.
@@ -301,7 +386,7 @@ const MarkdownBody: React.FC<{ markdown: string }> = ({ markdown }) => {
         components={COMPONENTS}
         urlTransform={makeUrlTransform(basePath)}
       >
-        {htmlDetailsToReveals(markdown)}
+        {htmlDetailsToReveals(stripMatchComments(markdown))}
       </ReactMarkdown>
     ),
     [markdown, basePath],

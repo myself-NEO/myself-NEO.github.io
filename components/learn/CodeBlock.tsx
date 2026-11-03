@@ -23,7 +23,7 @@ const LANGUAGE_LABEL: Record<string, string> = {
   xml: 'XML',
 };
 
-const copyText = async (text: string) => {
+export const copyText = async (text: string) => {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
     return;

@@ -5,20 +5,19 @@ import { problemStatus, progressActions, useProgress } from '../learn/progress';
 import { lessonHref, problemHref, problemsHref, trackHref } from '../learn/routes';
 import { ProgressStat, SearchPanel, StageRoadmap, useTrackProgress } from '../learn/LandingParts';
 import { ArrowIcon, Chip, LEVEL_LABEL, LevelBadge, ProgressBar, StatusIcon } from '../learn/ui';
+import { flattenLessons } from '../../content/shared/curriculum';
+import { isLessonComplete } from '../learn/progress';
+import { COMPARISON } from './comparison';
 
-const COMPARISON: { aspect: string; lld: string; hld: string }[] = [
-  { aspect: 'Question it answers', lld: 'How is the code inside one component organised?', hld: 'Which components exist and how do they talk?' },
-  { aspect: 'Building blocks', lld: 'Classes, interfaces, enums, methods, patterns', hld: 'Services, databases, caches, queues, load balancers' },
-  { aspect: 'Typical prompt', lld: '“Design a parking lot” — model it in Java', hld: '“Design Twitter” — serve 100M users' },
-  { aspect: 'Main concerns', lld: 'Responsibilities, extensibility, correctness, testability', hld: 'Scalability, availability, latency, consistency' },
-  { aspect: 'Output', lld: 'Class diagram + working code for core flows', hld: 'Architecture diagram + data model + APIs' },
-  { aspect: 'Scale of thinking', lld: 'Objects and method calls (ns–ms)', hld: 'Machines and network hops (ms–s)' },
-];
 
-const Landing: React.FC<{ track: Track; plannedTrack: Track; focusRoadmap?: boolean }> = ({ track, plannedTrack, focusRoadmap }) => {
+/** The System Design landing (LLD roadmap) with both tracks; `otherTrack` is HLD. */
+const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolean }> = ({ track, otherTrack, focusRoadmap }) => {
   const progress = useProgress();
   const { lessons, lessonsDone, quizzesPassed, problemsDone, problemsStarted, nextLesson, hasProgress } = useTrackProgress(track);
   const workedProblems = track.problems.filter((p) => hasProblemBody(track.id, p.slug)).length;
+  const otherLessons = flattenLessons(otherTrack).map((l) => l.lesson);
+  const otherAvailable = otherLessons.filter((l) => !l.comingSoon);
+  const otherDone = otherAvailable.filter((l) => isLessonComplete(progress, otherTrack.id, l.slug)).length;
 
   useEffect(() => {
     if (focusRoadmap) document.getElementById('roadmap')?.scrollIntoView();
@@ -49,6 +48,13 @@ const Landing: React.FC<{ track: Track; plannedTrack: Track; focusRoadmap?: bool
               {workedProblems === track.problems.length
                 ? ', each with a fully worked, tested solution.'
                 : ` (${workedProblems} with fully worked, tested solutions so far).`}
+              {otherTrack.status === 'active' && (
+                <>
+                  {' '}
+                  The <a href={trackHref(otherTrack)} className="text-sky-400 hover:underline">HLD track</a> covers the architecture layer —
+                  distributed systems, data stores, caching, messaging and timed mock interviews.
+                </>
+              )}
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -140,25 +146,54 @@ const Landing: React.FC<{ track: Track; plannedTrack: Track; focusRoadmap?: bool
               </div>
             </div>
 
-            <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 p-6" aria-disabled="true">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{plannedTrack.shortTitle} · Planned</span>
-                <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">Coming soon</span>
+            {otherTrack.status === 'active' ? (
+              <div className="rounded-2xl border border-sky-500/40 bg-slate-800/60 p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-300">{otherTrack.shortTitle} · Available now</span>
+                  <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Active</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">{otherTrack.title}</h3>
+                <p className="text-sm text-sky-300/80 mb-3">{otherTrack.tagline}</p>
+                <p className="text-sm text-slate-400 mb-5">{otherTrack.description}</p>
+                <div className="flex flex-wrap gap-2 mb-5">
+                  <Chip>{otherTrack.stages.length + 1} stages</Chip>
+                  <Chip>
+                    {otherAvailable.length} of {otherLessons.length} lessons
+                  </Chip>
+                  <Chip>{otherTrack.problems.length} problems</Chip>
+                  <Chip>Mock interviews</Chip>
+                </div>
+                <ProgressBar value={otherDone} max={otherAvailable.length} label="HLD lessons completed" />
+                <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
+                  <a href={trackHref(otherTrack)} className="inline-flex items-center gap-1.5 text-sky-400 hover:text-sky-300">
+                    {otherDone > 0 ? 'Continue HLD' : 'Start the HLD track'} <ArrowIcon className="h-3.5 w-3.5" />
+                  </a>
+                  <a href={`${trackHref(otherTrack)}/interview`} className="text-slate-400 hover:text-white">
+                    Mock interviews
+                  </a>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-300 mb-1">{plannedTrack.title}</h3>
-              <p className="text-sm text-slate-500 mb-3">{plannedTrack.tagline}</p>
-              <p className="text-sm text-slate-500 mb-4">{plannedTrack.description}</p>
-              <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5">
-                {plannedTrack.plannedTopics?.map((t) => (
-                  <li key={t.title} className="text-xs text-slate-500" title={t.description}>
-                    • {t.title}
-                  </li>
-                ))}
-              </ul>
-              <a href={trackHref(plannedTrack)} className="inline-block mt-5 text-xs font-medium text-slate-400 hover:text-sky-400">
-                See what’s planned →
-              </a>
-            </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 p-6" aria-disabled="true">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{otherTrack.shortTitle} · Planned</span>
+                  <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">Coming soon</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-300 mb-1">{otherTrack.title}</h3>
+                <p className="text-sm text-slate-500 mb-3">{otherTrack.tagline}</p>
+                <p className="text-sm text-slate-500 mb-4">{otherTrack.description}</p>
+                <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                  {otherTrack.plannedTopics?.map((t) => (
+                    <li key={t.title} className="text-xs text-slate-500" title={t.description}>
+                      • {t.title}
+                    </li>
+                  ))}
+                </ul>
+                <a href={trackHref(otherTrack)} className="inline-block mt-5 text-xs font-medium text-slate-400 hover:text-sky-400">
+                  See what’s planned →
+                </a>
+              </div>
+            )}
           </div>
         </section>
 
@@ -306,8 +341,8 @@ java ParkingLotDemo`}</code>
       </div>
 
       <footer className="border-t border-slate-800 py-8 px-6 text-center text-sm text-slate-500">
-        Original content written for this site. LLD curriculum structure informed by public interview-prep material such as Hello Interview’s
-        LLD guide. <a href="#" className="text-sky-400 hover:underline">Back to portfolio</a>
+        Original content written for this site. LLD and HLD curriculum structure informed by public interview-prep material such as Hello
+        Interview’s LLD guide and System Design course. <a href="#" className="text-sky-400 hover:underline">Back to portfolio</a>
       </footer>
     </main>
   );

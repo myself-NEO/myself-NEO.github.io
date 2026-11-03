@@ -9,11 +9,18 @@ import type { QuizAnswer } from './progress';
 //   - A wrong option
 //   + The correct option
 //   - Another wrong option
+//   ! Optional: why the option above is wrong (shown when it is chosen, and for every option once solved).
 //   > Explanation shown once the question is answered correctly.
+
+interface QuizOption {
+  text: string;
+  correct: boolean;
+  reason?: string;
+}
 
 interface QuizQuestion {
   prompt: string;
-  options: { text: string; correct: boolean }[];
+  options: QuizOption[];
   explanation: string;
 }
 
@@ -27,6 +34,9 @@ export const parseQuiz = (source: string): QuizQuestion[] => {
       questions.push(current);
     } else if (current && (line.startsWith('- ') || line.startsWith('+ '))) {
       current.options.push({ text: line.slice(2), correct: line.startsWith('+') });
+    } else if (current && line.startsWith('! ') && current.options.length > 0) {
+      const option = current.options[current.options.length - 1];
+      option.reason = `${option.reason ?? ''} ${line.slice(2).trim()}`.trim();
     } else if (current && line.startsWith('>')) {
       current.explanation = `${current.explanation} ${line.slice(1).trim()}`.trim();
     }
@@ -56,6 +66,8 @@ const Question: React.FC<{
   const name = useId();
   const answeredCorrectly = selected !== undefined && question.options[selected].correct;
   const showAnswer = answeredCorrectly || revealed;
+  const wrongReason = selected !== undefined && !answeredCorrectly ? question.options[selected].reason : undefined;
+  const otherReasons = question.options.filter((o) => !o.correct && o.reason);
 
   return (
     <div className="rounded-xl border border-slate-700/80 bg-slate-900/50 p-4 sm:p-5">
@@ -101,6 +113,12 @@ const Question: React.FC<{
         <div aria-live="polite">
           {selected !== undefined && !answeredCorrectly && !revealed && (
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              {wrongReason && (
+                <span className="basis-full text-slate-300">
+                  <span className="font-semibold text-rose-300">Why not: </span>
+                  <Inline text={wrongReason} />
+                </span>
+              )}
               <span className="text-rose-300">Not quite — try another option.</span>
               <button type="button" onClick={onReveal} className="text-slate-400 hover:text-white underline underline-offset-2">
                 Show answer
@@ -112,6 +130,22 @@ const Question: React.FC<{
               <span className="font-semibold text-emerald-300">Why: </span>
               <Inline text={question.explanation} />
             </p>
+          )}
+          {showAnswer && otherReasons.length > 0 && (
+            <div className="mt-2 text-sm text-slate-300 bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2">
+              <p className="font-semibold text-slate-200 mb-1">Why the other options are wrong</p>
+              <ul className="space-y-1.5">
+                {otherReasons.map((o) => (
+                  <li key={o.text} className="[overflow-wrap:anywhere]">
+                    <span className="text-rose-300/90">
+                      <Inline text={o.text} />
+                    </span>
+                    {' — '}
+                    <Inline text={o.reason ?? ''} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </fieldset>

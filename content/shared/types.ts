@@ -5,6 +5,9 @@
 export type TrackId = 'lld' | 'hld' | 'dsa' | 'java';
 export type Level = 'beginner' | 'intermediate' | 'advanced';
 
+/** Structure a lesson follows; tracks with a content validator use it to check required sections. */
+export type LessonFormat = 'concept' | 'pattern' | 'technology' | 'estimation' | 'method' | 'workshop' | 'checkpoint';
+
 export interface LessonMeta {
   slug: string;
   title: string;
@@ -25,6 +28,7 @@ export interface LessonMeta {
   comingSoon?: boolean;
   /** Minimum Java release the lesson's examples need, when newer than the track baseline. */
   javaVersion?: number;
+  format?: LessonFormat;
 }
 
 export interface CurriculumModule {
@@ -69,6 +73,8 @@ export interface PracticeCopy {
   /** "How to practise" steps shown on every problem page. */
   steps: string[];
   searchPlaceholder: string;
+  /** Shown on a problem page whose breakdown hasn't been written yet (defaults to the exercise wording). */
+  comingSoon?: { title: string; body: string };
 }
 
 export interface PlannedTopic {
@@ -105,6 +111,13 @@ export interface Track {
   notebook?: boolean;
   /** Shown for lessons without prerequisites; defaults to "Basic <language> syntax is assumed." */
   assumedKnowledge?: string;
+  /** Placeholder of the personal-notes box at the end of lessons. */
+  notePlaceholder?: string;
+  /** Statuses a learner can give a problem; defaults to DEFAULT_PROBLEM_STATUSES. */
+  problemStatuses?: ProblemStatus[];
 }
 
-export type ProblemStatus = 'not-started' | 'in-progress' | 'completed';
+/** "Attempted" = worked through end to end (e.g. a mock interview) but not yet solid. */
+export type ProblemStatus = 'not-started' | 'in-progress' | 'attempted' | 'completed';
+
+export const DEFAULT_PROBLEM_STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'completed'];
