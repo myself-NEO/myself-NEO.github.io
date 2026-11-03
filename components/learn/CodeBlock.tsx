@@ -21,6 +21,13 @@ const LANGUAGE_LABEL: Record<string, string> = {
   sh: 'Shell',
   json: 'JSON',
   xml: 'XML',
+  sql: 'SQL',
+  http: 'HTTP',
+  graphql: 'GraphQL',
+  protobuf: 'Protocol Buffers',
+  properties: 'Properties',
+  yaml: 'YAML',
+  lua: 'Lua',
 };
 
 export const copyText = async (text: string) => {
