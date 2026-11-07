@@ -322,7 +322,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ source, title, onSave, 
       )}
 
       {state.status === 'loading' && (
-        <div className="flex items-center justify-center min-h-[8rem] text-xs text-slate-500" role="status">
+        <div className="flex items-center justify-center min-h-[8rem] text-xs text-slate-400" role="status">
           Rendering diagram…
         </div>
       )}
@@ -330,7 +330,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ source, title, onSave, 
         <div className="px-4 py-3" role="alert">
           <p className="text-xs font-semibold text-amber-300 mb-2">This diagram couldn’t be drawn. Its text is shown instead.</p>
           {compact && <p className="text-xs text-slate-400 mb-2 [overflow-wrap:anywhere]">{state.message.split('\n')[0]}</p>}
-          {!compact && <pre className="overflow-x-auto text-[13px] leading-relaxed text-slate-300 font-mono">{source.trim()}</pre>}
+          {!compact && <pre className="overflow-x-auto text-[13px] leading-relaxed text-slate-300 font-mono" tabIndex={0}>{source.trim()}</pre>}
         </div>
       )}
       <div className={`overflow-x-auto ${state.status === 'ready' ? 'px-3 py-4' : 'hidden'}`} tabIndex={state.status === 'ready' ? 0 : -1} aria-label={`${label} (scrollable)`}>
@@ -338,7 +338,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ source, title, onSave, 
       </div>
 
       {showText && (
-        <pre className="border-t border-slate-800 overflow-x-auto px-4 py-3 text-[12.5px] leading-relaxed text-slate-300 font-mono">{source.trim()}</pre>
+        <pre className="border-t border-slate-800 overflow-x-auto px-4 py-3 text-[12.5px] leading-relaxed text-slate-300 font-mono" tabIndex={0}>{source.trim()}</pre>
       )}
 
       <dialog

@@ -114,7 +114,7 @@ sequenceDiagram
 
 ## Trade-offs
 
-| | TCP | UDP | QUIC (over UDP) |
+| Aspect | TCP | UDP | QUIC (over UDP) |
 |---|---|---|---|
 | Setup cost | 1 RTT handshake (+ TLS) | None | 1 RTT including TLS; 0-RTT on resumption |
 | Reliability and order | Built in | None — application decides | Built in, per stream |

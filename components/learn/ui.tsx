@@ -178,6 +178,24 @@ export const Breadcrumbs: React.FC<{ items: { label: string; href?: string }[] }
 
 export const focusRing = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900';
 
+const RADIO_STEPS: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+
+/** Keyboard support for a `role="radiogroup"` of buttons (ARIA radio pattern): arrow keys move to and select the next radio. */
+export const onRadioGroupKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+  const step = RADIO_STEPS[e.key];
+  if (!step) return;
+  const radios = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]'));
+  const i = radios.indexOf(document.activeElement as HTMLElement);
+  if (i < 0) return;
+  e.preventDefault();
+  const next = radios[(i + step + radios.length) % radios.length];
+  next.focus();
+  next.click();
+};
+
+/** Roving tab index for the same groups: only the checked radio (or the first, when none is) is a tab stop. */
+export const radioTabIndex = (checked: boolean, index: number, anyChecked: boolean) => (checked || (!anyChecked && index === 0) ? 0 : -1);
+
 export const BookmarkIcon: React.FC<IconProps & { filled?: boolean }> = ({ className = 'h-4 w-4', filled }) => (
   <svg className={className} viewBox="0 0 20 20" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
     <path strokeLinejoin="round" d="M5.5 3.5h9a.5.5 0 01.5.5v12.6a.4.4 0 01-.64.32L10 13.75l-4.36 3.17A.4.4 0 015 16.6V4a.5.5 0 01.5-.5z" />

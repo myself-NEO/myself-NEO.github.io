@@ -104,7 +104,7 @@ sequenceDiagram
 
 ## Trade-offs
 
-| | 2PC | Saga | Avoid it |
+| Aspect | 2PC | Saga | Avoid it |
 |---|---|---|---|
 | Atomicity | Yes | Eventually, via compensation | Within one service |
 | Isolation | Yes (locks) | No — intermediate states visible | Within one service |

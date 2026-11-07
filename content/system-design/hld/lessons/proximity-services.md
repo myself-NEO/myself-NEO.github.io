@@ -5,7 +5,7 @@ index, the update path and the ranking for each.
 
 ## The problem
 
-| | Static places (shops, restaurants, hotels) | Moving objects (drivers, couriers, scooters) |
+| Aspect | Static places (shops, restaurants, hotels) | Moving objects (drivers, couriers, scooters) |
 |---|---|---|
 | Updates | Rare (new place, edited hours) | Every 3–5 seconds per object |
 | Reads | Very high, often with text and filters | High, from a matching or dispatch service |

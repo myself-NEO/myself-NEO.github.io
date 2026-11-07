@@ -70,7 +70,7 @@ service CourseService {
 
 ### Side by side
 
-| | REST | GraphQL | gRPC |
+| Aspect | REST | GraphQL | gRPC |
 |---|---|---|---|
 | Contract | Optional (OpenAPI) | Required schema | Required `.proto` |
 | Payload | JSON (text) | JSON (text) | Protocol Buffers (binary) |

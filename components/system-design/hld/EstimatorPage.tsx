@@ -43,12 +43,13 @@ const EstimatorPage: React.FC<{ track: Track }> = ({ track }) => (
           Change any assumption and every figure updates, with the working shown. Use it to check your mental maths — in an interview you
           will do this out loud with rounded numbers. The defaults are the classic exercise: 100 million requests a day, 10:1 reads to writes,
           1 KB records kept for five years.{' '}
-          <a href={lessonHref(track, 'estimation-basics')} className="text-sky-400 hover:underline">
+          <a href={lessonHref(track, 'estimation-basics')} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
             Learn the method
           </a>
           .
         </p>
       </header>
+      <h2 className="sr-only">Calculator</h2>
       <Estimator title="Your system" />
       <section aria-labelledby="numbers-heading" className="grid md:grid-cols-2 gap-5 mt-10">
         <h2 id="numbers-heading" className="sr-only">
@@ -75,7 +76,7 @@ const EstimatorPage: React.FC<{ track: Track }> = ({ track }) => (
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-slate-400">
             These are orders of magnitude for estimation, not benchmarks; real numbers vary with hardware, payload and configuration.
           </p>
         </div>

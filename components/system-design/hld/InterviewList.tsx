@@ -28,7 +28,9 @@ const InterviewList: React.FC<{ track: Track }> = ({ track }) => {
             Each mock interview walks you through the nine steps against the clock: ask the interviewer clarifying questions, write requirements
             and APIs, estimate with the calculator, draw your design in Mermaid, pick deep dives, then compare with the reference and rate
             yourself. Answers are scripted per problem and matched to your questions by keywords; scores are your own self-assessment.{' '}
-            {available} of {track.problems.length} are available now — the rest open as their breakdowns are published.
+            {available === track.problems.length
+              ? `All ${track.problems.length} problems are available, grouped by difficulty.`
+              : `${available} of ${track.problems.length} are available now — the rest open as their breakdowns are published.`}
           </p>
         </header>
 

@@ -156,9 +156,9 @@ export const Draft: React.FC<DraftProps> = ({ track, slug, session, draftKey, la
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
         placeholder={placeholder}
-        className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+        className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
       />
-      <p className="mt-1 text-[11px] text-slate-500">Saved as you type, in this browser.</p>
+      <p className="mt-1 text-[11px] text-slate-400">Saved as you type, in this browser.</p>
     </div>
   );
 };

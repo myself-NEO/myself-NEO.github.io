@@ -82,7 +82,7 @@ flowchart LR
 
 ## Trade-offs
 
-| | Queue (competing consumers) | Pub/sub |
+| Aspect | Queue (competing consumers) | Pub/sub |
 |---|---|---|
 | Delivery | Each message to one consumer | Each event to every subscription |
 | Purpose | Share work | Broadcast facts |

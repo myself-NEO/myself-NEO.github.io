@@ -27,6 +27,8 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
   const essentialMinutes = allLessons.filter((l) => l.essential).reduce((sum, l) => sum + l.minutes, 0);
   const practiceMinutes = track.problems.reduce((sum, p) => sum + p.minutes, 0);
   const written = track.problems.filter((p) => hasBreakdown(track, p.slug));
+  const allPublished = lessons.length === allLessons.length && written.length === track.problems.length;
+  const checkpoints = allLessons.filter((l) => l.format === 'checkpoint').length;
   const mockDone = Object.entries(interviews.history).filter(([k, v]) => k.startsWith(`${track.id}:`) && v.length > 0).length;
   const overall = lessons.length === 0 ? 0 : Math.round((lessonsDone / lessons.length) * 100);
   const ctaHref = nextLesson ? lessonHref(track, nextLesson.slug) : problemsHref(track);
@@ -62,9 +64,10 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
                 how to explain the trade-off in a 45–60 minute interview.
               </p>
               <p className="text-slate-400 leading-relaxed mb-8 max-w-2xl">
-                {track.stages.length} stages from fundamentals to production engineering, {track.problems.length} interview problems and a
-                guided mock-interview mode. Content is published stage by stage: {lessons.length} of {allLessons.length} lessons and{' '}
-                {written.length} of {track.problems.length} problem breakdowns are available now.
+                {track.stages.length} stages from fundamentals to production engineering: {allLessons.length} lessons with knowledge
+                checks, {track.problems.length} interview problems with step-by-step breakdowns, and a guided mock-interview mode.
+                {!allPublished &&
+                  ` Content is published stage by stage: ${lessons.length} of ${allLessons.length} lessons and ${written.length} of ${track.problems.length} problem breakdowns are available now.`}
               </p>
               <div className="flex flex-wrap gap-3">
                 <a
@@ -83,7 +86,7 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
               </div>
               {nextLesson && lessonsDone > 0 && (
                 <p className="mt-4 text-sm text-slate-400">
-                  Up next: <a href={ctaHref} className="text-sky-400 hover:underline">{nextLesson.title}</a>
+                  Up next: <a href={ctaHref} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">{nextLesson.title}</a>
                 </p>
               )}
             </div>
@@ -97,10 +100,10 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
               <ProgressStat label="Knowledge checks passed" value={quizzesPassed} max={lessons.length} />
               <ProgressStat label="Problems completed" value={problemsDone} max={track.problems.length} />
               <ProgressStat label="Mock interviews done" value={mockDone} max={written.length} />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 {problemsStarted} in progress · {problemsAttempted} attempted. Stored in this browser only.{' '}
                 {(hasProgress || mockDone > 0) && (
-                  <button type="button" onClick={resetHld} className="text-slate-500 hover:text-rose-300 underline underline-offset-2">
+                  <button type="button" onClick={resetHld} className="text-slate-400 hover:text-rose-300 underline underline-offset-2">
                     Reset HLD
                   </button>
                 )}
@@ -115,14 +118,18 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
           <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: 'Stages', value: track.stages.length, detail: 'plus the practice library' },
-              { label: 'Lessons', value: allLessons.length, detail: `${lessons.length} available now` },
+              {
+                label: 'Lessons',
+                value: allLessons.length,
+                detail: lessons.length < allLessons.length ? `${lessons.length} available now` : `including ${checkpoints} stage checkpoints`,
+              },
               { label: 'Learning time', value: `~${hours(totalMinutes)} h`, detail: `~${hours(essentialMinutes)} h for essentials only` },
               { label: 'Practice', value: `${track.problems.length} problems`, detail: `~${hours(practiceMinutes)} h of timed attempts` },
             ].map((s) => (
               <li key={s.label} className="rounded-2xl border border-slate-700/80 bg-slate-800/40 p-4">
                 <p className="text-sm text-slate-400">{s.label}</p>
                 <p className="mt-1 text-2xl font-semibold text-white">{s.value}</p>
-                <p className="mt-1 text-xs text-slate-500">{s.detail}</p>
+                <p className="mt-1 text-xs text-slate-400">{s.detail}</p>
               </li>
             ))}
           </ul>
@@ -139,12 +146,12 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
           </h2>
           <p className="text-slate-400 mb-6 max-w-3xl">
             Two zoom levels of the same system. An HLD box labelled “Booking Service” is designed internally with LLD — see the{' '}
-            <a href="#system-design/lld" className="text-sky-400 hover:underline">
+            <a href="#system-design/lld" className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
               LLD track
             </a>
             . Companies usually test them in separate rounds.
           </p>
-          <div className="overflow-x-auto rounded-xl border border-slate-700/80">
+          <div className="overflow-x-auto rounded-xl border border-slate-700/80" tabIndex={0}>
             <table className="w-full text-left text-sm min-w-[36rem]">
               <thead className="bg-slate-900/80">
                 <tr>
@@ -174,7 +181,7 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
           <p className="text-slate-400 mb-6 max-w-3xl">
             The same six dimensions at every level; the bar moves. At senior level you are expected to lead — find the hard parts yourself
             and bring the trade-offs before you are asked.{' '}
-            <a href={lessonHref(track, 'interview-rubric')} className="text-sky-400 hover:underline">
+            <a href={lessonHref(track, 'interview-rubric')} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
               More in the rubric lesson
             </a>
             .
@@ -205,8 +212,14 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
             HLD <span className="text-sky-500">roadmap</span>
           </h2>
           <p className="text-slate-400 mb-8 max-w-3xl">
-            Beginner to advanced. Lessons marked <em>deep dive</em> can wait until the fundamentals feel comfortable; stages still being
-            written are marked <em>coming soon</em> and list what they will cover.
+            Beginner to advanced, and each stage ends with a checkpoint. Lessons marked <em>deep dive</em> can wait until the
+            fundamentals feel comfortable.
+            {lessons.length < allLessons.length && (
+              <>
+                {' '}
+                Stages still being written are marked <em>coming soon</em> and list what they will cover.
+              </>
+            )}
           </p>
           <StageRoadmap
             track={track}
@@ -218,7 +231,7 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
                 <div className="rounded-2xl border border-slate-700/80 bg-slate-800/40 p-5">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Stage {track.stages.length + 1} · Beginner → Advanced</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Stage {track.stages.length + 1} · Beginner → Advanced</p>
                       <h3 className="text-lg font-bold text-white">HLD Interview Problems</h3>
                       <p className="text-sm text-slate-400 mt-1">
                         {track.problems.length} problems, each derived step by step and practisable as a timed mock interview.
@@ -257,10 +270,10 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
               <li key={step.stage.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <p className="font-semibold text-slate-100">
-                    <span className="text-slate-500 mr-1.5">Stage {step.stage.number}</span>
+                    <span className="text-slate-400 mr-1.5">Stage {step.stage.number}</span>
                     {step.stage.title}
                   </p>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                     <ClockIcon /> ~{hours(step.minutes)} h · {step.lessons} lessons{step.written < step.lessons ? ` (${step.written} available)` : ''}
                   </span>
                 </div>
@@ -275,7 +288,7 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
                       >
                         <StatusIcon status={problemStatus(progress, track.id, p.slug)} className="h-3.5 w-3.5" />
                         {p.title}
-                        {!hasBreakdown(track, p.slug) && <span className="text-[10px] uppercase tracking-wider text-slate-500">soon</span>}
+                        {!hasBreakdown(track, p.slug) && <span className="text-[10px] uppercase tracking-wider text-slate-400">soon</span>}
                       </a>
                     ))}
                   </div>
@@ -313,7 +326,7 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
                         <a href={problemHref(track, p.slug)} className="flex items-center gap-2 py-1 text-sm text-slate-300 hover:text-sky-300">
                           <StatusIcon status={problemStatus(progress, track.id, p.slug)} className="h-4 w-4 flex-shrink-0" />
                           {p.title}
-                          {!hasBreakdown(track, p.slug) && <span className="text-[10px] uppercase tracking-wider text-slate-500">soon</span>}
+                          {!hasBreakdown(track, p.slug) && <span className="text-[10px] uppercase tracking-wider text-slate-400">soon</span>}
                         </a>
                       </li>
                     ))}
@@ -360,9 +373,9 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
         </section>
       </div>
 
-      <footer className="border-t border-slate-800 py-8 px-6 text-center text-sm text-slate-500">
+      <footer className="border-t border-slate-800 py-8 px-6 text-center text-sm text-slate-400">
         Original content written for this site. HLD curriculum structure and problem selection informed by public interview-prep material
-        such as Hello Interview’s System Design course. <a href={ROOT_HREF} className="text-sky-400 hover:underline">Back to System Design</a>
+        such as Hello Interview’s System Design course. <a href={ROOT_HREF} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">Back to System Design</a>
       </footer>
     </main>
   );

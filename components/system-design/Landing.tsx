@@ -158,7 +158,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
                 <div className="flex flex-wrap gap-2 mb-5">
                   <Chip>{otherTrack.stages.length + 1} stages</Chip>
                   <Chip>
-                    {otherAvailable.length} of {otherLessons.length} lessons
+                    {otherAvailable.length < otherLessons.length ? `${otherAvailable.length} of ${otherLessons.length}` : otherLessons.length} lessons
                   </Chip>
                   <Chip>{otherTrack.problems.length} problems</Chip>
                   <Chip>Mock interviews</Chip>
@@ -206,7 +206,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
             They are complementary zoom levels. An HLD box labelled “Booking Service” is designed internally with LLD. Interviews usually
             test them in separate rounds.
           </p>
-          <div className="overflow-x-auto rounded-xl border border-slate-700/80">
+          <div className="overflow-x-auto rounded-xl border border-slate-700/80" tabIndex={0}>
             <table className="w-full text-left text-sm min-w-[36rem]">
               <thead className="bg-slate-900/80">
                 <tr>
@@ -328,7 +328,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
                 <li>Run it directly — no build tool needed.</li>
               </ol>
             </div>
-            <pre className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 text-[13px] font-mono text-slate-300 overflow-x-auto self-center">
+            <pre className="rounded-xl bg-slate-950/70 border border-slate-800 p-4 text-[13px] font-mono text-slate-300 overflow-x-auto self-center" tabIndex={0}>
               <code>{`# Java 11+ can run a single source file directly
 java ParkingLotDemo.java
 

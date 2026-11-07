@@ -150,7 +150,7 @@ flowchart TB
 
 ## Trade-offs
 
-| | Normalised | Denormalised |
+| Aspect | Normalised | Denormalised |
 |---|---|---|
 | Correctness | Each fact once; no contradictions | Copies can drift |
 | Writes | One place to update | Several places; more write work |
