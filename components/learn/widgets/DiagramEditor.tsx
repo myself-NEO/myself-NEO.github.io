@@ -107,7 +107,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({ value, onChange, label, r
           rows={rows}
           spellCheck={false}
           placeholder={STARTER_DIAGRAM}
-          className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-[13px] leading-relaxed text-slate-200 placeholder:text-slate-600 font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+          className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-[13px] leading-relaxed text-slate-200 placeholder:text-slate-500 font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
         />
         {isFlowchart && ids.length >= 2 && (
           <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Connect two components">
@@ -151,7 +151,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({ value, onChange, label, r
             </button>
           </div>
         )}
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-slate-400">
           Mermaid syntax: <code className="text-slate-400">A --&gt; B</code>, <code className="text-slate-400">A --&gt;|label| B</code>, shapes{' '}
           <code className="text-slate-400">[box]</code> <code className="text-slate-400">[(store)]</code> <code className="text-slate-400">[[queue]]</code>. A{' '}
           <code className="text-slate-400">sequenceDiagram</code> works too.
@@ -164,7 +164,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({ value, onChange, label, r
             <MermaidDiagram source={preview} compact onRendered={setError} />
           </Suspense>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
+          <div className="rounded-xl border border-dashed border-slate-700 px-4 py-10 text-center text-xs text-slate-400">
             Insert a component or type a diagram to see it here.
           </div>
         )}

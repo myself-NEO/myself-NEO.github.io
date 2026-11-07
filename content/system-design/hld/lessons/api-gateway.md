@@ -39,7 +39,7 @@ must *not* do, and how it differs from a load balancer.
 
 ### Gateway vs load balancer vs service mesh
 
-| | Load balancer | API gateway | Service mesh |
+| Aspect | Load balancer | API gateway | Service mesh |
 |---|---|---|---|
 | Traffic | Any, into a pool of identical servers | External clients into many different services (north–south) | Service-to-service (east–west) |
 | Knows about | Servers and health | APIs, clients, keys, plans, routes | Services, identities, call policies |

@@ -63,7 +63,7 @@ const LessonNotes: React.FC<{ track: Track; lesson: LessonMeta; topic: string; n
         {notebookHref ? (
           <>
             {' '}and collected in your{' '}
-            <a href={notebookHref} className="text-sky-400 hover:underline">
+            <a href={notebookHref} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
               revision notebook
             </a>
           </>

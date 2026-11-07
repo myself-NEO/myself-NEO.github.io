@@ -13,7 +13,7 @@ single point of failure itself.
 
 ### Layer 4 vs layer 7
 
-| | L4 (transport) | L7 (application) |
+| Aspect | L4 (transport) | L7 (application) |
 |---|---|---|
 | Decides using | IP addresses, ports, protocol | URL path, host, headers, cookies, method |
 | Unit balanced | Connections (TCP) or flows (UDP) | Individual HTTP requests |

@@ -7,7 +7,7 @@ import MarkdownContent from './MarkdownContent';
 import { isLessonComplete, problemStatus, progressActions, useProgress } from './progress';
 import { lessonHref, problemHref, problemsHref, trackCrumbs } from './routes';
 import { useMarkdownBody } from './useMarkdownBody';
-import { ArrowIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, LevelBadge, STATUS_LABEL, StatusIcon } from './ui';
+import { ArrowIcon, Breadcrumbs, CheckCircleIcon, Chip, ClockIcon, LevelBadge, onRadioGroupKeyDown, STATUS_LABEL, StatusIcon } from './ui';
 import { ContentError, ContentSkeleton, NotFound } from './States';
 import { practiceCopy } from './practice';
 import { useSaveTools } from './saveTools';
@@ -23,7 +23,7 @@ export const StatusControl: React.FC<{ track: Track; slug: string; title: string
   const progress = useProgress();
   const status = problemStatus(progress, track.id, slug);
   return (
-    <div role="radiogroup" aria-label={`Status of ${title}`} className="inline-flex flex-wrap rounded-xl border border-slate-700 bg-slate-950/50 p-1 gap-1">
+    <div role="radiogroup" aria-label={`Status of ${title}`} onKeyDown={onRadioGroupKeyDown} className="inline-flex flex-wrap rounded-xl border border-slate-700 bg-slate-950/50 p-1 gap-1">
       {(track.problemStatuses ?? DEFAULT_PROBLEM_STATUSES).map((s) => {
         const active = s === status;
         return (
@@ -32,6 +32,7 @@ export const StatusControl: React.FC<{ track: Track; slug: string; title: string
             type="button"
             role="radio"
             aria-checked={active}
+            tabIndex={active ? 0 : -1}
             onClick={() => progressActions.setProblemStatus(track.id, slug, s)}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
               active ? ACTIVE_STATUS_CLASSES[s] : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'

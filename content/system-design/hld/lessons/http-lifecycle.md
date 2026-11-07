@@ -49,7 +49,7 @@ presents a certificate too — common between internal services.
 
 ### HTTP versions
 
-| | HTTP/1.1 | HTTP/2 | HTTP/3 |
+| Aspect | HTTP/1.1 | HTTP/2 | HTTP/3 |
 |---|---|---|---|
 | Transport | TCP | TCP | QUIC over UDP |
 | Requests per connection at once | One (pipelining is effectively unused) | Many, multiplexed as streams | Many, as independent streams |

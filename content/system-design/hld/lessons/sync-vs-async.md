@@ -84,7 +84,7 @@ flowchart LR
 
 ## Trade-offs
 
-| | Synchronous | Asynchronous |
+| Aspect | Synchronous | Asynchronous |
 |---|---|---|
 | Latency to the user | Sum of the chain | Only the synchronous part |
 | Coupling | Caller depends on callee being up | Broker absorbs outages |

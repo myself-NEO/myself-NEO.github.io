@@ -265,18 +265,18 @@ const Callout: Components['blockquote'] = ({ node, children }) => {
   const title = (props.dataCalloutTitle as string) || callout.label;
   return (
     // Not `not-prose`: the callout body should keep the article's typography.
-    <aside className={`my-6 rounded-xl border-l-4 border ${callout.classes} px-4 py-3`} aria-label={callout.label}>
+    <div role="note" className={`my-6 rounded-xl border-l-4 border ${callout.classes} px-4 py-3`} aria-label={callout.label}>
       <p className={`!mt-0 !mb-1 text-sm font-semibold flex items-center gap-2 ${callout.titleClass}`}>
         <span aria-hidden="true">{callout.icon}</span>
         {title}
       </p>
       <div className="text-[15px] [&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_li]:my-0.5 [&>*:last-child]:mb-0">{children}</div>
-    </aside>
+    </div>
   );
 };
 
 const Table: Components['table'] = ({ children }) => (
-  <div className="overflow-x-auto my-6 rounded-xl border border-slate-700/80">
+  <div className="overflow-x-auto my-6 rounded-xl border border-slate-700/80" tabIndex={0}>
     <table className="my-0 min-w-full">{children}</table>
   </div>
 );

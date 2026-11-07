@@ -59,7 +59,7 @@ The client sends an HTTP request with `Upgrade: websocket`; the server answers `
 
 ### Choosing
 
-| | Short polling | Long polling | SSE | WebSockets |
+| Aspect | Short polling | Long polling | SSE | WebSockets |
 |---|---|---|---|---|
 | Direction | Client pulls | Client pulls (server holds) | Server → client | Both ways |
 | Update latency | Up to the interval | Near-instant | Near-instant | Near-instant |

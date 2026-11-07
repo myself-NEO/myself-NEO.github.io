@@ -13,7 +13,7 @@ them is a mark of practical experience.
 
 ### Comparison
 
-| | Local (in-process) | Distributed (Redis, Memcached) |
+| Aspect | Local (in-process) | Distributed (Redis, Memcached) |
 |---|---|---|
 | Latency | ~100 ns–1 µs (memory access, no serialisation for objects) | ~0.5–1 ms (network round trip + serialisation) |
 | Capacity | Limited by each instance's heap | Cluster-wide RAM, scalable |

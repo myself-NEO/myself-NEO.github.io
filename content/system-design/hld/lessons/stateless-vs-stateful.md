@@ -90,7 +90,7 @@ request; deploys and scale-in are uneventful; the session store is now the compo
 
 ## Trade-offs
 
-| | Shared session store | Signed tokens (JWT) | Sticky sessions |
+| Aspect | Shared session store | Signed tokens (JWT) | Sticky sessions |
 |---|---|---|---|
 | Server statelessness | Yes | Yes | No |
 | Extra hop per request | Yes (fast) | No | No |

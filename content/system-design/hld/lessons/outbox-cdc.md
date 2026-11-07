@@ -120,7 +120,7 @@ flowchart LR
 
 ## Trade-offs
 
-| | Polling outbox | CDC on outbox | CDC on business tables |
+| Aspect | Polling outbox | CDC on outbox | CDC on business tables |
 |---|---|---|---|
 | Latency | Polling interval | Sub-second | Sub-second |
 | Load on DB | Periodic queries | Log reading | Log reading |

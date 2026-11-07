@@ -178,7 +178,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
   return (
     <div className="pt-[61px]">
       {/* Mobile / tablet bar */}
-      <div className="lg:hidden sticky top-[61px] z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+      <nav aria-label="Curriculum menu" className="lg:hidden sticky top-[61px] z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
         <div className="px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
           <button
             ref={openButton}
@@ -198,7 +198,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
             {track.language ? ` · ${track.language}` : ''}
           </span>
         </div>
-      </div>
+      </nav>
 
       <div
         className={`max-w-[90rem] mx-auto lg:grid ${
@@ -207,7 +207,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
             : 'lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_13rem]'
         }`}
       >
-        <aside className="hidden lg:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto border-r border-slate-800/80">
+        <aside aria-label="Curriculum" className="hidden lg:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto border-r border-slate-800/80">
           {collapsed ? (
             <div className="flex flex-col items-center gap-3 py-4">
               <button
@@ -233,7 +233,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
           <div className="max-w-3xl mx-auto">{children}</div>
         </main>
 
-        <aside className="hidden xl:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto py-10 pr-6">
+        <aside aria-label="On this page" className="hidden xl:block sticky top-[61px] h-[calc(100vh-61px)] overflow-y-auto py-10 pr-6">
           <TableOfContents headings={headings} active={active} />
         </aside>
       </div>
@@ -241,7 +241,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
       {drawerOpen && (
         <div className="lg:hidden fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Curriculum">
           <div className="absolute inset-0 bg-slate-950/70" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
-          <div id="curriculum-drawer" className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-slate-900 border-r border-slate-800 overflow-y-auto shadow-2xl">
+          <aside id="curriculum-drawer" aria-label="Curriculum" className="absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-slate-900 border-r border-slate-800 overflow-y-auto shadow-2xl">
             <div className="flex justify-end p-2">
               <button
                 ref={closeButton}
@@ -256,7 +256,7 @@ const LearningLayout: React.FC<LearningLayoutProps> = ({ track, current, heading
               </button>
             </div>
             <Sidebar track={track} current={current} />
-          </div>
+          </aside>
         </div>
       )}
     </div>

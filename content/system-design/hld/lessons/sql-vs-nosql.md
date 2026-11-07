@@ -94,7 +94,7 @@ The flowchart is a starting point, not a rule: the deciding questions are always
 
 ## Trade-offs
 
-| | Relational | Key-value / wide-column | Document |
+| Aspect | Relational | Key-value / wide-column | Document |
 |---|---|---|---|
 | Query flexibility | High (SQL, joins) | Low (by key / by partition + sort key) | Medium (by fields, indexes) |
 | Transactions | Multi-row, multi-table | Limited (single item or small batches) | Single document; multi-document costlier |

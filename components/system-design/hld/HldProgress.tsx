@@ -25,6 +25,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
 
   const ordered = flattenLessons(track).filter((l) => !l.lesson.comingSoon);
   const lessons = ordered.map((l) => l.lesson);
+  const unwritten = flattenLessons(track).length - lessons.length;
   const done = lessons.filter((l) => isLessonComplete(progress, track.id, l.slug));
   const inProgress = ordered.filter((l) => isLessonVisited(progress, track.id, l.lesson.slug) && !isLessonComplete(progress, track.id, l.lesson.slug));
   const modules = track.stages.flatMap((s) => s.modules.map((m) => availableLessons(m.lessons))).filter((m) => m.length > 0);
@@ -71,8 +72,8 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
             <p className="text-sm text-slate-400">Overall completion</p>
             <p className="text-5xl font-semibold text-white mt-1">{overall}%</p>
             <ProgressBar value={done.length} max={lessons.length} label="HLD lessons completed overall" className="mt-3" />
-            <p className="mt-2 text-xs text-slate-500">
-              {done.length} of {lessons.length} available lessons · about {Math.round(remainingMinutes / 60)} h left
+            <p className="mt-2 text-xs text-slate-400">
+              {done.length} of {lessons.length} {unwritten > 0 ? 'available ' : ''}lessons · about {Math.round(remainingMinutes / 60)} h left
             </p>
           </div>
         </header>
@@ -83,7 +84,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
           </h2>
           <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <li>
-              <StatTile label="Modules completed" value={`${modulesDone} / ${modules.length}`} detail={`${flattenLessons(track).length - lessons.length} lessons still being written`} />
+              <StatTile label="Modules completed" value={`${modulesDone} / ${modules.length}`} detail={unwritten > 0 ? `${unwritten} lessons still being written` : `across ${track.stages.length} stages`} />
             </li>
             <li>
               <StatTile label="Lessons completed" value={`${done.length} / ${lessons.length}`} detail={`${inProgress.length} opened but not complete`} />
@@ -128,7 +129,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
               <h2 id="problems-progress-heading" className="text-xl font-bold text-white mb-4">
                 Problems by difficulty
               </h2>
-              <div className="overflow-x-auto rounded-xl border border-slate-700/80">
+              <div className="overflow-x-auto rounded-xl border border-slate-700/80" tabIndex={0}>
                 <table className="w-full text-sm min-w-[30rem]">
                   <thead className="bg-slate-900/80">
                     <tr>
@@ -148,7 +149,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                       return (
                         <tr key={level} className="border-t border-slate-800">
                           <th scope="row" className="px-4 py-2.5 text-left font-medium text-slate-300">
-                            {LEVEL_LABEL[level]} <span className="text-slate-500 font-normal">({ps.length})</span>
+                            {LEVEL_LABEL[level]} <span className="text-slate-400 font-normal">({ps.length})</span>
                           </th>
                           {STATUSES.map((s) => (
                             <td key={s} className="px-3 py-2.5 text-slate-300">
@@ -164,7 +165,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
             </section>
           </div>
 
-          <aside className="space-y-6 min-w-0">
+          <aside aria-label="Activity" className="space-y-6 min-w-0">
             <section aria-labelledby="mocks-heading" className="rounded-2xl border border-slate-700/80 bg-slate-800/40 p-5">
               <h2 id="mocks-heading" className="font-bold text-white mb-3">
                 Recent mock interviews
@@ -178,7 +179,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                       <a href={interviewHref(slug)} className="block text-slate-200 hover:text-sky-300">
                         {findProblem(track, slug)?.title ?? slug}
                       </a>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-slate-400">
                         {attempt.score}% · {formatClock(attempt.elapsedMs)} of {attempt.minutes} min · {formatDate(attempt.completedAt)}
                       </span>
                     </li>
@@ -198,13 +199,13 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                     .map(({ r, missed, partial }) => (
                       <li key={r.id} className="flex justify-between gap-3">
                         <span className="text-slate-200">{r.label}</span>
-                        <span className="text-xs text-slate-500 whitespace-nowrap">
+                        <span className="text-xs text-slate-400 whitespace-nowrap">
                           {missed} missed · {partial} partly
                         </span>
                       </li>
                     ))}
                 </ul>
-                <p className="mt-2 text-xs text-slate-500">From the latest attempt of each problem.</p>
+                <p className="mt-2 text-xs text-slate-400">From the latest attempt of each problem.</p>
               </section>
             )}
 
@@ -225,7 +226,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                       ) : (
                         <span className="block text-slate-200 line-clamp-2">{item.title}</span>
                       )}
-                      <span className="text-xs text-slate-500">{item.context}</span>
+                      <span className="text-xs text-slate-400">{item.context}</span>
                     </li>
                   ))}
                 </ul>
@@ -248,7 +249,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                       <a href={lessonHref(track, lesson.slug)} className="block text-sm text-slate-200 hover:text-sky-300">
                         {lesson.title}
                       </a>
-                      <span className="flex items-center gap-1 text-xs text-slate-500">
+                      <span className="flex items-center gap-1 text-xs text-slate-400">
                         <ClockIcon className="h-3 w-3" /> Stage {stage.number}
                       </span>
                     </li>
