@@ -263,7 +263,8 @@ sequenceDiagram
 flowchart TB
   N["Tweet from an account<br/>with 300 followers"]:::client --> FO["Fan-out workers"]:::svc
   FO -->|"push ID to 300 lists"| TL[("Followers' timeline lists")]:::cache
-  CEL["Tweet from an account<br/>with 50M followers"]:::client -->|"stored once, no fan-out"| CC[("Celebrity tweets cache")]:::cache
+  CEL["Tweet from an account<br/>with 50M followers"]:::client
+  CEL -->|"stored once, no fan-out"| CC[("Celebrity tweets cache")]:::cache
   TL -->|"1. reader's own list"| TLS["Timeline service<br/>merge by tweet ID, hydrate, filter"]:::svc
   CC -->|"2. followed celebrities' tweets"| TLS
   TLS --> R["Reader's home timeline"]:::client
