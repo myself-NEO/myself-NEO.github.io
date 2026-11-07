@@ -62,7 +62,7 @@ export const SearchPanel: React.FC<{ track: Track; placeholder: string }> = ({ t
             if (e.key === 'Escape') setQuery('');
           }}
           placeholder={placeholder}
-          aria-controls={resultsId}
+          aria-controls={searching ? resultsId : undefined}
           className="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 text-sm sm:text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
         />
       </label>

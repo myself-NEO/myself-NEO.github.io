@@ -17,7 +17,7 @@ and where — is the skill.
 
 ### What each architecture buys
 
-| | Monolith / modular monolith | Microservices |
+| Aspect | Monolith / modular monolith | Microservices |
 |---|---|---|
 | Deploy | One unit; simple pipeline | Independent per service; many pipelines |
 | Calls between features | In-process function calls (ns) | Network calls (ms) that can fail |

@@ -21,7 +21,7 @@ They are not competing approaches; they are two levels of one design. An HLD box
 
 Take an event-ticketing product and ask both questions.
 
-| | High-level design | Low-level design |
+| Aspect | High-level design | Low-level design |
 |---|---|---|
 | Question | How do thousands of people buying the same seats at once avoid double bookings? | How do `Seat`, `Hold` and `Booking` objects model a reservation? |
 | Building blocks | API gateway, booking service, seat-inventory database, cache, queue | Classes, enums, interfaces, a hold state machine |

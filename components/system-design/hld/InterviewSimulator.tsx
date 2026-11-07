@@ -11,7 +11,7 @@ import { getProgress, problemStatus, progressActions, useProgress } from '../../
 import { problemHref, problemsHref } from '../../learn/routes';
 import { useSaveTools } from '../../learn/saveTools';
 import { useMarkdownBody } from '../../learn/useMarkdownBody';
-import { ArrowIcon, Breadcrumbs, Chip, ClockIcon, LevelBadge, StatusBadge, focusRing } from '../../learn/ui';
+import { ArrowIcon, Breadcrumbs, Chip, ClockIcon, LevelBadge, StatusBadge, focusRing, onRadioGroupKeyDown, radioTabIndex } from '../../learn/ui';
 import { ContentError, ContentSkeleton, NotFound } from '../../learn/States';
 import { ROOT_HREF } from '../routes';
 import HldSectionNav, { HLD_INTERVIEW_HREF } from './HldSectionNav';
@@ -89,13 +89,14 @@ const Brief: React.FC<{ track: Track; slug: string; prompt: string }> = ({ track
         </div>
         <div className="rounded-2xl border border-slate-700/80 bg-slate-800/40 p-5">
           <h2 className="font-bold text-white mb-3">Interview length</h2>
-          <div role="radiogroup" aria-label="Interview length" className="inline-flex rounded-xl border border-slate-700 bg-slate-950/50 p-1 gap-1 mb-4">
+          <div role="radiogroup" aria-label="Interview length" onKeyDown={onRadioGroupKeyDown} className="inline-flex rounded-xl border border-slate-700 bg-slate-950/50 p-1 gap-1 mb-4">
             {([45, 60] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 role="radio"
                 aria-checked={minutes === m}
+                tabIndex={minutes === m ? 0 : -1}
                 onClick={() => setMinutes(m)}
                 className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${focusRing} ${minutes === m ? 'bg-sky-500/20 text-sky-200' : 'text-slate-400 hover:text-white'}`}
               >
@@ -107,7 +108,7 @@ const Brief: React.FC<{ track: Track; slug: string; prompt: string }> = ({ track
             {PHASES.filter((p) => p.id !== 'evaluation').map((p) => (
               <li key={p.id} className="flex justify-between gap-2">
                 <span>{p.short}</span>
-                <span className="text-slate-500">{PHASE_BUDGETS[minutes][p.id]} min</span>
+                <span className="text-slate-400">{PHASE_BUDGETS[minutes][p.id]} min</span>
               </li>
             ))}
           </ul>
@@ -135,7 +136,7 @@ const Brief: React.FC<{ track: Track; slug: string; prompt: string }> = ({ track
               asked about {Math.round(last.clarifyCoverage * 100)}% of the key questions, {last.hintsUsed} hint{last.hintsUsed === 1 ? '' : 's'} used.
             </p>
           )}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" tabIndex={0}>
             <table className="w-full text-sm min-w-[32rem]">
               <thead>
                 <tr className="text-left text-xs text-slate-400">
@@ -228,7 +229,7 @@ const ClarifyPhase: React.FC<PhaseProps> = ({ track, slug, session, script }) =>
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="Ask a clarifying question, e.g. “How many new links per day?”"
           autoComplete="off"
-          className="flex-1 rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          className="flex-1 rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
         />
         <button type="submit" disabled={!question.trim()} className={`${primaryButton} disabled:bg-slate-700 disabled:text-slate-400`}>
           Ask
@@ -287,7 +288,7 @@ const CoverageList: React.FC<{ track: Track; slug: string; session: InterviewSes
       <p className="text-sm font-semibold text-slate-200 mb-1">
         {title}: {covered} / {items.length} covered
       </p>
-      <p className="text-xs text-slate-500 mb-2">“Looks mentioned” is a keyword check of your draft. Tick the ones you covered in other words.</p>
+      <p className="text-xs text-slate-400 mb-2">“Looks mentioned” is a keyword check of your draft. Tick the ones you covered in other words.</p>
       <ul className="space-y-1">
         {items.map((item, i) => {
           const auto = mentions(text, item);
@@ -388,7 +389,7 @@ const DeepDivePhase: React.FC<PhaseProps> = ({ track, slug, session, script, too
     <div className="space-y-5">
       <fieldset className="rounded-xl border border-slate-700/80 bg-slate-900/40 p-4">
         <legend className="px-1 text-sm font-semibold text-slate-200">Choose two or three deep dives</legend>
-        <p className="text-xs text-slate-500 mb-3">At senior level, pick them yourself from the non-functional requirements before the interviewer does.</p>
+        <p className="text-xs text-slate-400 mb-3">At senior level, pick them yourself from the non-functional requirements before the interviewer does.</p>
         <ul className="grid sm:grid-cols-2 gap-2">
           {script.deepDives.map((d, i) => (
             <li key={d.title}>
@@ -396,7 +397,7 @@ const DeepDivePhase: React.FC<PhaseProps> = ({ track, slug, session, script, too
                 <input type="checkbox" checked={chosen.includes(i)} onChange={() => toggle(i)} className="mt-0.5 accent-sky-500" />
                 <span>
                   {d.title}
-                  <span className="block text-[11px] text-slate-500">{d.section}</span>
+                  <span className="block text-[11px] text-slate-400">{d.section}</span>
                 </span>
               </label>
             </li>
@@ -457,7 +458,7 @@ const EvaluationPhase: React.FC<PhaseProps & { onFinish: () => void }> = ({ trac
           <li className="rounded-lg border border-slate-800 p-3">
             <p className="text-slate-400 text-xs">Total time</p>
             <p className="text-lg font-semibold text-white">
-              {formatClock(elapsedMs(session, now))} <span className="text-sm text-slate-500">/ {session.minutes}:00</span>
+              {formatClock(elapsedMs(session, now))} <span className="text-sm text-slate-400">/ {session.minutes}:00</span>
             </p>
           </li>
           <li className="rounded-lg border border-slate-800 p-3">
@@ -473,7 +474,7 @@ const EvaluationPhase: React.FC<PhaseProps & { onFinish: () => void }> = ({ trac
             </p>
           </li>
         </ul>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" tabIndex={0}>
           <table className="w-full text-sm min-w-[24rem]">
             <thead>
               <tr className="text-left text-xs text-slate-400">
@@ -490,7 +491,7 @@ const EvaluationPhase: React.FC<PhaseProps & { onFinish: () => void }> = ({ trac
                   <tr key={p.id} className="border-t border-slate-800">
                     <td className="py-1 pr-3 text-slate-300">{p.short}</td>
                     <td className={`py-1 pr-3 ${over ? 'text-amber-300' : 'text-slate-300'}`}>{formatClock(spent)}</td>
-                    <td className="py-1 text-slate-500">{budgets[p.id]}:00</td>
+                    <td className="py-1 text-slate-400">{budgets[p.id]}:00</td>
                   </tr>
                 );
               })}
@@ -503,16 +504,17 @@ const EvaluationPhase: React.FC<PhaseProps & { onFinish: () => void }> = ({ trac
         <legend className="font-bold text-white mb-1">Rate yourself on the rubric</legend>
         <p className="text-sm text-slate-400">Compare your drafts with the references you opened. Be strict: “Strong” means you would get full credit.</p>
         {RUBRIC.map((r) => (
-          <div key={r.id} className="rounded-xl border border-slate-700/80 bg-slate-800/30 p-4" role="radiogroup" aria-label={r.label}>
+          <div key={r.id} className="rounded-xl border border-slate-700/80 bg-slate-800/30 p-4" role="radiogroup" aria-label={r.label} onKeyDown={onRadioGroupKeyDown}>
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <p className="font-semibold text-slate-100">{r.label}</p>
               <span className="flex gap-1">
-                {RATINGS.map((rating) => (
+                {RATINGS.map((rating, i) => (
                   <button
                     key={rating.id}
                     type="button"
                     role="radio"
                     aria-checked={session.ratings[r.id] === rating.id}
+                    tabIndex={radioTabIndex(session.ratings[r.id] === rating.id, i, Boolean(session.ratings[r.id]))}
                     onClick={() => interviewActions.rate(track.id, slug, r.id, rating.id)}
                     className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${focusRing} ${
                       session.ratings[r.id] === rating.id ? rating.classes : 'border-slate-700 text-slate-400 hover:text-white'
@@ -725,7 +727,7 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
           <div className="rounded-xl border border-dashed border-slate-600 bg-slate-900/40 p-6">
             <p className="font-semibold text-white mb-2">This mock interview isn’t available yet</p>
             <p className="text-sm text-slate-300 mb-4">Mock interviews are built from a problem’s breakdown, which hasn’t been written for this one.</p>
-            <a href={HLD_INTERVIEW_HREF} className="text-sm font-semibold text-sky-400 hover:underline">
+            <a href={HLD_INTERVIEW_HREF} className="text-sm font-semibold text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
               See the mock interviews you can do now
             </a>
           </div>
@@ -749,11 +751,11 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
 
         {script && session && phase && (
           <div className="grid grid-cols-1 lg:grid-cols-[14rem_minmax(0,1fr)] gap-6">
-            <aside className="min-w-0 lg:sticky lg:top-[120px] self-start space-y-4">
+            <aside aria-label="Interview timer and phases" className="min-w-0 lg:sticky lg:top-[120px] self-start space-y-4">
               <div className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-3">
                 <p className="text-xs text-slate-400">Elapsed</p>
                 <p className={`text-2xl font-semibold font-mono ${elapsedMs(session) > session.minutes * 60_000 ? 'text-amber-300' : 'text-white'}`} aria-live="off">
-                  {formatClock(elapsedMs(session))} <span className="text-sm text-slate-500">/ {session.minutes}:00</span>
+                  {formatClock(elapsedMs(session))} <span className="text-sm text-slate-400">/ {session.minutes}:00</span>
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <button type="button" onClick={() => interviewActions.setTimerRunning(track.id, slug, !running)} className={`${buttonClass} !text-xs !px-2 !py-1`}>
@@ -784,14 +786,14 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
                           onClick={() => goTo(p.id)}
                           aria-current={current ? 'step' : undefined}
                           className={`w-full flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] ${focusRing} ${
-                            current ? 'bg-sky-500/15 text-sky-200 font-semibold' : spent > 0 ? 'text-slate-300 hover:bg-slate-800/60' : 'text-slate-500 hover:bg-slate-800/60'
+                            current ? 'bg-sky-500/15 text-sky-200 font-semibold' : spent > 0 ? 'text-slate-300 hover:bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/60'
                           }`}
                         >
                           <span className="whitespace-nowrap">
                             {i + 1}. {p.short}
                           </span>
                           {b > 0 && (
-                            <span className={`text-[10px] font-mono ${spent > b * 60_000 ? 'text-amber-300' : 'text-slate-500'}`}>
+                            <span className={`text-[10px] font-mono ${spent > b * 60_000 ? 'text-amber-300' : 'text-slate-400'}`}>
                               {formatClock(spent)}/{b}m
                             </span>
                           )}
@@ -805,7 +807,7 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
 
             <div ref={panel} tabIndex={-1} className="min-w-0 focus:outline-none scroll-mt-32">
               <div className="mb-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
                   Step {phaseIndex + 1} of {PHASES.length}
                   {budget > 0 && (
                     <span className={phaseSpent > budget * 60_000 ? 'text-amber-300' : ''}>
@@ -818,7 +820,7 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
                 {phase.id !== 'evaluation' && (
                   <div className="rounded-lg border border-slate-800 bg-slate-900/40 px-4 py-3 text-sm">
                     <p className="text-slate-300">{PHASE_GUIDE[phase.id as ScriptPhase].goal}</p>
-                    <p className="mt-1 text-slate-500">
+                    <p className="mt-1 text-slate-400">
                       Say something like: <span className="text-slate-400">{PHASE_GUIDE[phase.id as ScriptPhase].say}</span>
                     </p>
                   </div>
@@ -843,9 +845,9 @@ const InterviewSimulator: React.FC<{ track: Track; slug: string }> = ({ track, s
           </div>
         )}
 
-        <p className="mt-10 text-xs text-slate-500">
+        <p className="mt-10 text-xs text-slate-400">
           Drafts, timings and ratings are stored in this browser only.{' '}
-          <a href={problemsHref(track)} className="text-sky-400 hover:underline">
+          <a href={problemsHref(track)} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
             Back to all problems
           </a>
         </p>

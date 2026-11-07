@@ -94,13 +94,13 @@ export const ProblemNotes: React.FC<{ track: Track; slug: string }> = ({ track, 
           <NoteIcon className="h-5 w-5 text-sky-400" />
           My notes on this problem
         </h2>
-        <span className="text-xs text-slate-500" aria-live="polite">
+        <span className="text-xs text-slate-400" aria-live="polite">
           {status === 'pending' ? 'Saving…' : status === 'saved' ? (text.trim() ? 'Saved to your notebook' : 'Note removed') : existing ? `Last edited ${new Date(existing.updatedAt).toLocaleDateString()}` : ''}
         </span>
       </div>
       <label htmlFor={id} className="block text-sm text-slate-400 mb-2">
         What tripped you up, the trade-off you want to remember, what you would say differently next time. Collected in your{' '}
-        <a href={HLD_NOTEBOOK_HREF} className="text-sky-400 hover:underline">
+        <a href={HLD_NOTEBOOK_HREF} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
           revision notebook
         </a>
         .
@@ -111,7 +111,7 @@ export const ProblemNotes: React.FC<{ track: Track; slug: string }> = ({ track, 
         onChange={(e) => onChange(e.target.value)}
         rows={4}
         placeholder="e.g. Forgot to ask about custom aliases; 301 vs 302 matters for analytics…"
-        className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
+        className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
       />
     </section>
   );

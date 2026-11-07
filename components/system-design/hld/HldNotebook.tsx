@@ -151,12 +151,12 @@ const DiagramCard: React.FC<{ track: Track; topics: TopicOption[]; snippet: Snip
       <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
           <h3 className="font-semibold text-slate-100">{snippet.title}</h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             {topicLabel(track, snippet.topic)} · saved {formatDate(snippet.createdAt)}
             {(snippet.href || lesson) && (
               <>
                 {' · '}
-                <a href={snippet.href ?? lessonHref(track, lesson!.slug)} className="text-sky-400 hover:underline">
+                <a href={snippet.href ?? lessonHref(track, lesson!.slug)} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
                   open source page
                 </a>
               </>
@@ -250,6 +250,17 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
     { id: 'mistakes', label: 'Quiz mistakes', count: mistakes.filter((m) => !notebook.reviewed[`quiz:${m.key}`]).length },
   ];
 
+  /** Arrow keys, Home and End move between tabs (ARIA tabs pattern); only the selected tab is a tab stop. */
+  const onTabKeys = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const i = tabs.findIndex((t) => t.id === tab);
+    const to = ({ ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 } as Record<string, number | undefined>)[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    const next = tabs[(to + tabs.length) % tabs.length].id;
+    setTab(next);
+    document.getElementById(`tab-${next}`)?.focus();
+  };
+
   const importBackup = async (file: File) => {
     const result = await restoreBackup(file);
     if (result === 'restored') setMessage('Backup restored.');
@@ -314,7 +325,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
           <TopicSelect topics={topics} id="hld-notebook-topic" value={topic} onChange={setTopic} includeAll label="Filter by topic" />
         </div>
 
-        <div role="tablist" aria-label="Notebook sections" className="flex gap-1 overflow-x-auto border-b border-slate-800 mb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div role="tablist" aria-label="Notebook sections" onKeyDown={onTabKeys} className="flex gap-1 overflow-x-auto border-b border-slate-800 mb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -323,6 +334,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
               role="tab"
               aria-selected={tab === t.id}
               aria-controls={`panel-${t.id}`}
+              tabIndex={tab === t.id ? 0 : -1}
               onClick={() => setTab(t.id)}
               className={`flex-shrink-0 inline-flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-500 ${
                 tab === t.id ? 'border-sky-400 text-sky-300' : 'border-transparent text-slate-400 hover:text-white'
@@ -335,6 +347,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
         </div>
 
         <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
+          <h2 className="sr-only">{tabs.find((t) => t.id === tab)?.label}</h2>
           {tab === 'revision' && (
             <section aria-label="Revision list" className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -358,7 +371,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
                             <Chip className={REVISION_LABEL[item.kind].classes}>{REVISION_LABEL[item.kind].label}</Chip>
-                            <span className="text-xs text-slate-500">{item.context}</span>
+                            <span className="text-xs text-slate-400">{item.context}</span>
                           </div>
                           <p className="font-semibold text-slate-100">
                             <Inline track={track} text={item.title} />
@@ -411,10 +424,10 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                       <li key={`${item.kind}-${item.ref}`} className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 flex flex-col">
                         <div className="flex items-center gap-2 mb-1">
                           <BookmarkIcon filled className="h-4 w-4 text-sky-300 flex-shrink-0" />
-                          <span className="text-xs text-slate-500">{item.kind === 'lesson' ? 'Lesson' : `Section of ${item.context}`}</span>
+                          <span className="text-xs text-slate-400">{item.kind === 'lesson' ? 'Lesson' : `Section of ${item.context}`}</span>
                         </div>
                         <p className="font-semibold text-slate-100 flex-1">{item.title}</p>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {item.kind === 'lesson' ? item.context : topicLabel(track, item.topic)} · saved {formatDate(item.at)}
                         </p>
                         <div className="mt-3 flex gap-2">
@@ -461,12 +474,12 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                 questions.map((q) => (
                   <article key={q.ref} className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-400">
                         {q.context} · saved {formatDate(q.at)}
                         {q.href && (
                           <>
                             {' · '}
-                            <a href={q.href} className="text-sky-400 hover:underline">
+                            <a href={q.href} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
                               open source page
                             </a>
                           </>
@@ -592,7 +605,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                           </a>
                           <StatusBadge status={problemStatus(progress, track.id, p.slug)} />
                         </div>
-                        <p className="text-xs text-slate-500 flex-1">{last ? `Last mock: ${last.score}% on ${formatDate(last.completedAt)}` : 'No mock interview yet'}</p>
+                        <p className="text-xs text-slate-400 flex-1">{last ? `Last mock: ${last.score}% on ${formatDate(last.completedAt)}` : 'No mock interview yet'}</p>
                         <div className="mt-3 flex gap-2">
                           <a href={problemHref(track, p.slug)} className={buttonClass}>
                             Open
@@ -625,9 +638,9 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                   const reviewedAt = notebook.reviewed[`quiz:${key}`];
                   return (
                     <article key={key} className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 sm:p-5">
-                      <p className="text-xs text-slate-500 mb-1">
+                      <p className="text-xs text-slate-400 mb-1">
                         {loc ? (
-                          <a href={lessonHref(track, loc.lesson.slug)} className="text-sky-400 hover:underline">
+                          <a href={lessonHref(track, loc.lesson.slug)} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
                             {loc.lesson.title}
                           </a>
                         ) : (
@@ -682,7 +695,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
           )}
         </div>
 
-        <p className="mt-10 text-xs text-slate-500 flex items-center gap-1.5">
+        <p className="mt-10 text-xs text-slate-400 flex items-center gap-1.5">
           <FlagIcon className="h-3.5 w-3.5" /> Stored in this browser only (no account needed). The backup file includes every section of the site.
         </p>
       </div>

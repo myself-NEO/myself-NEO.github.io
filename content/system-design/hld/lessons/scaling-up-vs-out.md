@@ -86,7 +86,7 @@ flowchart LR
 
 ## Trade-offs
 
-| | Vertical | Horizontal |
+| Aspect | Vertical | Horizontal |
 |---|---|---|
 | Code changes | None | State must be externalised or partitioned |
 | Ceiling | Largest machine | Practically none for stateless work |

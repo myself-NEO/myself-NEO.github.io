@@ -153,7 +153,7 @@ sequenceDiagram
 
 ## Trade-offs
 
-| | Offset | Cursor (keyset) |
+| Aspect | Offset | Cursor (keyset) |
 |---|---|---|
 | Cost of page N | Grows with N | Constant |
 | Stable under inserts/deletes | No | Yes |

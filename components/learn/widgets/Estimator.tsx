@@ -1,6 +1,7 @@
 import React, { useId, useMemo, useState } from 'react';
 import { DEFAULT_INPUTS, estimate, EstimateInputs, INPUT_FIELDS, OutputGroup, parsePreset } from './estimate';
 import { formatBytes, formatCount, parseQuantity } from './numbers';
+import { onRadioGroupKeyDown } from '../ui';
 
 // Interactive capacity calculator. In markdown:
 //
@@ -83,13 +84,14 @@ const Estimator: React.FC<EstimatorProps> = ({ title, preset, values: controlled
     <div className="grid lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] gap-5">
       <fieldset className="min-w-0 m-0 p-0 border-0">
         <legend className="sr-only">Assumptions</legend>
-        <div role="radiogroup" aria-label="Start from" className="inline-flex rounded-lg border border-slate-700 bg-slate-950/50 p-0.5 mb-3">
+        <div role="radiogroup" aria-label="Start from" onKeyDown={onRadioGroupKeyDown} className="inline-flex rounded-lg border border-slate-700 bg-slate-950/50 p-0.5 mb-3">
           {(['requests', 'users'] as const).map((m) => (
             <button
               key={m}
               type="button"
               role="radio"
               aria-checked={inputs.mode === m}
+              tabIndex={inputs.mode === m ? 0 : -1}
               onClick={() => set({ ...values, mode: m })}
               className={`px-2.5 py-1 rounded-md text-xs font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
                 inputs.mode === m ? 'bg-sky-500/20 text-sky-200' : 'text-slate-400 hover:text-slate-200'
@@ -119,7 +121,7 @@ const Estimator: React.FC<EstimatorProps> = ({ title, preset, values: controlled
                   spellCheck={false}
                   className={`${inputClass} ${bad ? 'border-rose-500/70' : 'border-slate-700'}`}
                 />
-                <span id={`${inputId}-hint`} className={`block text-[10px] mt-0.5 ${bad ? 'text-rose-300' : 'text-slate-500'}`}>
+                <span id={`${inputId}-hint`} className={`block text-[10px] mt-0.5 ${bad ? 'text-rose-300' : 'text-slate-400'}`}>
                   {bad ? 'Not a number — try 10M, 1.5 KB' : f.hint}
                 </span>
               </div>
@@ -139,20 +141,22 @@ const Estimator: React.FC<EstimatorProps> = ({ title, preset, values: controlled
 
       <div className="min-w-0 space-y-4" aria-live="polite">
         {groups.map(({ group, items }) => (
-          <section key={group} aria-label={GROUP_LABEL[group]}>
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">{GROUP_LABEL[group]}</h4>
+          <div key={group}>
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">{GROUP_LABEL[group]}</h3>
             <dl className="divide-y divide-slate-800/80 rounded-lg border border-slate-800 bg-slate-950/40">
               {items.map((o) => (
-                <div key={o.id} className="px-3 py-2" data-output={o.id}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                    <dt className="text-sm text-slate-300">{o.label}</dt>
-                    <dd className="text-sm font-semibold text-white font-mono">{o.display}</dd>
-                  </div>
-                  {showFormulas && <p className="mt-0.5 text-[12px] leading-snug text-slate-500 [overflow-wrap:anywhere]">{o.formula}</p>}
+                <div key={o.id} className="px-3 py-2 flex flex-wrap items-baseline justify-between gap-x-3" data-output={o.id}>
+                  <dt className="text-sm text-slate-300">{o.label}</dt>
+                  <dd className="text-sm font-semibold text-white font-mono">{o.display}</dd>
+                  {showFormulas && (
+                    <dd className="basis-full mt-0.5 text-[12px] leading-snug text-slate-400 [overflow-wrap:anywhere]" data-working="">
+                      {o.formula}
+                    </dd>
+                  )}
                 </div>
               ))}
             </dl>
-          </section>
+          </div>
         ))}
       </div>
     </div>
@@ -163,7 +167,7 @@ const Estimator: React.FC<EstimatorProps> = ({ title, preset, values: controlled
     <figure className="not-prose my-6 rounded-xl border border-sky-500/30 bg-slate-900/60 p-4 sm:p-5" data-widget="estimator">
       <figcaption className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <span className="text-xs font-semibold uppercase tracking-wider text-sky-300">🧮 Capacity estimator{title ? ` · ${title}` : ''}</span>
-        <span className="text-[11px] text-slate-500">Change any assumption; decimal units (1 KB = 1,000 B)</span>
+        <span className="text-[11px] text-slate-400">Change any assumption; decimal units (1 KB = 1,000 B)</span>
       </figcaption>
       {body}
     </figure>

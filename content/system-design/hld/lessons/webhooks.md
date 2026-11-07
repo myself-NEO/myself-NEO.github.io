@@ -55,7 +55,7 @@ Anyone on the internet can POST to a public URL, so receivers must verify each r
 
 ### Choosing webhooks, polling or streaming
 
-| | Webhooks | Polling an API | Streaming (SSE, WebSockets, managed event bus) |
+| Aspect | Webhooks | Polling an API | Streaming (SSE, WebSockets, managed event bus) |
 |---|---|---|---|
 | Latency | Seconds | Polling interval | Sub-second |
 | Receiver needs | A public HTTPS endpoint | Nothing special | A long-lived client connection |

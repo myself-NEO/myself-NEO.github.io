@@ -33,7 +33,7 @@ visible a moment later. See [message queues](lesson:queues-pubsub).
 
 ### 3. Use a write-optimised storage engine
 
-| | B-tree (PostgreSQL, MySQL InnoDB) | LSM tree (Cassandra, RocksDB, ScyllaDB, HBase) |
+| Aspect | B-tree (PostgreSQL, MySQL InnoDB) | LSM tree (Cassandra, RocksDB, ScyllaDB, HBase) |
 |---|---|---|
 | Write path | Update pages in place (plus the WAL) — random I/O | Append to a log and an in-memory table; flush sorted files sequentially |
 | Read path | One tree lookup | Check memtable and several sorted files (Bloom filters help) |

@@ -88,7 +88,7 @@ flowchart LR
 
 ## Trade-offs
 
-| | CRUD | CQRS (with CDC/outbox) | Event sourcing + CQRS |
+| Aspect | CRUD | CQRS (with CDC/outbox) | Event sourcing + CQRS |
 |---|---|---|---|
 | History | Only what you log | Only what you log | Complete, by construction |
 | Read flexibility | Queries on one model | Purpose-built read models | Purpose-built read models, rebuildable from history |

@@ -130,7 +130,7 @@ const DrillItem: React.FC<{ q: DrillQuestion; index: number; onAnswer?: (a: Quiz
           placeholder="Your estimate, e.g. 1.2K/s or 40 GB"
           autoComplete="off"
           spellCheck={false}
-          className="w-56 max-w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-1.5 text-sm text-slate-100 font-mono placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-70"
+          className="w-56 max-w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-1.5 text-sm text-slate-100 font-mono placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-70"
         />
         <button
           type="submit"
