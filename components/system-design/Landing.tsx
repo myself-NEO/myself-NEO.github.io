@@ -7,20 +7,38 @@ import { ProgressStat, SearchPanel, StageRoadmap, useTrackProgress } from '../le
 import { ArrowIcon, Chip, LEVEL_LABEL, LevelBadge, ProgressBar, StatusIcon } from '../learn/ui';
 import { flattenLessons } from '../../content/shared/curriculum';
 import { isLessonComplete } from '../learn/progress';
+import { useInterviews } from '../learn/interviews';
 import { COMPARISON } from './comparison';
+import LearningSequence from './LearningSequence';
+import TrackSectionNav, { interviewHref, interviewsHref } from './sections';
+
+const MOCK_PHASES = ['Clarify', 'Requirements', 'Entities', 'Class design', 'Implementation', 'Edge cases', 'Follow-ups', 'Self-evaluation'];
 
 
-/** The System Design landing (LLD roadmap) with both tracks; `otherTrack` is HLD. */
+/**
+ * The System Design home page, which is LLD's landing (with LLD's section tabs); `otherTrack` is HLD.
+ * On the LLD route it opens at the roadmap.
+ */
 const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolean }> = ({ track, otherTrack, focusRoadmap }) => {
   const progress = useProgress();
+  const interviews = useInterviews();
   const { lessons, lessonsDone, quizzesPassed, problemsDone, problemsStarted, nextLesson, hasProgress } = useTrackProgress(track);
   const workedProblems = track.problems.filter((p) => hasProblemBody(track.id, p.slug)).length;
   const otherLessons = flattenLessons(otherTrack).map((l) => l.lesson);
   const otherAvailable = otherLessons.filter((l) => !l.comingSoon);
   const otherDone = otherAvailable.filter((l) => isLessonComplete(progress, otherTrack.id, l.slug)).length;
+  const mockable = track.problems.filter((p) => hasProblemBody(track.id, p.slug));
+  const mockDone = Object.entries(interviews.history).filter(([k, v]) => k.startsWith(`${track.id}:`) && v.length > 0).length;
+  const firstMock = mockable[0];
 
   useEffect(() => {
-    if (focusRoadmap) document.getElementById('roadmap')?.scrollIntoView();
+    if (!focusRoadmap) return;
+    const toRoadmap = () => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
+    toRoadmap();
+    // Tailwind's CDN build styles classes that appear for the first time a moment after they
+    // render (the tab bar, for one), which moves the roadmap; settle on its final position.
+    const settle = window.setTimeout(toRoadmap, 300);
+    return () => window.clearTimeout(settle);
   }, [focusRoadmap]);
 
   const ctaHref = nextLesson ? lessonHref(track, nextLesson.slug) : problemsHref(track);
@@ -28,8 +46,10 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
 
   return (
     <main id="main-content" tabIndex={-1} className="focus:outline-none pt-[61px]">
+      <TrackSectionNav track={track} active="home" />
+
       {/* Hero */}
-      <section className="relative pt-14 pb-12 border-b border-slate-800/80">
+      <section className="relative pt-10 pb-12 border-b border-slate-800/80">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,rgba(14,165,233,0.08),transparent_60%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[minmax(0,1fr)_22rem] gap-10 items-start">
           <div>
@@ -46,7 +66,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
               The LLD track takes you from object-oriented basics to solving advanced interview problems in Java 17+, with runnable
               examples, knowledge checks and {track.problems.length} practice problems
               {workedProblems === track.problems.length
-                ? ', each with a fully worked, tested solution.'
+                ? ', each with a fully worked, tested solution and a timed mock interview.'
                 : ` (${workedProblems} with fully worked, tested solutions so far).`}
               {otherTrack.status === 'active' && (
                 <>
@@ -96,6 +116,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
             <ProgressStat label="Lessons completed" value={lessonsDone} max={lessons.length} />
             <ProgressStat label="Knowledge checks passed" value={quizzesPassed} max={lessons.length} />
             <ProgressStat label="Problems completed" value={problemsDone} max={track.problems.length} />
+            <ProgressStat label="Mock interviews done" value={mockDone} max={mockable.length} />
             <p className="text-xs text-slate-500">
               {hasProgress
                 ? `${problemsStarted} problem${problemsStarted === 1 ? '' : 's'} in progress. Progress is stored in this browser only.`
@@ -143,6 +164,9 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
                 >
                   View roadmap
                 </button>
+                <a href={interviewsHref(track)} className="text-slate-400 hover:text-white">
+                  Mock interviews
+                </a>
               </div>
             </div>
 
@@ -229,7 +253,7 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
         </section>
 
         {/* Roadmap */}
-        <section id="roadmap" aria-labelledby="roadmap-heading" className="pb-14 scroll-mt-24">
+        <section id="roadmap" aria-labelledby="roadmap-heading" className="pb-14 scroll-mt-28">
           <h2 id="roadmap-heading" className="text-2xl font-bold mb-2">
             LLD <span className="text-sky-500">roadmap</span>
           </h2>
@@ -275,6 +299,13 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
           />
         </section>
 
+        {/* Sequence */}
+        <LearningSequence
+          track={track}
+          byModule
+          intro="Practise problems as soon as their prerequisite lessons are behind you rather than saving them all for the end. Each problem appears after the module of the last lesson it depends on, so the long final stage is interleaved with practice."
+        />
+
         {/* Problems */}
         <section aria-labelledby="problems-heading" className="pb-14">
           <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
@@ -310,6 +341,43 @@ const Landing: React.FC<{ track: Track; otherTrack: Track; focusRoadmap?: boolea
                 </ul>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Mock interviews */}
+        <section aria-labelledby="mock-heading" className="pb-14">
+          <div className="rounded-2xl border border-violet-500/30 bg-violet-500/[0.04] p-6 grid md:grid-cols-[minmax(0,1fr)_auto] gap-6 items-center">
+            <div>
+              <h2 id="mock-heading" className="text-xl font-bold mb-2">
+                Guided mock interviews
+              </h2>
+              <p className="text-sm text-slate-400 mb-4 max-w-2xl">
+                Work a problem the way the interview runs: ask clarifying questions and get scripted interviewer answers, write the
+                requirements, list the entities, draw the class diagram in the same notation the lessons use, code the core flow, then cover
+                edge cases and a follow-up. Hints and the reference solution open only when you choose. A timer tracks each phase against a
+                45- or 60-minute plan, and you finish by rating yourself on the LLD rubric. Feedback is deterministic keyword coverage plus
+                your own self-assessment — there is no AI grading.
+              </p>
+              <ol className="flex flex-wrap gap-1.5" aria-label="Mock interview phases">
+                {MOCK_PHASES.map((p, i) => (
+                  <li key={p}>
+                    <Chip>
+                      {i + 1}. {p}
+                    </Chip>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className="flex flex-col gap-2">
+              {firstMock && (
+                <a href={interviewHref(track, firstMock.slug)} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm">
+                  Start: {firstMock.title} <ArrowIcon className="h-4 w-4" />
+                </a>
+              )}
+              <a href={interviewsHref(track)} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-700 text-slate-200 font-semibold text-sm hover:bg-slate-800">
+                All mock interviews
+              </a>
+            </div>
           </div>
         </section>
 

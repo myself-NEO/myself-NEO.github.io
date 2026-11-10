@@ -11,17 +11,18 @@ import ProblemLibrary from '../learn/ProblemLibrary';
 import PlannedTrack from './PlannedTrack';
 import { NotFound } from '../learn/States';
 import { Chip } from '../learn/ui';
-import HldSectionNav from './hld/HldSectionNav';
-import { ProblemHeaderExtras, ProblemNotes } from './hld/ProblemExtras';
-import { hasBreakdown } from './hld/sequence';
+import TrackSectionNav from './sections';
+import { ProblemHeaderExtras, ProblemNotes } from './ProblemExtras';
+import { hasBreakdown } from './sequence';
 
-// HLD's own pages are separate chunks: LLD pages never download them.
+// Tool pages are separate chunks, and each track's mock interview is its own chunk.
 const HldLanding = lazy(() => import('./hld/HldLanding'));
-const InterviewList = lazy(() => import('./hld/InterviewList'));
-const InterviewSimulator = lazy(() => import('./hld/InterviewSimulator'));
+const InterviewList = lazy(() => import('./InterviewList'));
+const HldMockInterview = lazy(() => import('./hld/HldMockInterview'));
+const LldMockInterview = lazy(() => import('./lld/LldMockInterview'));
 const EstimatorPage = lazy(() => import('./hld/EstimatorPage'));
-const HldNotebook = lazy(() => import('./hld/HldNotebook'));
-const HldProgress = lazy(() => import('./hld/HldProgress'));
+const TrackNotebook = lazy(() => import('./TrackNotebook'));
+const TrackProgress = lazy(() => import('./TrackProgress'));
 
 const SITE_TITLE = 'KESHAV.dev';
 
@@ -36,15 +37,15 @@ const pageTitle = (route: SystemDesignRoute, track: Track | undefined) => {
     case 'track':
       return track?.title ?? 'System Design';
     case 'interviews':
-      return 'HLD Mock Interviews';
+      return `${track?.shortTitle ?? ''} Mock Interviews`.trim();
     case 'interview':
       return `Mock Interview: ${(track && findProblem(track, route.slug)?.title) ?? ''}`.trim();
     case 'estimator':
       return 'Capacity Estimator';
     case 'notebook':
-      return 'My HLD Revision Notebook';
+      return `My ${track?.shortTitle ?? ''} Revision Notebook`;
     case 'progress':
-      return 'HLD Progress';
+      return `${track?.shortTitle ?? ''} Progress`.trim();
     default:
       return 'System Design';
   }
@@ -98,41 +99,37 @@ const SystemDesignPage: React.FC<{ path: string }> = ({ path }) => {
   } else if (route.kind === 'lesson') {
     content = <LessonPage key={route.slug} track={track} slug={route.slug} />;
   } else if (route.kind === 'problem') {
-    content =
-      track.id === 'hld' ? (
-        <ProblemPage
-          key={route.slug}
-          track={track}
-          slug={route.slug}
-          headerExtra={findProblem(track, route.slug) ? <ProblemHeaderExtras track={track} slug={route.slug} /> : undefined}
-          footerExtra={findProblem(track, route.slug) ? <ProblemNotes key={route.slug} track={track} slug={route.slug} /> : undefined}
-        />
-      ) : (
-        <ProblemPage key={route.slug} track={track} slug={route.slug} />
-      );
+    const exists = Boolean(findProblem(track, route.slug));
+    content = (
+      <ProblemPage
+        key={route.slug}
+        track={track}
+        slug={route.slug}
+        headerExtra={exists ? <ProblemHeaderExtras track={track} slug={route.slug} /> : undefined}
+        footerExtra={exists ? <ProblemNotes key={route.slug} track={track} slug={route.slug} /> : undefined}
+      />
+    );
   } else if (route.kind === 'problems') {
-    content =
-      track.id === 'hld' ? (
-        <ProblemLibrary
-          track={track}
-          header={<HldSectionNav active="problems" />}
-          badge={(p) => (hasBreakdown(track, p.slug) ? <Chip className="!text-violet-300 !border-violet-500/30 !bg-violet-500/10">Mock interview</Chip> : null)}
-        />
-      ) : (
-        <ProblemLibrary track={track} />
-      );
+    content = (
+      <ProblemLibrary
+        track={track}
+        header={<TrackSectionNav track={track} active="problems" />}
+        badge={(p) => (hasBreakdown(track, p.slug) ? <Chip className="!text-violet-300 !border-violet-500/30 !bg-violet-500/10">Mock interview</Chip> : null)}
+      />
+    );
   } else {
+    const MockInterview = track.id === 'hld' ? HldMockInterview : LldMockInterview;
     const tool =
       route.kind === 'interviews' ? (
         <InterviewList track={track} />
       ) : route.kind === 'interview' ? (
-        <InterviewSimulator key={route.slug} track={track} slug={route.slug} />
+        <MockInterview key={route.slug} track={track} slug={route.slug} />
       ) : route.kind === 'estimator' ? (
         <EstimatorPage track={track} />
       ) : route.kind === 'notebook' ? (
-        <HldNotebook track={track} />
+        <TrackNotebook track={track} />
       ) : (
-        <HldProgress track={track} />
+        <TrackProgress track={track} />
       );
     content = <Suspense fallback={<ToolFallback />}>{tool}</Suspense>;
   }

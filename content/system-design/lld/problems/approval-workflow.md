@@ -15,28 +15,34 @@ Design an approval workflow engine for expense requests. Depending on the amount
 6. Can two people act on the same request at the same time?
 
 ````reveal title="Answers we'll assume"
-- The chain is built **per request** from a configured list of steps; each step decides whether it applies (amount thresholds today, category or department tomorrow).
-- Steps run **in order**; parallel steps are a follow-up.
-- The current step's approver may approve or reject. The requester may **withdraw** while the request is pending. **Nobody approves their own request**, even if the org chart routes it back to them.
-- Escalation moves the current step to the approver's **manager** and restarts the SLA clock; if the approver has no manager, it stays put and is reported.
-- The audit trail records **who, what, when, which step, and the resulting status**. It's append-only.
-- Yes, concurrent actions happen (an approval racing an escalation); each request is changed by one action at a time.
+- **Q:** Is the chain fixed, or does it depend on the request? Who configures it? <!-- match: chain, fixed, configure, configured, configuration, depends, steps, threshold -->
+  - **A:** It's built **per request** from a configured list of steps; each step decides whether it applies (amount thresholds today, category or department tomorrow).
+- **Q:** Must approvals happen in order, or in parallel? <!-- match: sequential, in order, one after another, order, parallel steps -->
+  - **A:** Steps run **in order**; parallel steps are a follow-up.
+- **Q:** Who can reject, withdraw, or approve? Can someone approve their own request? <!-- match: reject, withdraw, own request, self approval, permissions, approver, requester, who can approve -->
+  - **A:** The current step's approver may approve or reject. The requester may **withdraw** while the request is pending. **Nobody approves their own request**, even if the org chart routes it back to them.
+- **Q:** What exactly happens on escalation? What if there's no one to escalate to? <!-- match: escalation, escalate, sla, overdue, manager -->
+  - **A:** Escalation moves the current step to the approver's **manager** and restarts the SLA clock; if the approver has no manager, it stays put and is reported.
+- **Q:** What must the audit trail contain? Can entries change? <!-- match: audit, trail, history, log, entries -->
+  - **A:** **Who, what, when, which step, and the resulting status**. It's append-only.
+- **Q:** Can two people act on the same request at the same time? <!-- match: concurrent, concurrency, same time, race, simultaneously -->
+  - **A:** Yes, concurrent actions happen (an approval racing an escalation); each request is changed by one action at a time.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Configure a workflow as an ordered list of steps (condition, approver resolver, SLA).
-2. `submit` builds the request's chain; `approve`, `reject`, `withdraw` act on the current step.
-3. `escalateOverdue()` escalates steps whose SLA has passed.
-4. Each user can see their inbox (requests waiting for them).
-5. A complete, immutable audit trail per request.
+1. Configure a workflow as an ordered list of steps (condition, approver resolver, SLA). <!-- match: configure, steps, workflow, condition, sla -->
+2. `submit` builds the request's chain; `approve`, `reject`, `withdraw` act on the current step. <!-- match: submit, approve, reject, withdraw -->
+3. `escalateOverdue()` escalates steps whose SLA has passed. <!-- match: escalate, overdue, sla -->
+4. Each user can see their inbox (requests waiting for them). <!-- match: inbox, pending, waiting -->
+5. A complete, immutable audit trail per request. <!-- match: audit trail, audit, immutable -->
 
 **Non-functional**
 
-6. New steps and new actions (delegate, request changes) don't require changing the engine.
-7. Safe under concurrent actions; time is injectable.
+6. New steps and new actions (delegate, request changes) don't require changing the engine. <!-- match: new steps, new actions, delegate, open closed, extensible -->
+7. Safe under concurrent actions; time is injectable. <!-- match: concurrent, thread-safe, clock, inject time -->
 
 ## Step 1 — Definition vs instance
 

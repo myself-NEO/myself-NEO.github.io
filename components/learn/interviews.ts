@@ -8,10 +8,12 @@ import type { SelfRating } from './notebook';
 
 const STORAGE_KEY = 'learning-interviews-v1';
 
+/** Phases of the HLD and LLD mock interviews (each track uses its own subset). */
 export type PhaseId =
   | 'brief'
   | 'clarify'
   | 'requirements'
+  // HLD
   | 'estimation'
   | 'api'
   | 'data-model'
@@ -19,9 +21,30 @@ export type PhaseId =
   | 'deep-dives'
   | 'bottlenecks'
   | 'tradeoffs'
+  // LLD
+  | 'entities'
+  | 'class-design'
+  | 'implementation'
+  | 'edge-cases'
+  | 'extensibility'
   | 'evaluation';
 
-export type RubricId = 'requirements' | 'api' | 'data-model' | 'architecture' | 'scalability' | 'reliability' | 'tradeoffs' | 'communication';
+/** Self-evaluation dimensions: HLD's rubric, then LLD's (shared ids mean the same skill). */
+export type RubricId =
+  | 'requirements'
+  | 'api'
+  | 'data-model'
+  | 'architecture'
+  | 'scalability'
+  | 'reliability'
+  | 'tradeoffs'
+  | 'communication'
+  | 'object-model'
+  | 'class-design'
+  | 'principles'
+  | 'implementation'
+  | 'edge-cases'
+  | 'extensibility';
 
 export interface AskedQuestion {
   text: string;
@@ -50,9 +73,9 @@ export interface InterviewSession {
   checks: Record<string, boolean>;
   /** Capacity-estimation inputs as the learner left them. */
   estimate?: Record<string, number | string>;
-  /** Mermaid source of the learner's architecture diagram. */
+  /** Source of the learner's diagram: Mermaid architecture (HLD) or a `uml` class diagram (LLD). */
   diagram?: string;
-  /** Deep dives the learner chose to work on (indexes into the script's list). */
+  /** Deep dives (HLD) or follow-ups (LLD) the learner chose to work on (indexes into the script's list). */
   deepDives?: number[];
   ratings: Partial<Record<RubricId, SelfRating>>;
 }

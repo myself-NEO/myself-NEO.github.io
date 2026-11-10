@@ -1,27 +1,29 @@
 import React from 'react';
-import { Level, ProblemStatus, Track } from '../../../content/shared/types';
-import { availableLessons, findProblem, flattenLessons } from '../../../content/shared/curriculum';
-import { RUBRIC } from '../../../content/system-design/hld/landing';
-import { isLessonComplete, isLessonVisited, isQuizPassed, problemStatus, trackAnswers, useProgress } from '../../learn/progress';
-import { useNotebook } from '../../learn/notebook';
-import { useInterviews } from '../../learn/interviews';
-import { lessonHref, problemHref, problemsHref } from '../../learn/routes';
-import StageProgressList from '../../learn/StageProgressList';
-import { ArrowIcon, Breadcrumbs, ClockIcon, LEVEL_LABEL, ProgressBar, StatTile, STATUS_LABEL, StatusIcon } from '../../learn/ui';
-import { ROOT_HREF } from '../routes';
-import HldSectionNav, { HLD_INTERVIEW_HREF, HLD_NOTEBOOK_HREF, interviewHref } from './HldSectionNav';
-import { hldRevisionItems } from './revision';
-import { formatClock } from './interviewParts';
+import { Level, ProblemStatus, Track } from '../../content/shared/types';
+import { availableLessons, findProblem, flattenLessons } from '../../content/shared/curriculum';
+import { isLessonComplete, isLessonVisited, isQuizPassed, problemStatus, trackAnswers, useProgress } from '../learn/progress';
+import { useNotebook } from '../learn/notebook';
+import { useInterviews } from '../learn/interviews';
+import { lessonHref, problemHref, problemsHref } from '../learn/routes';
+import StageProgressList from '../learn/StageProgressList';
+import { ArrowIcon, Breadcrumbs, ClockIcon, LEVEL_LABEL, ProgressBar, StatTile, STATUS_LABEL, StatusIcon } from '../learn/ui';
+import { ROOT_HREF } from './routes';
+import TrackSectionNav, { interviewHref, interviewsHref, notebookHref } from './sections';
+import { revisionItems } from './revision';
+import { trackConfig } from './trackConfig';
+import { formatClock } from './interview/parts';
 
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
 const STATUSES: ProblemStatus[] = ['not-started', 'in-progress', 'attempted', 'completed'];
 const formatDate = (at: number) => new Date(at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 
-/** #system-design/hld/progress — every figure comes from what the learner has done in this browser. */
-const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
+/** #system-design/<track>/progress — every figure comes from what the learner has done in this browser. */
+const TrackProgress: React.FC<{ track: Track }> = ({ track }) => {
   const progress = useProgress();
   const notebook = useNotebook();
   const interviews = useInterviews();
+  const config = trackConfig(track);
+  const short = track.shortTitle;
 
   const ordered = flattenLessons(track).filter((l) => !l.lesson.comingSoon);
   const lessons = ordered.map((l) => l.lesson);
@@ -42,13 +44,15 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
   const avgScore = latestScores.length > 0 ? Math.round(latestScores.reduce((s, x) => s + x, 0) / latestScores.length) : null;
   const inFlight = Object.keys(interviews.sessions).filter((k) => k.startsWith(`${track.id}:`)).length;
   const saved = Object.values(notebook.saved).filter((s) => s.track === track.id);
-  const diagrams = Object.values(notebook.snippets).filter((s) => s.track === track.id && s.language === 'mermaid').length;
+  const snippets = Object.values(notebook.snippets).filter((s) => s.track === track.id);
+  const diagrams = snippets.filter((s) => s.language === 'mermaid').length;
+  const code = snippets.length - diagrams;
   const notes = Object.values(notebook.notes).filter((n) => n.track === track.id).length;
-  const revision = hldRevisionItems(track, notebook, progress, interviews);
+  const revision = revisionItems(track, notebook, progress, interviews);
   const due = revision.filter((i) => i.due);
   const remainingMinutes = lessons.filter((l) => !isLessonComplete(progress, track.id, l.slug)).reduce((sum, l) => sum + l.minutes, 0);
   const overall = lessons.length === 0 ? 0 : Math.round((done.length / lessons.length) * 100);
-  const weakest = RUBRIC.map((r) => ({
+  const weakest = config.rubric.map((r) => ({
     r,
     missed: attemptsByProblem.filter(([, v]) => v[v.length - 1].ratings[r.id] === 'missed').length,
     partial: attemptsByProblem.filter(([, v]) => v[v.length - 1].ratings[r.id] === 'partial').length,
@@ -56,22 +60,22 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
 
   return (
     <main id="main-content" tabIndex={-1} className="focus:outline-none pt-[61px]">
-      <HldSectionNav active="progress" />
+      <TrackSectionNav track={track} active="progress" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <Breadcrumbs items={[{ label: 'System Design', href: ROOT_HREF }, { label: track.title, href: track.basePath }, { label: 'Progress' }]} />
         <header className="grid md:grid-cols-[minmax(0,1fr)_16rem] gap-6 items-end mb-8">
           <div>
             <p className="text-sm font-semibold text-sky-400 mb-2">Learning progress</p>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">Your HLD progress</h1>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">Your {short} progress</h1>
             <p className="text-slate-400 max-w-2xl">
-              Computed from what you have done in this browser: lessons completed and opened, knowledge-check and drill answers, problem
-              statuses, mock interviews and what you saved or flagged. HLD is tracked separately from LLD.
+              Computed from what you have done in this browser: lessons completed and opened, {config.answers} answers, problem statuses, mock
+              interviews and what you saved or flagged. {short} is tracked separately from {config.other}.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-700/80 bg-slate-800/50 p-5">
             <p className="text-sm text-slate-400">Overall completion</p>
             <p className="text-5xl font-semibold text-white mt-1">{overall}%</p>
-            <ProgressBar value={done.length} max={lessons.length} label="HLD lessons completed overall" className="mt-3" />
+            <ProgressBar value={done.length} max={lessons.length} label={`${short} lessons completed overall`} className="mt-3" />
             <p className="mt-2 text-xs text-slate-400">
               {done.length} of {lessons.length} {unwritten > 0 ? 'available ' : ''}lessons · about {Math.round(remainingMinutes / 60)} h left
             </p>
@@ -103,14 +107,25 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                 label="Mock interviews"
                 value={attemptsByProblem.length}
                 detail={allAttempts.length > 0 ? `${allAttempts.length} attempts · avg latest score ${avgScore}%${inFlight ? ` · ${inFlight} unfinished` : ''}` : inFlight ? `${inFlight} unfinished` : 'None finished yet'}
-                href={HLD_INTERVIEW_HREF}
+                href={interviewsHref(track)}
               />
             </li>
             <li>
-              <StatTile label="Bookmarked" value={saved.length + diagrams} detail={`${saved.filter((s) => s.kind !== 'question').length} concepts · ${saved.filter((s) => s.kind === 'question').length} questions · ${diagrams} diagrams · ${notes} notes`} href={HLD_NOTEBOOK_HREF} />
+              <StatTile
+                label="Bookmarked"
+                value={saved.length + snippets.length}
+                detail={[
+                  `${saved.filter((s) => s.kind !== 'question').length} concepts`,
+                  `${saved.filter((s) => s.kind === 'question').length} questions`,
+                  ...(config.diagrams ? [`${diagrams} diagrams`] : []),
+                  `${code} code snippets`,
+                  `${notes} notes`,
+                ].join(' · ')}
+                href={notebookHref(track)}
+              />
             </li>
             <li>
-              <StatTile label="Topics to revise" value={due.length} detail={revision.length > due.length ? `${revision.length - due.length} already reviewed` : 'Difficult lessons, mistakes, revisits, mock gaps'} href={HLD_NOTEBOOK_HREF} />
+              <StatTile label="Topics to revise" value={due.length} detail={revision.length > due.length ? `${revision.length - due.length} already reviewed` : 'Difficult lessons, mistakes, revisits, mock gaps'} href={notebookHref(track)} />
             </li>
           </ul>
         </section>
@@ -176,7 +191,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                 <ul className="space-y-2.5">
                   {allAttempts.slice(0, 6).map(({ slug, attempt }) => (
                     <li key={`${slug}-${attempt.completedAt}`} className="text-sm">
-                      <a href={interviewHref(slug)} className="block text-slate-200 hover:text-sky-300">
+                      <a href={interviewHref(track, slug)} className="block text-slate-200 hover:text-sky-300">
                         {findProblem(track, slug)?.title ?? slug}
                       </a>
                       <span className="text-xs text-slate-400">
@@ -231,7 +246,7 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
                   ))}
                 </ul>
               )}
-              <a href={HLD_NOTEBOOK_HREF} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
+              <a href={notebookHref(track)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300">
                 Open revision list <ArrowIcon className="h-3.5 w-3.5" />
               </a>
             </section>
@@ -270,4 +285,4 @@ const HldProgress: React.FC<{ track: Track }> = ({ track }) => {
   );
 };
 
-export default HldProgress;
+export default TrackProgress;

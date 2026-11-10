@@ -15,27 +15,33 @@ Design an in-process rate limiter library. A service calls `allow(clientId)` bef
 6. How precise must it be?
 
 ````reveal title="Answers we'll assume"
-- Limits are per **client ID** (the caller decides what the ID is: user, key, IP).
-- Support **token bucket** (allows bursts up to a capacity, then a steady rate), **sliding window log** (exact, no bursts across window edges) and **fixed window counter** (cheap, but bursty at edges). The algorithm is chosen per configuration.
-- Quotas come from a **tier policy** (free vs pro).
-- **Single process** first; distributed limiting is a follow-up.
-- `allow` is non-blocking: it returns `true`/`false` immediately.
-- Must be exact under concurrency: with a limit of 1000, 1000 concurrent callers get through, never 1001.
+- **Q:** What do we limit per: client, API key, IP or endpoint? <!-- match: per client, client, key, api key, ip, endpoint, identity -->
+  - **A:** Per **client ID** (the caller decides what the ID is: user, key, IP).
+- **Q:** Which algorithm, and are short bursts acceptable? <!-- match: algorithm, token bucket, sliding window, fixed window, burst, bursts, leaky bucket -->
+  - **A:** Support **token bucket** (allows bursts up to a capacity, then a steady rate), **sliding window log** (exact, no bursts across window edges) and **fixed window counter** (cheap, but bursty at edges). The algorithm is chosen per configuration.
+- **Q:** Is the quota the same for everyone, or are there tiers? <!-- match: quota, tiers, tier, plans, free, pro, premium, different limits -->
+  - **A:** Quotas come from a **tier policy** (free vs pro).
+- **Q:** Single process, or a distributed limit across servers? <!-- match: distributed, servers, single process, cluster, redis, instances, machines -->
+  - **A:** **Single process** first; distributed limiting is a follow-up.
+- **Q:** What does the caller do with a "no": reject (HTTP 429) or wait? <!-- match: reject, 429, wait, block, blocking, throttle -->
+  - **A:** `allow` is non-blocking: it returns `true`/`false` immediately.
+- **Q:** How precise must it be? <!-- match: precise, precision, exact, accurate, concurrent, concurrency, race -->
+  - **A:** Exact under concurrency: with a limit of 1000, 1000 concurrent callers get through, never 1001.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `allow(clientId)` returns whether the request may proceed.
-2. Each client has an independent limit taken from its tier.
-3. Three algorithms behind one interface; new ones can be added.
+1. `allow(clientId)` returns whether the request may proceed. <!-- match: allow, permit, proceed -->
+2. Each client has an independent limit taken from its tier. <!-- match: per client, independent limit, tier -->
+3. Three algorithms behind one interface; new ones can be added. <!-- match: interface, algorithms, strategy, new algorithm -->
 
 **Non-functional**
 
-4. Thread-safe and exact under concurrent calls.
-5. O(1) time per call for token bucket and fixed window.
-6. Time is injectable, so tests don't sleep.
+4. Thread-safe and exact under concurrent calls. <!-- match: thread-safe, concurrent, exact -->
+5. O(1) time per call for token bucket and fixed window. <!-- match: o(1), constant time, constant -->
+6. Time is injectable, so tests don't sleep. <!-- match: clock, injectable time, sleep -->
 
 ## Step 1 — Compare the algorithms
 

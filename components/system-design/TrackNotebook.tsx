@@ -1,66 +1,50 @@
 import React, { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Track } from '../../../content/shared/types';
-import { findLesson } from '../../../content/shared/curriculum';
-import MarkdownContent from '../../learn/MarkdownContent';
-import { downloadBackup, restoreBackup } from '../../learn/backup';
-import { itemKey, NoteKind, notebookActions, SavedItem, Snippet, useNotebook } from '../../learn/notebook';
-import { buttonClass, Empty, formatDate, inputClass, NoteCard, NoteEditor, NoteKindOption, TopicOption, TopicSelect } from '../../learn/notebookParts';
-import { problemStatus, useProgress } from '../../learn/progress';
-import { sessionKey, useInterviews } from '../../learn/interviews';
-import { lessonHref, problemHref } from '../../learn/routes';
-import { matchesFilter } from '../../learn/search';
-import { setJumpTarget } from '../../learn/jump';
-import { BookmarkIcon, Breadcrumbs, Chip, FlagIcon, NoteIcon, SearchIcon, StatusBadge, focusRing } from '../../learn/ui';
-import { STARTER_DIAGRAM } from '../../learn/widgets/DiagramEditor';
-import { ROOT_HREF } from '../routes';
-import HldSectionNav from './HldSectionNav';
+import { Track } from '../../content/shared/types';
+import { findLesson } from '../../content/shared/curriculum';
+import MarkdownContent from '../learn/MarkdownContent';
+import { downloadBackup, restoreBackup } from '../learn/backup';
+import { itemKey, NoteKind, notebookActions, SavedItem, Snippet, useNotebook } from '../learn/notebook';
+import { buttonClass, Empty, formatDate, inputClass, NoteCard, NoteEditor, TopicOption, TopicSelect } from '../learn/notebookParts';
+import { problemStatus, useProgress } from '../learn/progress';
+import { sessionKey, useInterviews } from '../learn/interviews';
+import { lessonHref, problemHref } from '../learn/routes';
+import { matchesFilter } from '../learn/search';
+import { setJumpTarget } from '../learn/jump';
+import { BookmarkIcon, Breadcrumbs, Chip, FlagIcon, NoteIcon, SearchIcon, StatusBadge, focusRing } from '../learn/ui';
+import { STARTER_DIAGRAM } from '../learn/widgets/DiagramEditor';
+import CodeBlock from '../learn/CodeBlock';
+import { ROOT_HREF } from './routes';
+import TrackSectionNav from './sections';
 import { revisitRef } from './ProblemExtras';
-import { HldRevisionItem, hldRevisionItems } from './revision';
+import { RevisionItem, revisionItems } from './revision';
+import { trackConfig } from './trackConfig';
 
-const MermaidDiagram = lazy(() => import('../../learn/widgets/MermaidDiagram'));
-const DiagramEditor = lazy(() => import('../../learn/widgets/DiagramEditor'));
+const MermaidDiagram = lazy(() => import('../learn/widgets/MermaidDiagram'));
+const DiagramEditor = lazy(() => import('../learn/widgets/DiagramEditor'));
 
-type Tab = 'revision' | 'saved' | 'diagrams' | 'questions' | 'notes' | 'problems' | 'mistakes';
-const TABS: Tab[] = ['revision', 'saved', 'diagrams', 'questions', 'notes', 'problems', 'mistakes'];
-const TAB_KEY = 'hld-notebook-tab';
+type Tab = 'revision' | 'saved' | 'diagrams' | 'code' | 'questions' | 'notes' | 'problems' | 'mistakes';
+const TABS: Tab[] = ['revision', 'saved', 'diagrams', 'code', 'questions', 'notes', 'problems', 'mistakes'];
+const tabKey = (track: Track) => `${track.id}-notebook-tab`;
 
-const readTab = (): Tab => {
+const readTab = (track: Track, diagrams: boolean): Tab => {
   try {
-    const t = window.localStorage.getItem(TAB_KEY) as Tab | null;
-    return t && TABS.includes(t) ? t : 'revision';
+    const t = window.localStorage.getItem(tabKey(track)) as Tab | null;
+    return t && TABS.includes(t) && (diagrams || t !== 'diagrams') ? t : 'revision';
   } catch {
     return 'revision';
   }
 };
 
-export const NOTE_KINDS: NoteKindOption[] = [
-  { id: 'note', label: 'Note' },
-  {
-    id: 'tradeoff',
-    label: 'Trade-off',
-    template: '**Decision:** …\n\n**Option A:** … — choose it when …\n\n**Option B:** … — choose it when …\n\n**What I’d say in the interview:** …',
-  },
-  {
-    id: 'formula',
-    label: 'Formula',
-    template: '**Formula:** `requests per day ÷ 86,400 ≈ requests per second`\n\n**Worked example:** …\n\n**Watch out for:** …',
-  },
-  {
-    id: 'mistake',
-    label: 'Common mistake',
-    template: '**What I did:** …\n\n**Why it’s wrong:** …\n\n**Do this instead:** …',
-  },
-];
-
 const KIND_CHIP: Record<NoteKind, string> = {
   note: '!text-slate-300',
   tradeoff: '!text-sky-300 !border-sky-500/30 !bg-sky-500/10',
   formula: '!text-emerald-300 !border-emerald-500/30 !bg-emerald-500/10',
+  pattern: '!text-violet-300 !border-violet-500/30 !bg-violet-500/10',
   mistake: '!text-rose-300 !border-rose-500/30 !bg-rose-500/10',
 };
 
-const REVISION_LABEL: Record<HldRevisionItem['kind'], { label: string; classes: string }> = {
+const REVISION_LABEL: Record<RevisionItem['kind'], { label: string; classes: string }> = {
   lesson: { label: 'Difficult lesson', classes: '!text-amber-300 !border-amber-500/30 !bg-amber-500/10' },
   problem: { label: 'Problem to revisit', classes: '!text-violet-300 !border-violet-500/30 !bg-violet-500/10' },
   quiz: { label: 'Quiz mistake', classes: '!text-rose-300 !border-rose-500/30 !bg-rose-500/10' },
@@ -187,12 +171,14 @@ const DiagramCard: React.FC<{ track: Track; topics: TopicOption[]; snippet: Snip
 
 // ── Page ───────────────────────────────────────────────────
 
-const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
+const TrackNotebook: React.FC<{ track: Track }> = ({ track }) => {
   const notebook = useNotebook();
   const progress = useProgress();
   const interviews = useInterviews();
   const topics = useTopics(track);
-  const [tab, setTabState] = useState<Tab>(readTab);
+  const config = trackConfig(track);
+  const noteKinds = config.noteKinds;
+  const [tab, setTabState] = useState<Tab>(() => readTab(track, config.diagrams));
   const [query, setQuery] = useState('');
   const [topic, setTopic] = useState('all');
   const [kind, setKind] = useState<NoteKind | 'all'>('all');
@@ -207,7 +193,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
     setTabState(t);
     setComposing(null);
     try {
-      window.localStorage.setItem(TAB_KEY, t);
+      window.localStorage.setItem(tabKey(track), t);
     } catch {
       // Tab choice just won't be remembered.
     }
@@ -216,7 +202,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
   const topicOk = (t: string) => topic === 'all' || t === topic || (topic === 'general' && !t);
   const mine = <T extends { track: string }>(values: T[]) => values.filter((v) => v.track === track.id);
 
-  const revision = hldRevisionItems(track, notebook, progress, interviews).filter((i) => topicOk(i.topic) && matchesFilter(query, i.title, i.context));
+  const revision = revisionItems(track, notebook, progress, interviews).filter((i) => topicOk(i.topic) && matchesFilter(query, i.title, i.context));
   const visibleRevision = revision.filter((i) => showReviewed || i.due);
   const saved = mine(Object.values(notebook.saved))
     .filter((s): s is SavedItem => s.kind !== 'question')
@@ -228,6 +214,9 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
     .sort((a, b) => b.at - a.at);
   const diagrams = mine(Object.values(notebook.snippets))
     .filter((s) => s.language === 'mermaid' && topicOk(s.topic) && matchesFilter(query, s.title, s.code))
+    .sort((a, b) => b.createdAt - a.createdAt);
+  const code = mine(Object.values(notebook.snippets))
+    .filter((s) => s.language !== 'mermaid' && topicOk(s.topic) && matchesFilter(query, s.title, s.code))
     .sort((a, b) => b.createdAt - a.createdAt);
   const notes = mine(Object.values(notebook.notes))
     .filter((n) => topicOk(n.topic) && (kind === 'all' || (n.kind ?? 'note') === kind) && matchesFilter(query, n.title, n.body))
@@ -243,7 +232,8 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
   const tabs: { id: Tab; label: string; count: number }[] = [
     { id: 'revision', label: 'Revision list', count: revision.filter((i) => i.due).length },
     { id: 'saved', label: 'Saved concepts', count: saved.length },
-    { id: 'diagrams', label: 'Diagrams', count: diagrams.length },
+    ...(config.diagrams ? [{ id: 'diagrams' as const, label: 'Diagrams', count: diagrams.length }] : []),
+    { id: 'code', label: 'Code snippets', count: code.length },
     { id: 'questions', label: 'Questions', count: questions.length },
     { id: 'notes', label: 'Notes & trade-offs', count: notes.length },
     { id: 'problems', label: 'Problems to revisit', count: revisit.length },
@@ -270,18 +260,14 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
 
   return (
     <main id="main-content" tabIndex={-1} className="focus:outline-none pt-[61px]">
-      <HldSectionNav active="notebook" />
+      <TrackSectionNav track={track} active="notebook" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         <Breadcrumbs items={[{ label: 'System Design', href: ROOT_HREF }, { label: track.title, href: track.basePath }, { label: 'Revision notebook' }]} />
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
             <p className="text-sm font-semibold text-sky-400 mb-2">Revision notebook</p>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">My HLD Revision Notebook</h1>
-            <p className="text-slate-400 max-w-2xl">
-              Bookmarked lessons and sections, saved diagrams and interview questions, your notes, trade-offs, formulas and mistakes, and the
-              problems you want to revisit. Difficult lessons, missed quiz answers and weak mock-interview areas are collected automatically.
-              Everything is stored in this browser.
-            </p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">My {track.shortTitle} Revision Notebook</h1>
+            <p className="text-slate-400 max-w-2xl">{config.notebookIntro}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -322,7 +308,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
             <SearchIcon className="h-4 w-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search everything you saved" className={`${inputClass} pl-9`} />
           </label>
-          <TopicSelect topics={topics} id="hld-notebook-topic" value={topic} onChange={setTopic} includeAll label="Filter by topic" />
+          <TopicSelect topics={topics} id={`${track.id}-notebook-topic`} value={topic} onChange={setTopic} includeAll label="Filter by topic" />
         </div>
 
         <div role="tablist" aria-label="Notebook sections" onKeyDown={onTabKeys} className="flex gap-1 overflow-x-auto border-b border-slate-800 mb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -465,6 +451,49 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
             </section>
           )}
 
+          {tab === 'code' && (
+            <section aria-label="Code snippets" className="space-y-3">
+              <p className="text-sm text-slate-400">Code you saved with the “Save” button on lesson examples.</p>
+              {code.length === 0 ? (
+                <Empty>No code snippets{filtered ? ' match these filters' : ' yet'}. Click “Save” on any code block in a lesson.</Empty>
+              ) : (
+                code.map((s) => {
+                  const lesson = s.lesson ? findLesson(track, s.lesson)?.lesson : undefined;
+                  return (
+                    <article key={s.id} className="rounded-xl border border-slate-700/80 bg-slate-800/30 px-4 pt-3 pb-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-slate-100">{s.title}</h3>
+                          <p className="text-xs text-slate-400">
+                            {topicLabel(track, s.topic)} · saved {formatDate(s.createdAt)}
+                            {(s.href || lesson) && (
+                              <>
+                                {' · '}
+                                <a href={s.href ?? lessonHref(track, lesson!.slug)} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
+                                  open source page
+                                </a>
+                              </>
+                            )}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Delete the snippet “${s.title}”?`)) notebookActions.deleteSnippet(s.id);
+                          }}
+                          className={`${buttonClass} hover:!text-rose-300 hover:!border-rose-500/50`}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <CodeBlock code={s.code} language={s.language} title={s.language === 'java' ? 'Java' : undefined} />
+                    </article>
+                  );
+                })
+              )}
+            </section>
+          )}
+
           {tab === 'questions' && (
             <section aria-label="Saved interview questions" className="space-y-3">
               <p className="text-sm text-slate-400">Interview questions saved with the bookmark on any question in a lesson, problem or mock interview. Answer before opening.</p>
@@ -500,7 +529,7 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
             <section aria-label="Notes" className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter notes by kind">
-                  {(['all', ...NOTE_KINDS.map((k) => k.id)] as (NoteKind | 'all')[]).map((k) => (
+                  {(['all', ...noteKinds.map((k) => k.id)] as (NoteKind | 'all')[]).map((k) => (
                     <button
                       key={k}
                       type="button"
@@ -508,13 +537,13 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                       onClick={() => setKind(k)}
                       className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${focusRing} ${kind === k ? 'bg-sky-500/15 border-sky-500/50 text-sky-200' : 'border-slate-700 text-slate-400 hover:text-white'}`}
                     >
-                      {k === 'all' ? 'All' : NOTE_KINDS.find((n) => n.id === k)?.label}
+                      {k === 'all' ? 'All' : noteKinds.find((n) => n.id === k)?.label}
                     </button>
                   ))}
                 </div>
                 {composing !== 'note' && (
                   <span className="flex flex-wrap gap-1.5">
-                    {NOTE_KINDS.map((k) => (
+                    {noteKinds.map((k) => (
                       <button
                         key={k.id}
                         type="button"
@@ -535,11 +564,11 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                   key={newKind}
                   track={track}
                   topics={topics}
-                  kinds={NOTE_KINDS}
+                  kinds={noteKinds}
                   initialKind={newKind}
                   onDone={() => setComposing(null)}
-                  titlePlaceholder="e.g. Fan-out on write vs read"
-                  bodyLabel="Note (Markdown supported, including ```mermaid diagrams)"
+                  titlePlaceholder={config.noteTitlePlaceholder}
+                  bodyLabel={config.noteBodyLabel}
                 />
               )}
               {notes.length === 0 && composing !== 'note' ? (
@@ -551,9 +580,9 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
                     track={track}
                     topics={topics}
                     note={n}
-                    kinds={NOTE_KINDS}
+                    kinds={noteKinds}
                     topicLabel={(id) => topicLabel(track, id)}
-                    badge={<Chip className={`mr-2 align-middle ${KIND_CHIP[n.kind ?? 'note']}`}>{NOTE_KINDS.find((k) => k.id === (n.kind ?? 'note'))?.label}</Chip>}
+                    badge={<Chip className={`mr-2 align-middle ${KIND_CHIP[n.kind ?? 'note']}`}>{noteKinds.find((k) => k.id === (n.kind ?? 'note'))?.label ?? 'Note'}</Chip>}
                   />
                 ))
               )}
@@ -703,4 +732,4 @@ const HldNotebook: React.FC<{ track: Track }> = ({ track }) => {
   );
 };
 
-export default HldNotebook;
+export default TrackNotebook;

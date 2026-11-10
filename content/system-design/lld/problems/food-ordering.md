@@ -15,28 +15,34 @@ Design the core of a food ordering app. Customers browse restaurant menus, add i
 6. Who needs to hear about status changes?
 
 ````reveal title="Answers we'll assume"
-- **One restaurant per cart.** Adding from another restaurant is rejected until the cart is cleared.
-- Bill = subtotal + delivery fee (40, **free from 500**) + **5% tax** on the subtotal. Discounts are a follow-up.
-- **Prices are snapshotted** into the order when it is placed; later menu changes don't affect it.
-- States: `PLACED → ACCEPTED → PREPARING → OUT_FOR_DELIVERY → DELIVERED`, plus `REJECTED` (restaurant, from `PLACED`) and `CANCELLED` (customer, from `PLACED` or `ACCEPTED`).
-- Payment is **charged when the order is placed** and **refunded** if the order is rejected or cancelled.
-- The customer is notified of every change; refunds react to changes too.
+- **Q:** Can a cart hold items from several restaurants? <!-- match: cart, restaurants, multiple restaurants, several restaurants, one restaurant -->
+  - **A:** **One restaurant per cart.** Adding from another restaurant is rejected until the cart is cleared.
+- **Q:** What goes into the bill: item prices, delivery fee, taxes, discounts? <!-- match: bill, total, delivery fee, tax, taxes, discount, discounts, price, pricing -->
+  - **A:** Subtotal + delivery fee (40, **free from 500**) + **5% tax** on the subtotal. Discounts are a follow-up.
+- **Q:** If the menu changes after the order is placed, which price applies? <!-- match: menu changes, menu, snapshot, later, updated price, price change -->
+  - **A:** **Prices are snapshotted** into the order when it is placed; later menu changes don't affect it.
+- **Q:** Which states does an order go through, and who moves it? <!-- match: states, status, lifecycle, transitions, who moves, accepted, delivered -->
+  - **A:** `PLACED → ACCEPTED → PREPARING → OUT_FOR_DELIVERY → DELIVERED`, plus `REJECTED` (restaurant, from `PLACED`) and `CANCELLED` (customer, from `PLACED` or `ACCEPTED`).
+- **Q:** Until when can the customer cancel, and what happens to the money? <!-- match: cancel, cancellation, refund, money, payment -->
+  - **A:** The customer can cancel while the order is `PLACED` or `ACCEPTED`. Payment is **charged when the order is placed** and **refunded** if the order is rejected or cancelled.
+- **Q:** Who needs to hear about status changes? <!-- match: notify, notification, notifications, status changes, updates, listeners, events -->
+  - **A:** The customer is notified of every change; refunds react to changes too.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Restaurants have menus; items can become unavailable.
-2. Per-customer cart, locked to one restaurant.
-3. Place an order: validate, price, charge, snapshot lines, clear the cart.
-4. Move orders through their lifecycle; only the right role can trigger each step.
-5. Notify listeners of each status change; refund rejected and cancelled orders.
+1. Restaurants have menus; items can become unavailable. <!-- match: menu, menus, unavailable, restaurant -->
+2. Per-customer cart, locked to one restaurant. <!-- match: cart, one restaurant -->
+3. Place an order: validate, price, charge, snapshot lines, clear the cart. <!-- match: place order, checkout, snapshot, charge -->
+4. Move orders through their lifecycle; only the right role can trigger each step. <!-- match: lifecycle, states, role, transitions -->
+5. Notify listeners of each status change; refund rejected and cancelled orders. <!-- match: notify, listeners, refund -->
 
 **Non-functional**
 
-6. Each class has one job: cart, pricing, lifecycle, orchestration and notifications are separate.
-7. New reactions to status changes (analytics, courier assignment) plug in without editing the order code.
+6. Each class has one job: cart, pricing, lifecycle, orchestration and notifications are separate. <!-- match: single responsibility, one job, separate, srp -->
+7. New reactions to status changes (analytics, courier assignment) plug in without editing the order code. <!-- match: observer, analytics, courier, open closed, plug in -->
 
 ## Step 1 — Entities
 

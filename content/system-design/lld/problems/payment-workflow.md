@@ -15,29 +15,37 @@ Design the payment workflow of a checkout service. A payment is **authorized** (
 6. Can two operations on the same payment run at the same time?
 
 ````reveal title="Answers we'll assume"
-- Authorize → capture (up to the authorized amount, once) → refunds (any number, total ≤ captured). Void is allowed only before capture.
-- **Routing by currency** (INR prefers provider Acme, then Globex; USD uses Globex). If the first provider **refuses the connection**, fail over to the next. A **decline** is final — never "try another provider" for a declined card.
-- Every mutating call carries an **idempotency key**. The same key with the same request returns the **stored result** without calling the provider again.
-- Same key with a **different** request → rejected (it's a client bug).
-- Money is an integer number of minor units plus a currency.
-- Operations on one payment are serialised; different payments run in parallel.
+- **Q:** Which operations: authorize, capture, void, refund? Partial capture? Partial refunds? <!-- match: operations, authorize, capture, void, refund, refunds, partial -->
+  - **A:** Authorize → capture (up to the authorized amount, once) → refunds (any number, total ≤ captured). Void is allowed only before capture.
+- **Q:** How are providers chosen, and what if one is down? <!-- match: providers, provider, gateway, routing, route, down, failover, outage, unavailable -->
+  - **A:** **Routing by currency** (INR prefers provider Acme, then Globex; USD uses Globex). If the first provider **refuses the connection**, fail over to the next. A **decline** is final: never "try another provider" for a declined card.
+- **Q:** How do clients make retries safe? <!-- match: retry, retries, idempotency, idempotent, duplicate, twice, key -->
+  - **A:** Every mutating call carries an **idempotency key**. The same key with the same request returns the **stored result** without calling the provider again.
+- **Q:** What if a key is reused with a different amount? <!-- match: reused, reuse, different amount, different request, mismatch, same key -->
+  - **A:** It's rejected, because it's a client bug.
+- **Q:** How is money represented: currencies, precision? <!-- match: money, currency, currencies, precision, decimal, double, minor units, cents -->
+  - **A:** An integer number of minor units plus a currency.
+- **Q:** Can two operations on the same payment run at the same time? <!-- match: concurrent, concurrency, same time, simultaneously, race, parallel, same payment -->
+  - **A:** Operations on one payment are serialised; different payments run in parallel.
+- **Q:** Do we need a history of each payment for audit? <!-- match: audit, history, log, trail, status history -->
+  - **A:** Yes: a full status history per payment.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `authorize(key, card, amount)`, `capture(key, paymentId, amount)`, `voidPayment(paymentId)`, `refund(key, paymentId, amount)`.
-2. Strict state machine; illegal transitions rejected with clear errors.
-3. Amount rules: capture ≤ authorized; total refunds ≤ captured; same currency.
-4. Provider routing with failover for unavailability only.
-5. Idempotency per key with request fingerprinting.
+1. `authorize(key, card, amount)`, `capture(key, paymentId, amount)`, `voidPayment(paymentId)`, `refund(key, paymentId, amount)`. <!-- match: authorize, capture, void, refund -->
+2. Strict state machine; illegal transitions rejected with clear errors. <!-- match: state machine, illegal transitions, transitions, states -->
+3. Amount rules: capture ≤ authorized; total refunds ≤ captured; same currency. <!-- match: capture amount, total refunds, captured, amount rules -->
+4. Provider routing with failover for unavailability only. <!-- match: routing, failover -->
+5. Idempotency per key with request fingerprinting. <!-- match: idempotency, idempotent, fingerprint -->
 
 **Non-functional**
 
-6. Providers plug in through adapters; their SDK types never leak into the service.
-7. Concurrent duplicate requests produce one provider call.
-8. A full status history per payment for audit.
+6. Providers plug in through adapters; their SDK types never leak into the service. <!-- match: adapters, adapter, sdk -->
+7. Concurrent duplicate requests produce one provider call. <!-- match: concurrent duplicate, one provider call, concurrent -->
+8. A full status history per payment for audit. <!-- match: history, audit -->
 
 ## Step 1 — Payment lifecycle
 
