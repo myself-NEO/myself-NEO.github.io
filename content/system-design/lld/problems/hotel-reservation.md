@@ -15,28 +15,34 @@ Design a hotel reservation system. Guests search for available rooms of a type (
 6. Overbooking allowed?
 
 ````reveal title="Answers we'll assume"
-- Guests choose a **room type**; the system assigns a free room of that type.
-- A stay `[checkIn, checkOut)` covers the **nights** from check-in up to, but not including, check-out. Checking out on the 15th and someone checking in on the 15th don't conflict.
-- Price = sum over nights of the type's base rate, with a **+25% surcharge on Friday and Saturday nights**. Pricing must be replaceable (seasons, promotions).
-- Lifecycle: `CONFIRMED → CHECKED_IN → CHECKED_OUT`; `CONFIRMED → CANCELLED` (before the check-in date); `CONFIRMED → NO_SHOW` (check-in date passed). Nothing else.
-- One hotel; a chain is a follow-up.
-- No overbooking: a room is never reserved twice for the same night.
+- **Q:** Does the guest choose a room number, or a room type? <!-- match: room type, room number, choose room, specific room, types -->
+  - **A:** A **room type**; the system assigns a free room of that type.
+- **Q:** Is the check-out day a night of the stay? <!-- match: check-out, checkout, nights, night, check out day, same day -->
+  - **A:** No. A stay `[checkIn, checkOut)` covers the **nights** from check-in up to, but not including, check-out. Checking out on the 15th and someone checking in on the 15th don't conflict.
+- **Q:** How is the price computed? <!-- match: price, pricing, rate, cost, weekend, surcharge, tariff -->
+  - **A:** The sum over nights of the type's base rate, with a **+25% surcharge on Friday and Saturday nights**. Pricing must be replaceable (seasons, promotions).
+- **Q:** What states does a reservation go through? Can a checked-in stay be cancelled? <!-- match: states, lifecycle, status, cancel, cancellation, no-show, check in -->
+  - **A:** `CONFIRMED → CHECKED_IN → CHECKED_OUT`; `CONFIRMED → CANCELLED` (before the check-in date); `CONFIRMED → NO_SHOW` (check-in date passed). Nothing else, so a checked-in stay can't be cancelled.
+- **Q:** One hotel or a chain? <!-- match: chain, hotels, multiple hotels, one hotel, properties -->
+  - **A:** One hotel; a chain is a follow-up.
+- **Q:** Is overbooking allowed? <!-- match: overbooking, overbook, double booking, twice, concurrent, same room -->
+  - **A:** No: a room is never reserved twice for the same night, even when requests arrive concurrently.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Search available rooms of a type for a date range.
-2. Reserve a room of a type for a guest (validated: dates, capacity).
-3. Price the stay with a pluggable pricing policy.
-4. Check in (on or after the check-in date), check out, cancel (before arrival), mark no-shows.
-5. Look up reservations by ID and by guest.
+1. Search available rooms of a type for a date range. <!-- match: search, available rooms, availability -->
+2. Reserve a room of a type for a guest (validated: dates, capacity). <!-- match: reserve, reservation, book -->
+3. Price the stay with a pluggable pricing policy. <!-- match: price, pricing policy, pluggable pricing -->
+4. Check in (on or after the check-in date), check out, cancel (before arrival), mark no-shows. <!-- match: check in, check out, cancel, no-show, no show -->
+5. Look up reservations by ID and by guest. <!-- match: look up, lookup, by guest, find reservation -->
 
 **Non-functional**
 
-6. No double booking, even with concurrent requests.
-7. Storage behind a repository interface; time is injectable for tests.
+6. No double booking, even with concurrent requests. <!-- match: double booking, concurrent, overbooking -->
+7. Storage behind a repository interface; time is injectable for tests. <!-- match: repository, clock, inject time, storage -->
 
 ## Step 1 — Entities
 

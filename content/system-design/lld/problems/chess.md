@@ -14,27 +14,32 @@ Design a two-player chess game. The board starts in the standard position; playe
 5. Clocks? An AI opponent? Online play?
 
 ````reveal title="Answers we'll assume"
-- Standard moves for all six pieces, captures, **pawn promotion (to a queen)**, check, checkmate and stalemate. **Castling and en passant are follow-ups** — the design must make them easy to add.
-- Stalemate is the only draw for now.
-- Moves are given as two squares: `move("e2", "e4")`.
-- **Undo** is required, and the game keeps a move history.
-- No clocks, no AI, no networking.
+- **Q:** Full rules, or a subset? Castling, en passant, promotion? <!-- match: rules, castling, en passant, promotion, special moves, subset -->
+  - **A:** Standard moves for all six pieces, captures, **pawn promotion (to a queen)**, check, checkmate and stalemate. **Castling and en passant are follow-ups**; the design must make them easy to add.
+- **Q:** Which draws count: stalemate only, or threefold repetition and the 50-move rule too? <!-- match: draw, draws, stalemate, repetition, threefold, 50-move, fifty -->
+  - **A:** Stalemate is the only draw for now.
+- **Q:** What input format: algebraic notation or squares? <!-- match: input, format, notation, algebraic, squares, coordinates -->
+  - **A:** Moves are given as two squares: `move("e2", "e4")`.
+- **Q:** Do we need undo, or a move history? <!-- match: undo, history, takeback, take back, revert -->
+  - **A:** **Undo** is required, and the game keeps a move history.
+- **Q:** Clocks? An AI opponent? Online play? <!-- match: clock, clocks, timer, ai, computer, engine, online, network, multiplayer -->
+  - **A:** No clocks, no AI, no networking.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Set up the standard position; white moves first; turns alternate.
-2. Reject moves that are off-pattern, blocked, capture your own piece, or leave your king in check.
-3. After each move, report `ACTIVE`, `CHECK`, `CHECKMATE` or `STALEMATE`.
-4. Promote a pawn reaching the last rank to a queen.
-5. Undo the last move (including captures and promotions).
+1. Set up the standard position; white moves first; turns alternate. <!-- match: standard position, set up, setup, white first, turns, alternate -->
+2. Reject moves that are off-pattern, blocked, capture your own piece, or leave your king in check. <!-- match: reject, illegal, legal moves, validate, blocked -->
+3. After each move, report `ACTIVE`, `CHECK`, `CHECKMATE` or `STALEMATE`. <!-- match: checkmate, stalemate, status -->
+4. Promote a pawn reaching the last rank to a queen. <!-- match: promote, promotion -->
+5. Undo the last move (including captures and promotions). <!-- match: undo -->
 
 **Non-functional**
 
-6. Adding a piece type or a special move doesn't require editing the others.
-7. Positions can be set up directly, for tests.
+6. Adding a piece type or a special move doesn't require editing the others. <!-- match: new piece, special move, open closed, extensible -->
+7. Positions can be set up directly, for tests. <!-- match: set up positions, custom position, tests -->
 
 ## Step 1 — Split the rules
 

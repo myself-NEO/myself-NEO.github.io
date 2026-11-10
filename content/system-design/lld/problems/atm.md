@@ -15,27 +15,35 @@ Design the software for an ATM. A customer inserts a card, enters a PIN, checks 
 6. One customer at a time?
 
 ````reveal title="Answers we'll assume"
-- **Balance enquiry and cash withdrawal**. Deposit and transfer are follow-ups.
-- **3 wrong PINs** and the card is retained; the session ends.
-- Notes of **2000, 500, 200 and 100**; withdrawals must be a positive multiple of 100, at most **10,000** per withdrawal.
-- The **bank** owns accounts and PINs; the ATM calls it through a `BankService` port. Debits carry a **transaction ID** so a retried call is applied once.
-- If dispensing fails after the debit, the ATM **reverses** the debit.
-- One physical customer at a time, but the ATM object is still made thread-safe (button presses and hardware callbacks arrive on different threads).
+- **Q:** Which operations: balance, withdrawal, deposit, transfer, PIN change? <!-- match: operations, withdraw, withdrawal, deposit, transfer, balance, features -->
+  - **A:** **Balance enquiry and cash withdrawal**. Deposit and transfer are follow-ups.
+- **Q:** How many wrong PIN attempts are allowed, and what happens after that? <!-- match: pin, attempts, wrong pin, incorrect, lock, blocked -->
+  - **A:** **3 wrong PINs** and the card is retained; the session ends.
+- **Q:** Which note denominations does the machine hold? <!-- match: notes, denominations, cash, bills, dispense -->
+  - **A:** Notes of **2000, 500, 200 and 100**.
+- **Q:** Is there a limit per withdrawal, or rules on the amount? <!-- match: limit, maximum, max, amount, multiple -->
+  - **A:** The amount must be a positive multiple of 100, at most **10,000** per withdrawal.
+- **Q:** Who owns the account data: the ATM or the bank? <!-- match: bank, account data, accounts, owns, backend, server -->
+  - **A:** The **bank** owns accounts and PINs; the ATM calls it through a `BankService` port. Debits carry a **transaction ID** so a retried call is applied once.
+- **Q:** What if the dispenser jams after the account was debited? <!-- match: jam, jams, dispenser, failure, rollback, reverse, debited -->
+  - **A:** The ATM **reverses** the debit.
+- **Q:** Is it one customer at a time? <!-- match: one customer, concurrent, concurrency, threads, same time, multiple users -->
+  - **A:** One physical customer at a time, but the ATM object is still made thread-safe (button presses and hardware callbacks arrive on different threads).
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Insert a card, enter a PIN (3 attempts), check the balance, withdraw cash, eject the card.
-2. Reject any operation that doesn't make sense in the current state.
-3. Dispense the requested amount using the largest notes available first.
-4. Debit the account exactly once per withdrawal; reverse it if the cash can't be dispensed.
+1. Insert a card, enter a PIN (3 attempts), check the balance, withdraw cash, eject the card. <!-- match: card, pin, balance, withdraw -->
+2. Reject any operation that doesn't make sense in the current state. <!-- match: reject, invalid state, current state -->
+3. Dispense the requested amount using the largest notes available first. <!-- match: largest notes, denominations, dispense -->
+4. Debit the account exactly once per withdrawal; reverse it if the cash can't be dispensed. <!-- match: debit once, exactly once, reverse, transaction id -->
 
 **Non-functional**
 
-5. The bank and the cash hardware sit behind interfaces (testable, replaceable).
-6. Adding a new state (for example, "out of service") doesn't touch the other states.
+5. The bank and the cash hardware sit behind interfaces (testable, replaceable). <!-- match: interface, interfaces, bank service, hardware, testable -->
+6. Adding a new state (for example, "out of service") doesn't touch the other states. <!-- match: new state, out of service, state pattern, open closed -->
 
 ## Step 1 — Session states
 

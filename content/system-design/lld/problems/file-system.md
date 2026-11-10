@@ -16,26 +16,33 @@ Design an in-memory file system with a Unix-like API: `mkdir -p`, `ls`, writing,
 7. Concurrent access?
 
 ````reveal title="Answers we'll assume"
-- **Absolute paths**; `.` and `..` are resolved lexically (`/a/./b/../c` is `/a/c`).
-- `ls` on a directory lists children sorted by name (directories with a trailing `/`); on a file, just its name.
-- Writing requires the parent directory to exist (like a shell); `mkdir -p` creates parents.
-- `mv src dst`: if `dst` is an existing directory, move **into** it; otherwise rename to `dst` (its parent must exist). Never overwrite. A directory can't move into its own subtree.
-- Size = bytes of file content; a directory's size is the sum of everything under it.
-- No permissions, links or timestamps (follow-ups).
-- Many threads may use the file system at once.
+- **Q:** Absolute paths only? Do `.` and `..` need to work? <!-- match: paths, absolute, relative, dot, parent, path, resolve -->
+  - **A:** **Absolute paths**; `.` and `..` are resolved lexically (`/a/./b/../c` is `/a/c`).
+- **Q:** What does `ls` return, on a directory and on a file? <!-- match: ls, list, listing, children, sorted -->
+  - **A:** On a directory, its children sorted by name (directories with a trailing `/`); on a file, just its name.
+- **Q:** Does writing to `/a/b.txt` create `/a` automatically? <!-- match: create parent, parents, mkdir, auto create, missing directory, intermediate -->
+  - **A:** No. Writing requires the parent directory to exist (like a shell); `mkdir -p` creates parents.
+- **Q:** How does `mv` behave: into an existing directory, rename, or overwrite? <!-- match: mv, move, rename, overwrite, destination -->
+  - **A:** `mv src dst`: if `dst` is an existing directory, move **into** it; otherwise rename to `dst` (its parent must exist). Never overwrite. A directory can't move into its own subtree.
+- **Q:** Is size the content length, and do directories have a size? <!-- match: size, bytes, length, directory size -->
+  - **A:** Size = bytes of file content; a directory's size is the sum of everything under it.
+- **Q:** Permissions, links, timestamps? <!-- match: permissions, permission, links, symlinks, timestamps, owner, metadata -->
+  - **A:** No; they're follow-ups.
+- **Q:** Is there concurrent access? <!-- match: concurrent, concurrency, threads, thread-safe, same time, multiple users -->
+  - **A:** Yes: many threads may use the file system at once.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `mkdirs`, `ls`, `write`, `append`, `read`, `move`, `remove(recursive)`, `size`, `walk`, `find`.
-2. Clear, specific errors: no such path, not a directory, is a directory, already exists, directory not empty, invalid move.
+1. `mkdirs`, `ls`, `write`, `append`, `read`, `move`, `remove(recursive)`, `size`, `walk`, `find`. <!-- match: mkdir, ls, write, read, move, remove, find, walk -->
+2. Clear, specific errors: no such path, not a directory, is a directory, already exists, directory not empty, invalid move. <!-- match: errors, specific errors, exceptions, no such path, not a directory -->
 
 **Non-functional**
 
-3. Files and directories are handled uniformly where it makes sense (size, walk, delete).
-4. Thread-safe; readers don't block each other.
+3. Files and directories are handled uniformly where it makes sense (size, walk, delete). <!-- match: uniform, uniformly, composite, same interface -->
+4. Thread-safe; readers don't block each other. <!-- match: thread-safe, readers, read-write lock, concurrent -->
 
 ## Step 1 — Model the tree
 

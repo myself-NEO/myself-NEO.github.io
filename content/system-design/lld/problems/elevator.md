@@ -14,21 +14,29 @@ Design the controller for a single elevator car in a building. People inside pre
 5. Door handling, overload, maintenance or emergency modes?
 
 ````reveal title="Answers we'll assume"
-- **One car**, floors 0..N−1. (Multiple cars is a follow-up.)
-- **In-car requests** (go to floor F) and **hall calls** (floor F, direction UP/DOWN).
-- **LOOK scheduling** (the "elevator algorithm"): keep moving in the current direction while there are stops ahead, serving them in order; reverse when nothing is left ahead.
-- A hall call for UP is served when the car passes going **up** (or when it's the turning point).
-- Simulate with a `step()` tick: the car moves one floor per tick or opens its doors at a stop.
-- Out of scope: door sensors, weight, emergency mode — but a maintenance mode is a likely follow-up.
+- **Q:** One car or several? <!-- match: cars, car, elevators, multiple, single, one, several -->
+  - **A:** **One car**, floors 0..N−1. (Multiple cars is a follow-up.)
+- **Q:** Which requests exist: in-car destinations, hall calls with a direction, or both? <!-- match: requests, hall call, hall calls, buttons, in-car, destination, inside, outside -->
+  - **A:** Both: **in-car requests** (go to floor F) and **hall calls** (floor F, direction UP/DOWN).
+- **Q:** Which scheduling policy should the car follow? <!-- match: scheduling, schedule, policy, algorithm, look, scan, next floor, which floor -->
+  - **A:** **LOOK scheduling** (the "elevator algorithm"): keep moving in the current direction while there are stops ahead, serving them in order; reverse when nothing is left ahead.
+- **Q:** When is a hall call for UP served? <!-- match: hall call, direction, up, down, pick up, served -->
+  - **A:** When the car passes going **up** (or when it's the turning point).
+- **Q:** Do we simulate time floor by floor, or just compute the order of stops? <!-- match: simulate, simulation, time, tick, step, floor by floor -->
+  - **A:** Simulate with a `step()` tick: the car moves one floor per tick or opens its doors at a stop.
+- **Q:** Can requests arrive while the car is moving, from other threads? <!-- match: concurrent, concurrency, threads, thread-safe, any time, while moving -->
+  - **A:** Yes: buttons can be pressed at any time from other threads, so accepting requests must be **thread-safe**.
+- **Q:** Do we handle doors, overload, maintenance or emergency modes? <!-- match: doors, door, overload, weight, emergency, maintenance, fire, scope -->
+  - **A:** Out of scope: door sensors, weight and emergency mode. A maintenance mode is a likely follow-up.
 ````
 
 ## Requirements
 
-1. Accept in-car requests and hall calls (validated floor range).
-2. Each `step()`: if the current floor is a stop for the current direction, open the doors and clear it; otherwise move one floor toward the next stop, or go idle.
-3. Serve stops with LOOK: same-direction stops in order, then reverse.
-4. Requests may arrive at any time, including from other threads (buttons) — thread-safe.
-5. The scheduling policy should be swappable.
+1. Accept in-car requests and hall calls (validated floor range). <!-- match: hall call, in-car, request, floor range -->
+2. Each `step()`: if the current floor is a stop for the current direction, open the doors and clear it; otherwise move one floor toward the next stop, or go idle. <!-- match: step, tick, open doors, move -->
+3. Serve stops with LOOK: same-direction stops in order, then reverse. <!-- match: look, direction, reverse, same direction -->
+4. Requests may arrive at any time, including from other threads (buttons) — thread-safe. <!-- match: thread-safe, concurrent, threads -->
+5. The scheduling policy should be swappable. <!-- match: swappable, scheduling policy, strategy, pluggable -->
 
 ## Step 1 — Model the state
 

@@ -1,22 +1,22 @@
-import { Track } from '../../../content/shared/types';
-import { findLesson, findProblem } from '../../../content/shared/curriculum';
-import { RUBRIC } from '../../../content/system-design/hld/landing';
-import { InterviewsState } from '../../learn/interviews';
-import { NotebookState } from '../../learn/notebook';
-import { ProgressState } from '../../learn/progress';
-import { lessonHref, problemHref } from '../../learn/routes';
-import { interviewHref } from './HldSectionNav';
+import { Track } from '../../content/shared/types';
+import { findLesson, findProblem } from '../../content/shared/curriculum';
+import { InterviewsState } from '../learn/interviews';
+import { NotebookState } from '../learn/notebook';
+import { ProgressState } from '../learn/progress';
+import { lessonHref, problemHref } from '../learn/routes';
+import { interviewHref } from './sections';
+import { trackConfig } from './trackConfig';
 
-// Everything the learner flagged or got wrong in HLD: difficult lessons, problems marked
+// Everything the learner flagged or got wrong in a System Design track: difficult lessons, problems marked
 // "revisit later", knowledge-check and drill mistakes, and rubric areas rated "Missed" in
 // the latest mock interview of each problem.
 
-export type HldRevisionKind = 'lesson' | 'problem' | 'quiz' | 'mock';
+export type RevisionKind = 'lesson' | 'problem' | 'quiz' | 'mock';
 
-export interface HldRevisionItem {
+export interface RevisionItem {
   /** Key in notebook.reviewed */
   key: string;
-  kind: HldRevisionKind;
+  kind: RevisionKind;
   title: string;
   context: string;
   /** Stage id, or "problems". */
@@ -29,10 +29,10 @@ export interface HldRevisionItem {
   ref?: string;
 }
 
-export const hldRevisionItems = (track: Track, notebook: NotebookState, progress: ProgressState, interviews: InterviewsState): HldRevisionItem[] => {
+export const revisionItems = (track: Track, notebook: NotebookState, progress: ProgressState, interviews: InterviewsState): RevisionItem[] => {
   const prefix = `${track.id}:`;
-  const items: HldRevisionItem[] = [];
-  const add = (item: Omit<HldRevisionItem, 'reviewedAt' | 'due'>) => {
+  const items: RevisionItem[] = [];
+  const add = (item: Omit<RevisionItem, 'reviewedAt' | 'due'>) => {
     const reviewedAt = notebook.reviewed[item.key];
     items.push({ ...item, reviewedAt, due: !reviewedAt || reviewedAt < item.flaggedAt });
   };
@@ -81,7 +81,7 @@ export const hldRevisionItems = (track: Track, notebook: NotebookState, progress
     const problem = findProblem(track, slug);
     const last = attempts[attempts.length - 1];
     if (!problem) continue;
-    for (const dim of RUBRIC) {
+    for (const dim of trackConfig(track).rubric) {
       if (last.ratings[dim.id] !== 'missed') continue;
       add({
         key: `mock:${k}:${dim.id}`,
@@ -89,7 +89,7 @@ export const hldRevisionItems = (track: Track, notebook: NotebookState, progress
         title: `${dim.label} — ${problem.title}`,
         context: `Rated “Missed” in your mock interview on ${new Date(last.completedAt).toLocaleDateString()}`,
         topic: 'problems',
-        href: interviewHref(slug),
+        href: interviewHref(track, slug),
         flaggedAt: last.completedAt,
       });
     }

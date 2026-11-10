@@ -15,29 +15,37 @@ Design a meeting room booking system for an office. Employees book a specific ro
 6. Many people booking at the same time?
 
 ````reveal title="Answers we'll assume"
-- Slots are **half-open** `[start, end)`: 10:00–11:00 and 11:00–12:00 don't conflict.
-- Both: book a named room, or let the system choose. The default choice is **best fit** — the smallest room that holds everyone — so big rooms stay free for big meetings. The policy must be swappable.
-- Bookings can be on any date and time (minute precision).
-- Recurring meetings are a follow-up.
-- Only the organizer can cancel.
-- Yes: concurrent requests for the same room and slot must have exactly one winner.
+- **Q:** Is a slot [start, end): can a meeting start exactly when another ends? <!-- match: overlap, back to back, back-to-back, boundary, half-open, inclusive, exclusive, adjacent, ends -->
+  - **A:** Slots are **half-open** `[start, end)`: 10:00–11:00 and 11:00–12:00 don't conflict.
+- **Q:** Do people book a specific room, or "any room that fits"? <!-- match: specific room, any room, fits, named room, capacity -->
+  - **A:** Both: book a named room, or let the system choose.
+- **Q:** Which room should "any room" pick? <!-- match: best fit, smallest, pick, policy, selection, which room -->
+  - **A:** **Best fit** by default (the smallest room that holds everyone), so big rooms stay free for big meetings. The policy must be swappable.
+- **Q:** Single day, or bookings across days? <!-- match: days, single day, date, dates, multi-day, precision, granularity -->
+  - **A:** Bookings can be on any date and time (minute precision).
+- **Q:** Do we support recurring meetings? <!-- match: recurring, recurrence, repeat, weekly, daily -->
+  - **A:** Recurring meetings are a follow-up.
+- **Q:** Who may cancel a booking? <!-- match: cancel, cancellation, organizer, organiser, permissions -->
+  - **A:** Only the organizer.
+- **Q:** Can many people book at the same time? <!-- match: concurrent, concurrency, same time, simultaneous, race, double booking -->
+  - **A:** Yes: concurrent requests for the same room and slot must have exactly one winner.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Add rooms with a name and capacity.
-2. Book a named room for a slot, or book any room that fits N attendees.
-3. Reject overlapping bookings in the same room.
-4. List rooms that are free for a slot and fit N attendees.
-5. Cancel a booking (organizer only).
+1. Add rooms with a name and capacity. <!-- match: add rooms, capacity, room -->
+2. Book a named room for a slot, or book any room that fits N attendees. <!-- match: book, any room, attendees -->
+3. Reject overlapping bookings in the same room. <!-- match: overlap, overlapping, conflict -->
+4. List rooms that are free for a slot and fit N attendees. <!-- match: free rooms, available rooms, list rooms, availability -->
+5. Cancel a booking (organizer only). <!-- match: cancel, organizer -->
 
 **Non-functional**
 
-6. Overlap check in O(log n) per room.
-7. Thread-safe without a single global lock; different rooms don't contend.
-8. The room-selection policy is pluggable.
+6. Overlap check in O(log n) per room. <!-- match: o(log n), log n, treemap, tree map, efficient -->
+7. Thread-safe without a single global lock; different rooms don't contend. <!-- match: thread-safe, concurrent, global lock, contention -->
+8. The room-selection policy is pluggable. <!-- match: pluggable, selection policy, strategy, swappable -->
 
 ## Step 1 — Entities
 

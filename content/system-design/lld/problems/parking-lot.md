@@ -16,28 +16,37 @@ Good questions to ask, grouped the way the [requirements lesson](lesson:requirem
 5. **Scale and concurrency:** How many gates operate at once?
 
 ````reveal title="Answers we'll assume"
-- Several levels, each with **small, medium and large** spots.
-- Vehicle types: **motorcycle → small, car → medium, truck → large**. A vehicle may use a **larger** spot if no fitting spot is free.
-- Spot choice: **smallest adequate size first** (keep large spots for trucks), then the **lowest level**, then the **lowest spot number** (closest to the ramp).
-- Fee: **hourly, rounded up, minimum 1 hour**, with a rate per vehicle type. Pricing rules **will change** (weekend rates are planned).
-- Lot full → a clear error. Unknown or already-used ticket → error. The same vehicle can't be parked twice.
-- **Out of scope:** payment processing (we compute the fee only), reservations, EV charging, UI.
-- **Multiple gates concurrently**: no spot may ever be assigned twice.
+- **Q:** How many levels are there, and which spot sizes? <!-- match: levels, floors, spot sizes, sizes, layout -->
+  - **A:** Several levels, each with **small, medium and large** spots.
+- **Q:** Which vehicle types are there, and can a vehicle use a bigger spot? <!-- match: vehicle types, vehicles, motorcycle, bike, car, truck, bigger spot, larger spot -->
+  - **A:** **Motorcycle → small, car → medium, truck → large**. A vehicle may use a **larger** spot if no fitting spot is free.
+- **Q:** How is the spot chosen? <!-- match: choose, chosen, assign, assignment, allocation, which spot, nearest, selection -->
+  - **A:** **Smallest adequate size first** (keep large spots for trucks), then the **lowest level**, then the **lowest spot number** (closest to the ramp).
+- **Q:** How is the fee calculated? <!-- match: fee, price, pricing, charge, cost, hourly, rate, rates -->
+  - **A:** **Hourly, rounded up, minimum 1 hour**, with a rate per vehicle type. Pricing rules **will change** (weekend rates are planned).
+- **Q:** What happens when the lot is full, or a ticket is lost or used twice? <!-- match: full, lost ticket, lost, twice, invalid ticket, error, already parked -->
+  - **A:** Lot full → a clear error. Unknown or already-used ticket → error. The same vehicle can't be parked twice.
+- **Q:** Do we show how many spots are free? <!-- match: availability, available, free spots, display, board, vacancy -->
+  - **A:** Yes: free spots per level and size, for display boards.
+- **Q:** Are payments, reservations, EV charging or a UI in scope? <!-- match: scope, payment, reservation, reservations, ev, charging, ui -->
+  - **A:** No: payment processing (we compute the fee only), reservations, EV charging and UI are **out of scope**.
+- **Q:** How many gates operate at once? <!-- match: gates, entrances, exits, concurrent, concurrency, same time, multiple gates -->
+  - **A:** **Several gates concurrently**: no spot may ever be assigned twice.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Park a vehicle: assign a spot per the selection rule and issue a ticket.
-2. Unpark with a ticket: free the spot and return the fee.
-3. Report free spots per level and size.
+1. Park a vehicle: assign a spot per the selection rule and issue a ticket. <!-- match: park, ticket, issue ticket -->
+2. Unpark with a ticket: free the spot and return the fee. <!-- match: unpark, exit, leave -->
+3. Report free spots per level and size. <!-- match: free spots, availability, available spots, display -->
 
 **Non-functional**
 
-4. Thread-safe: concurrent gates must never double-assign a spot or double-process a ticket.
-5. Pricing must be replaceable without touching parking logic.
-6. Allocation should be efficient (no scanning thousands of spots per car).
+4. Thread-safe: concurrent gates must never double-assign a spot or double-process a ticket. <!-- match: thread-safe, concurrent, double-assign, race -->
+5. Pricing must be replaceable without touching parking logic. <!-- match: pricing strategy, replaceable, swappable, pluggable pricing -->
+6. Allocation should be efficient (no scanning thousands of spots per car). <!-- match: efficient, scanning, performance, fast allocation -->
 
 **Out of scope:** payments, reservations, EV charging, persistence (an in-memory design is fine).
 

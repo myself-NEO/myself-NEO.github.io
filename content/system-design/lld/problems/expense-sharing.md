@@ -16,30 +16,37 @@ Design the core of an expense-sharing app like Splitwise. Friends in a group rec
 7. One currency?
 
 ````reveal title="Answers we'll assume"
-- **Equal, exact and percentage** splits; more may come (shares, adjustments).
-- Money is a `long` number of **cents**. Never `double`. Leftover cents from equal and percentage splits go to the first participants in a fixed order, so results are deterministic and always add up.
-- The payer may or may not share the cost (a cab paid by Meera for the other two).
-- We keep a **net balance per person** (positive: is owed; negative: owes) and compute settlement transfers from it.
-- Settlement suggests **at most n − 1 payments**; the exact minimum is NP-hard, so a greedy plan is fine.
-- Expenses are immutable once recorded; a correction is a new, opposite expense (a follow-up).
-- One currency.
+- **Q:** Which split types? <!-- match: split, splits, split types, equal, exact, percentage, shares -->
+  - **A:** **Equal, exact and percentage** splits; more may come (shares, adjustments).
+- **Q:** How is money represented, and what about amounts that don't divide evenly? <!-- match: money, double, decimal, cents, rounding, remainder, divide, precision -->
+  - **A:** As a `long` number of **cents**, never `double`. Leftover cents from equal and percentage splits go to the first participants in a fixed order, so results are deterministic and always add up.
+- **Q:** Is the payer always one of the people sharing the cost? <!-- match: payer, paid by, sharing, participants, included -->
+  - **A:** Not necessarily: the payer may or may not share the cost (a cab paid by Meera for the other two).
+- **Q:** Do we need pairwise debts, or net balances? <!-- match: pairwise, debts, owes, owe, net balance, balances, who owes -->
+  - **A:** A **net balance per person** (positive: is owed; negative: owes); settlement transfers are computed from it.
+- **Q:** Should we minimise the number of settlement payments? <!-- match: minimise, minimize, settle, settlement, simplify, fewest, transactions -->
+  - **A:** Suggest **at most n − 1 payments**. The exact minimum is NP-hard, so a greedy plan is fine.
+- **Q:** Can expenses be edited or deleted? <!-- match: edit, delete, update, modify, remove -->
+  - **A:** No. Expenses are immutable once recorded; a correction is a new, opposite expense (a follow-up).
+- **Q:** One currency? <!-- match: currency, currencies, exchange, fx -->
+  - **A:** Yes, one currency.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Create a group with members.
-2. Add an expense with a payer, an amount and a split; validate that it's well-formed.
-3. Show net balances for everyone.
-4. Suggest settlement transfers.
-5. Record a settlement payment.
+1. Create a group with members. <!-- match: group, members, create group -->
+2. Add an expense with a payer, an amount and a split; validate that it's well-formed. <!-- match: add expense, expense, payer, split -->
+3. Show net balances for everyone. <!-- match: balances, net balance, balance -->
+4. Suggest settlement transfers. <!-- match: settlement, settle, transfers -->
+5. Record a settlement payment. <!-- match: record settlement, record payment, payment -->
 
 **Non-functional**
 
-6. Balances always sum to exactly zero.
-7. New split types plug in without touching the group logic.
-8. Recorded expenses can't be changed by accident (immutable).
+6. Balances always sum to exactly zero. <!-- match: sum zero, zero, add up -->
+7. New split types plug in without touching the group logic. <!-- match: new split, split types, strategy, pluggable -->
+8. Recorded expenses can't be changed by accident (immutable). <!-- match: immutable, final -->
 
 ## Step 1 — Entities
 

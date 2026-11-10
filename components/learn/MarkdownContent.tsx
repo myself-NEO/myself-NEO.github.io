@@ -372,7 +372,7 @@ export const htmlDetailsToReveals = (markdown: string): string => {
   return out.join('\n');
 };
 
-/** `<!-- match: … -->` comments are keyword hints for the HLD mock interview, not page content. */
+/** `<!-- match: … -->` comments are keyword hints for the HLD and LLD mock interviews, not page content. */
 const stripMatchComments = (markdown: string) => (markdown.includes('<!--') ? markdown.replace(/[ \t]*<!--\s*match:[^>]*-->/g, '') : markdown);
 
 const MarkdownBody: React.FC<{ markdown: string }> = ({ markdown }) => {

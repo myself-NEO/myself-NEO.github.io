@@ -15,27 +15,35 @@ Design a small rule engine for an e-commerce checkout. Business teams want to ex
 6. What if one rule is broken (throws)?
 
 ````reveal title="Answers we'll assume"
-- The engine is **generic over the fact type**; the example uses `Order`.
-- Conditions combine with **AND / OR / NOT** to any depth.
-- Each rule set has a **firing policy**: first match by priority, all matches, or the best match by a domain measure (largest saving for discounts).
-- Rules can be **added, replaced (same name) and removed at runtime**; evaluations in flight are unaffected.
-- Every fired rule carries a **human-readable explanation** of its condition.
-- A rule that throws is **skipped and reported**; the others still run.
+- **Q:** What are the facts: one type (orders), or anything? <!-- match: facts, fact, input, type, orders, generic -->
+  - **A:** The engine is **generic over the fact type**; the example uses `Order`.
+- **Q:** How are conditions combined: AND, OR, NOT, nesting? <!-- match: conditions, combine, combined, nesting, nested, boolean, composite -->
+  - **A:** With **AND / OR / NOT** to any depth.
+- **Q:** When several rules match, what happens? Priority? All of them? The best one for the customer? <!-- match: several rules, multiple rules, conflict, conflicting, priority, best, policy, matches -->
+  - **A:** Each rule set has a **firing policy**: first match by priority, all matches, or the best match by a domain measure (largest saving for discounts).
+- **Q:** Can rules be added or replaced while the system is running? <!-- match: runtime, add rules, replace, dynamic, hot, reload, while running -->
+  - **A:** Yes. Rules can be **added, replaced (same name) and removed at runtime**; evaluations in flight are unaffected.
+- **Q:** Do we need an explanation of why a rule fired? <!-- match: explanation, explain, reason, fired, audit, trace -->
+  - **A:** Yes. Every fired rule carries a **human-readable explanation** of its condition.
+- **Q:** What if one rule is broken (throws)? <!-- match: throws, broken, exception, error, failure, fails -->
+  - **A:** It's **skipped and reported**; the others still run.
+- **Q:** Do evaluations run in parallel with rule changes? <!-- match: concurrent, concurrency, parallel, threads, thread-safe -->
+  - **A:** Yes: many evaluations run in parallel, with occasional rule changes.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Build conditions from named leaf predicates with `and`, `or`, `not`.
-2. Define rules with a name, priority, condition and outcome (discount, flat amount off, flag).
-3. Evaluate a rule set against a fact using its firing policy; return fired rules with explanations, plus errors.
-4. Add, replace and remove rules at runtime.
+1. Build conditions from named leaf predicates with `and`, `or`, `not`. <!-- match: predicates, combine, combinators, composite -->
+2. Define rules with a name, priority, condition and outcome (discount, flat amount off, flag). <!-- match: rules, priority, outcome, discount -->
+3. Evaluate a rule set against a fact using its firing policy; return fired rules with explanations, plus errors. <!-- match: evaluate, firing policy, explanations -->
+4. Add, replace and remove rules at runtime. <!-- match: add, replace, remove, runtime -->
 
 **Non-functional**
 
-5. New condition types, outcomes and policies without changing the engine ([open/closed](lesson:open-closed)).
-6. Thread-safe: many evaluations in parallel with occasional rule changes.
+5. New condition types, outcomes and policies without changing the engine ([open/closed](lesson:open-closed)). <!-- match: open closed, new condition, pluggable, extensible -->
+6. Thread-safe: many evaluations in parallel with occasional rule changes. <!-- match: thread-safe, parallel, concurrent -->
 
 ## Step 1 — Conditions as composable specifications
 

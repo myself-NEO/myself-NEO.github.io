@@ -15,28 +15,34 @@ Design an in-memory key-value store with `get`, `put`, `delete`, optional **time
 6. One transaction per client, or shared between threads?
 
 ````reveal title="Answers we'll assume"
-- String keys and values.
-- Outside a transaction, every write **auto-commits**.
-- Committing an **inner** transaction merges its changes into the **enclosing** one; only the **outermost** commit publishes to the store. Rolling back discards only the innermost layer.
-- Other clients never see uncommitted changes (read committed). Conflicts are detected **optimistically**: if a key that the transaction read or wrote was changed by someone else before it commits, the commit fails and the client retries.
-- TTL is fixed **when the write happens**; expired keys read as absent and are purged lazily (plus an explicit `purgeExpired()`).
-- A `Session` belongs to one client thread; the store is shared and thread-safe.
+- **Q:** Are keys and values strings? <!-- match: keys, values, types, strings, data types, value type -->
+  - **A:** Yes, string keys and values.
+- **Q:** Without `begin`, does each write commit immediately? <!-- match: auto-commit, autocommit, without begin, outside transaction, immediately -->
+  - **A:** Yes. Outside a transaction, every write **auto-commits**.
+- **Q:** How do nested transactions work? Is an inner commit visible to other clients? <!-- match: nested, nesting, inner, outer, savepoint, child transaction -->
+  - **A:** Committing an **inner** transaction merges its changes into the **enclosing** one; only the **outermost** commit publishes to the store. Rolling back discards only the innermost layer.
+- **Q:** What isolation is needed, and what if two transactions change the same key? <!-- match: isolation, conflict, conflicts, same key, optimistic, locking, read committed -->
+  - **A:** Other clients never see uncommitted changes (read committed). Conflicts are detected **optimistically**: if a key that the transaction read or wrote was changed by someone else before it commits, the commit fails and the client retries.
+- **Q:** When is a TTL set, and is expiry exact or lazy? <!-- match: ttl, expiry, expire, expiration, time to live -->
+  - **A:** TTL is fixed **when the write happens**; expired keys read as absent and are purged lazily (plus an explicit `purgeExpired()`).
+- **Q:** One transaction per client, or shared between threads? <!-- match: threads, shared, session, per client, thread-safe, concurrent -->
+  - **A:** A `Session` belongs to one client thread; the store is shared and thread-safe.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `get`, `put(key, value[, ttl])`, `delete` on a session.
-2. `begin`, `commit`, `rollback` with arbitrary nesting; errors when there's no transaction.
-3. Reads inside a transaction see its own pending changes, innermost first.
-4. Outermost commit applies all changes atomically; conflicting commits fail.
+1. `get`, `put(key, value[, ttl])`, `delete` on a session. <!-- match: get, put, delete -->
+2. `begin`, `commit`, `rollback` with arbitrary nesting; errors when there's no transaction. <!-- match: begin, commit, rollback, nested -->
+3. Reads inside a transaction see its own pending changes, innermost first. <!-- match: own changes, pending changes, read your writes, innermost -->
+4. Outermost commit applies all changes atomically; conflicting commits fail. <!-- match: atomic, atomically, conflict, conflicting -->
 
 **Non-functional**
 
-5. Thread-safe store; concurrent readers don't block each other.
-6. Transactions are cheap: no copy of the whole store.
-7. Time is injectable for TTL tests.
+5. Thread-safe store; concurrent readers don't block each other. <!-- match: thread-safe, readers, concurrent readers -->
+6. Transactions are cheap: no copy of the whole store. <!-- match: cheap, no copy, overlay -->
+7. Time is injectable for TTL tests. <!-- match: clock, inject time, ttl tests -->
 
 ## Step 1 — Layers and mutations
 

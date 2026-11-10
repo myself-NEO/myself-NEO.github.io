@@ -14,20 +14,27 @@ Design a game of tic-tac-toe for two players. Players take turns placing their s
 5. What should happen on an invalid move?
 
 ````reveal title="Answers we'll assume"
-- **N×N** board (N ≥ 3), with a **full row, column or diagonal** needed to win.
-- Two players with symbols X and O; X moves first. Players are **pluggable** (human input or a simple computer strategy).
-- Invalid moves (out of bounds, occupied cell, wrong turn, game already over) are **rejected with an exception**, and the game state is unchanged.
-- A move history is nice to have; undo is a follow-up.
-- No UI — a text rendering is enough.
+- **Q:** Is the board always 3×3, or N×N? <!-- match: board size, size, board, 3x3, nxn, grid, dimensions -->
+  - **A:** **N×N** (N ≥ 3).
+- **Q:** What wins: a full row, or K in a row? <!-- match: win, wins, winning, winner, row, column, diagonal -->
+  - **A:** A **full row, column or diagonal**.
+- **Q:** Who are the players: two humans, or computer players too? <!-- match: players, player, human, computer, ai, bot, cpu -->
+  - **A:** Two players with symbols X and O; X moves first. Players are **pluggable** (human input or a simple computer strategy).
+- **Q:** Do we need undo, or a move history? <!-- match: undo, history, replay, move log -->
+  - **A:** A move history is nice to have; undo is a follow-up.
+- **Q:** What should happen on an invalid move? <!-- match: invalid, illegal, occupied, out of bounds, wrong turn, error -->
+  - **A:** Invalid moves (out of bounds, occupied cell, wrong turn, game already over) are **rejected with an exception**, and the game state is unchanged.
+- **Q:** Do we need a UI? <!-- match: ui, display, render, print, screen, console -->
+  - **A:** No UI. A text rendering is enough.
 ````
 
 ## Requirements
 
-1. Create a game with board size N and two players.
-2. Make a move (row, col) for the current player; validate it.
-3. After each move, detect win or draw **in O(1)**.
-4. Expose game status: `IN_PROGRESS`, `X_WON`, `O_WON`, `DRAW`.
-5. Players can be human or computer (strategy).
+1. Create a game with board size N and two players. <!-- match: create game, new game, board -->
+2. Make a move (row, col) for the current player; validate it. <!-- match: move, validate -->
+3. After each move, detect win or draw **in O(1)**. <!-- match: win, draw, winner -->
+4. Expose game status: `IN_PROGRESS`, `X_WON`, `O_WON`, `DRAW`. <!-- match: status, game state -->
+5. Players can be human or computer (strategy). <!-- match: computer, human, strategy -->
 
 ## Step 1 — Entities
 

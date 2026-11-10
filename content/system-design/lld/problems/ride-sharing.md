@@ -15,29 +15,37 @@ Design the matching core of a ride-hailing app. Drivers go online and report the
 6. Who needs to hear about trip events?
 
 ````reveal title="Answers we'll assume"
-- Locations are points on a plane in kilometres (straight-line distance); only drivers within a **radius** (3 km) are considered. Real geo-indexing is a follow-up.
-- Matching policy is **pluggable**: nearest driver by default, or best rated within the radius.
-- Trip: `ASSIGNED → IN_PROGRESS → COMPLETED`; `ASSIGNED → CANCELLED` (rider or driver, before pickup). No cancellation after the trip starts.
-- One active trip per rider. A driver can only go offline when not on a trip.
-- Fare = base 50 + 12 per km of trip distance (surge pricing is a follow-up).
-- Riders and drivers are notified of every trip status change.
+- **Q:** How is "nearby" measured? A search radius? <!-- match: nearby, radius, distance, near, location, geo, km -->
+  - **A:** Locations are points on a plane in kilometres (straight-line distance); only drivers within a **radius** (3 km) are considered. Real geo-indexing is a follow-up.
+- **Q:** Which driver should win: the nearest, the best rated? Will that change? <!-- match: which driver, matching, match, nearest, best rated, rating, closest, policy -->
+  - **A:** The matching policy is **pluggable**: nearest driver by default, or best rated within the radius.
+- **Q:** What states does a trip go through? Who can cancel, and until when? <!-- match: states, status, lifecycle, cancel, cancellation, trip states -->
+  - **A:** `ASSIGNED → IN_PROGRESS → COMPLETED`; `ASSIGNED → CANCELLED` (rider or driver, before pickup). No cancellation after the trip starts.
+- **Q:** Can a rider have two trips at once? Can a driver go offline mid-trip? <!-- match: two trips, multiple trips, offline, mid-trip, active trip, at once -->
+  - **A:** One active trip per rider. A driver can only go offline when not on a trip.
+- **Q:** How is the fare computed? <!-- match: fare, price, pricing, cost, surge, charge -->
+  - **A:** Base 50 + 12 per km of trip distance (surge pricing is a follow-up).
+- **Q:** Who needs to hear about trip events? <!-- match: notify, notification, notifications, events, updates, listeners, status changes -->
+  - **A:** Riders and drivers are notified of every trip status change.
+- **Q:** Can several riders get the same driver at the same time? <!-- match: concurrent, concurrency, same driver, same time, simultaneous, race, double assignment -->
+  - **A:** That must never happen: a driver is never assigned to two trips, even under concurrent requests.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Drivers go online/offline and update their location.
-2. `requestRide(rider, pickup, dropoff)` matches an available driver within the radius, using the current strategy, and creates a trip with a fare.
-3. Only the assigned driver can start and complete a trip; rider or driver can cancel before the start.
-4. On completion the driver becomes available at the drop-off point; on cancellation, where they are.
-5. Listeners are notified of every status change.
+1. Drivers go online/offline and update their location. <!-- match: online, offline, location -->
+2. `requestRide(rider, pickup, dropoff)` matches an available driver within the radius, using the current strategy, and creates a trip with a fare. <!-- match: request ride, match driver, matching, fare -->
+3. Only the assigned driver can start and complete a trip; rider or driver can cancel before the start. <!-- match: start, complete, cancel, assigned driver -->
+4. On completion the driver becomes available at the drop-off point; on cancellation, where they are. <!-- match: available, drop-off, dropoff -->
+5. Listeners are notified of every status change. <!-- match: listeners, notify -->
 
 **Non-functional**
 
-6. A driver is never assigned to two trips, even under concurrent requests.
-7. A rider never has two active trips.
-8. Matching strategies and fare rules are replaceable.
+6. A driver is never assigned to two trips, even under concurrent requests. <!-- match: two trips, concurrent, double assignment -->
+7. A rider never has two active trips. <!-- match: one active trip, two active trips -->
+8. Matching strategies and fare rules are replaceable. <!-- match: replaceable, strategy, pluggable, fare rules -->
 
 ## Step 1 — Who talks to whom
 

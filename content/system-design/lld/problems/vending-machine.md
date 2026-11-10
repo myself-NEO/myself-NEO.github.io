@@ -15,28 +15,36 @@ Design the software for a vending machine. Customers insert coins, select a prod
 6. What can the operator do, and can they do it mid-transaction?
 
 ````reveal title="Answers we'll assume"
-- Coins: **1, 2, 5, 10 and 20** (rupees). No cards (but card payments are a likely follow-up).
-- Flow: **insert money first, then select**. Customers can insert several coins.
-- The machine **gives change from its cash box**. If it **can't make exact change**, it **rejects the sale and keeps the customer's money in the transaction** so they can pick something else or cancel.
-- **One item** per selection; the transaction ends after a successful dispense.
-- Sold out → reject the selection; the money stays inserted.
-- The operator can restock and collect cash only in **maintenance mode**, which can only be entered when no customer transaction is in progress.
+- **Q:** Which coins are accepted, and can customers pay by card? <!-- match: coins, notes, denominations, card, cards, cash, accepted, payment methods -->
+  - **A:** Coins of **1, 2, 5, 10 and 20** (rupees). No cards (but card payments are a likely follow-up).
+- **Q:** Does the customer insert money before or after selecting? <!-- match: insert, before, after, first, flow, sequence, select first -->
+  - **A:** **Insert money first, then select**. Customers can insert several coins.
+- **Q:** Does the machine give change, and what if it can't make exact change? <!-- match: change, exact change, return change, give change -->
+  - **A:** Yes, **from its cash box**. If it **can't make exact change**, it **rejects the sale and keeps the customer's money in the transaction** so they can pick something else or cancel.
+- **Q:** Is it one item per transaction? <!-- match: one item, multiple items, several items, quantity, items per transaction -->
+  - **A:** **One item** per selection; the transaction ends after a successful dispense.
+- **Q:** What happens when a product is sold out? <!-- match: sold out, out of stock, stock, empty slot, unavailable -->
+  - **A:** The selection is rejected; the money stays inserted.
+- **Q:** What can the operator do, and can they do it mid-transaction? <!-- match: operator, maintenance, restock, refill, collect, admin, technician -->
+  - **A:** Restock and collect cash, but only in **maintenance mode**, which can only be entered when no customer transaction is in progress.
+- **Q:** Is anything out of scope, like remote monitoring or several machines? <!-- match: scope, telemetry, remote, monitoring, machines, network, fleet -->
+  - **A:** Out of scope: card payments, remote telemetry and multiple machines. Design one standalone machine.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Insert coins (accumulate a balance for the current transaction).
-2. Select a product by slot code: dispense it and return change if the balance is sufficient, the product is in stock, and change can be made.
-3. Cancel: return exactly the inserted coins.
-4. Operator: enter/exit maintenance, restock a slot, collect cash.
+1. Insert coins (accumulate a balance for the current transaction). <!-- match: coin, balance, insert money -->
+2. Select a product by slot code: dispense it and return change if the balance is sufficient, the product is in stock, and change can be made. <!-- match: select, dispense, slot -->
+3. Cancel: return exactly the inserted coins. <!-- match: cancel, refund -->
+4. Operator: enter/exit maintenance, restock a slot, collect cash. <!-- match: maintenance, restock, operator -->
 
 **Non-functional**
 
-5. Never lose or invent money: coins in = product price + change out + cash kept.
-6. Change-making must succeed whenever it's possible with the coins actually in the cash box.
-7. The change algorithm should be swappable.
+5. Never lose or invent money: coins in = product price + change out + cash kept. <!-- match: lose money, lost money, invent, conservation -->
+6. Change-making must succeed whenever it's possible with the coins actually in the cash box. <!-- match: exact change, make change, change-making -->
+7. The change algorithm should be swappable. <!-- match: swappable, pluggable, strategy, change algorithm -->
 
 **Out of scope:** card payments, remote telemetry, multiple machines.
 

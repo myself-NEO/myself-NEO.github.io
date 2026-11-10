@@ -15,29 +15,36 @@ Design a library management system. The library has a catalogue of books, each w
 6. Concurrency: can two members borrow the last copy at the same time?
 
 ````reveal title="Answers we'll assume"
-- **Book** (ISBN, title, author) vs **BookCopy** (copy ID, status) — one title, many copies.
-- At most **3 active loans** per member; loan period **14 days**.
-- Fine: **₹10 per day late** (the policy may change). Members with **unpaid fines can't borrow**.
-- Holds: when no copy is available, a member can **join a FIFO hold queue** for the ISBN. A returned copy goes **ON_HOLD** for the first member in the queue for **3 days**; after that it passes to the next member, or becomes available.
-- Search by **title or author** (case-insensitive substring).
-- Yes — borrowing must be **safe under concurrency**.
-- Out of scope: payments (we just record "fine paid"), notifications (a hook only), librarians' UI.
+- **Q:** Do we distinguish a book (the title) from a copy (the physical item)? <!-- match: copy, copies, physical, isbn, title, book vs copy -->
+  - **A:** Yes: **Book** (ISBN, title, author) vs **BookCopy** (copy ID, status). One title, many copies.
+- **Q:** How many items can a member borrow, and for how long? <!-- match: borrow limit, limit, loan period, how long, duration, days, loans -->
+  - **A:** At most **3 active loans** per member; loan period **14 days**.
+- **Q:** How are fines calculated, and do they block borrowing? <!-- match: fine, fines, late, overdue, penalty -->
+  - **A:** **₹10 per day late** (the policy may change). Members with **unpaid fines can't borrow**.
+- **Q:** How do holds and reservations work? <!-- match: hold, holds, reserve, reservation, queue, waitlist, waiting -->
+  - **A:** When no copy is available, a member can **join a FIFO hold queue** for the ISBN. A returned copy goes **ON_HOLD** for the first member in the queue for **3 days**; after that it passes to the next member, or becomes available.
+- **Q:** Which fields can members search by? <!-- match: search, find, lookup, query, author, fields -->
+  - **A:** **Title or author** (case-insensitive substring).
+- **Q:** Can two members borrow the last copy at the same time? <!-- match: concurrent, concurrency, same time, simultaneously, last copy, race -->
+  - **A:** Yes, so borrowing must be **safe under concurrency**.
+- **Q:** Are payments, notifications or a librarian UI in scope? <!-- match: scope, payment, notification, email, ui, librarian -->
+  - **A:** No: payments (we just record "fine paid"), notifications (a hook only) and librarians' UI are out of scope.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Add books and copies; search by title or author.
-2. Borrow by ISBN: assign an available copy (or the copy on hold for this member).
-3. Return a copy: close the loan, compute any fine, and hand the copy to the next holder or make it available.
-4. Place a hold when no copy is available.
-5. Pay fines.
+1. Add books and copies; search by title or author. <!-- match: add books, search, catalogue, catalog -->
+2. Borrow by ISBN: assign an available copy (or the copy on hold for this member). <!-- match: borrow, lend, checkout, check out -->
+3. Return a copy: close the loan, compute any fine, and hand the copy to the next holder or make it available. <!-- match: return, fine -->
+4. Place a hold when no copy is available. <!-- match: hold, reserve, reservation, queue -->
+5. Pay fines. <!-- match: pay fine, pay fines, payment -->
 
 **Non-functional**
 
-6. No copy is ever lent to two members; concurrent borrows are safe.
-7. The fine policy is replaceable; time is injectable for testing.
+6. No copy is ever lent to two members; concurrent borrows are safe. <!-- match: concurrent, thread-safe, two members, double lend -->
+7. The fine policy is replaceable; time is injectable for testing. <!-- match: fine policy, replaceable, swappable, clock, inject time -->
 
 ## Step 1 — Entities
 
