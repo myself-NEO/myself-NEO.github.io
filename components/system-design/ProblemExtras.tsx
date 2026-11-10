@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Track } from '../../../content/shared/types';
-import { findProblem } from '../../../content/shared/curriculum';
-import { itemKey, notebookActions, problemNote, useNotebook } from '../../learn/notebook';
-import { useInterviews, sessionKey } from '../../learn/interviews';
-import { ArrowIcon, FlagIcon, NoteIcon, ToggleChip } from '../../learn/ui';
-import { HLD_NOTEBOOK_HREF, interviewHref } from './HldSectionNav';
+import { Track } from '../../content/shared/types';
+import { findProblem } from '../../content/shared/curriculum';
+import { itemKey, notebookActions, problemNote, useNotebook } from '../learn/notebook';
+import { useInterviews, sessionKey } from '../learn/interviews';
+import { ArrowIcon, FlagIcon, NoteIcon, ToggleChip } from '../learn/ui';
+import { interviewHref, notebookHref } from './sections';
+import { trackConfig } from './trackConfig';
 import { hasBreakdown } from './sequence';
 
 const SAVE_DELAY_MS = 600;
@@ -29,7 +30,7 @@ export const ProblemHeaderExtras: React.FC<{ track: Track; slug: string }> = ({ 
     <div className="mt-4 flex flex-wrap items-center gap-2">
       {canInterview && (
         <a
-          href={interviewHref(slug)}
+          href={interviewHref(track, slug)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500/15 border border-violet-500/40 px-3 py-1.5 text-xs font-semibold text-violet-200 hover:bg-violet-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         >
           🎙️ {session ? 'Resume mock interview' : attempts.length > 0 ? 'Mock interview again' : 'Practise as a mock interview'}
@@ -100,7 +101,7 @@ export const ProblemNotes: React.FC<{ track: Track; slug: string }> = ({ track, 
       </div>
       <label htmlFor={id} className="block text-sm text-slate-400 mb-2">
         What tripped you up, the trade-off you want to remember, what you would say differently next time. Collected in your{' '}
-        <a href={HLD_NOTEBOOK_HREF} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
+        <a href={notebookHref(track)} className="text-sky-400 underline underline-offset-2 decoration-sky-400/40 hover:decoration-sky-300">
           revision notebook
         </a>
         .
@@ -110,7 +111,7 @@ export const ProblemNotes: React.FC<{ track: Track; slug: string }> = ({ track, 
         value={text}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        placeholder="e.g. Forgot to ask about custom aliases; 301 vs 302 matters for analytics…"
+        placeholder={trackConfig(track).problemNotePlaceholder}
         className="w-full rounded-lg bg-slate-950/60 border border-slate-700 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
       />
     </section>

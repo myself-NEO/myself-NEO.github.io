@@ -15,29 +15,35 @@ Design a logging library like a small Log4j or Logback. Application code asks fo
 6. What happens when the async buffer is full?
 
 ````reveal title="Answers we'll assume"
-- Levels `TRACE < DEBUG < INFO < WARN < ERROR`. A logger without a level **inherits** the nearest ancestor's; the root defaults to `INFO`.
-- Loggers form a **dot-separated hierarchy**. An event goes to the logger's appenders and then up to its ancestors' appenders, unless a logger is marked **non-additive**.
-- Appenders: console and in-memory (a file appender is the same shape). Each appender has a **threshold** and a **formatter** (pattern or JSON).
-- `{}` placeholders filled from arguments; a trailing `Throwable` argument is the event's error. Lazy `Supplier<String>` messages for expensive debug output.
-- Many threads log at once. An **async appender** moves writing to a background thread with a bounded queue.
-- When the queue is full, events below `WARN` are **dropped (and counted)**; `WARN` and `ERROR` wait for space.
+- **Q:** Which levels, and what level does a logger nobody configured use? <!-- match: levels, level, debug, info, warn, severity, default level, inherit -->
+  - **A:** `TRACE < DEBUG < INFO < WARN < ERROR`. A logger without a level **inherits** the nearest ancestor's; the root defaults to `INFO`.
+- **Q:** Do loggers form a hierarchy by name? <!-- match: hierarchy, parent, ancestor, child, tree, names, dot, package -->
+  - **A:** Yes, a **dot-separated hierarchy** (`shop.db` under `shop`). An event goes to the logger's appenders and then up to its ancestors' appenders, unless a logger is marked **non-additive**.
+- **Q:** Which destinations and formats? <!-- match: destinations, appenders, appender, console, file, output, formats, format, json, pattern -->
+  - **A:** Console and in-memory appenders (a file appender is the same shape). Each appender has a **threshold** and a **formatter** (pattern or JSON).
+- **Q:** Do messages use templates like "took {} ms", and can they carry exceptions? <!-- match: templates, template, placeholders, placeholder, arguments, exceptions, stack trace, throwable, lazy -->
+  - **A:** `{}` placeholders are filled from arguments; a trailing `Throwable` argument is the event's error. Lazy `Supplier<String>` messages cover expensive debug output.
+- **Q:** Do many threads log at once, and should writing be asynchronous? <!-- match: threads, concurrent, thread-safe, async, asynchronous, background, non-blocking -->
+  - **A:** Many threads log at once. An **async appender** moves writing to a background thread with a bounded queue.
+- **Q:** What happens when the async buffer is full? <!-- match: buffer full, queue full, full, backpressure, drop, overflow, bounded -->
+  - **A:** Events below `WARN` are **dropped (and counted)**; `WARN` and `ERROR` wait for space.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `LoggerRegistry.getLogger(name)` returns the same logger for the same name and builds the hierarchy.
-2. Levels per logger with inheritance; level checks before any formatting.
-3. Appenders with thresholds and formatters; additivity per logger.
-4. Placeholders, trailing exceptions and lazy messages.
-5. Async appender with a bounded queue, a drop policy, and a `close()` that flushes.
+1. `LoggerRegistry.getLogger(name)` returns the same logger for the same name and builds the hierarchy. <!-- match: registry, getlogger, same logger, hierarchy -->
+2. Levels per logger with inheritance; level checks before any formatting. <!-- match: levels, inheritance, inherit, level check -->
+3. Appenders with thresholds and formatters; additivity per logger. <!-- match: appenders, formatters, threshold, additivity -->
+4. Placeholders, trailing exceptions and lazy messages. <!-- match: placeholders, exceptions, lazy -->
+5. Async appender with a bounded queue, a drop policy, and a `close()` that flushes. <!-- match: async, bounded queue, drop, flush -->
 
 **Non-functional**
 
-6. A disabled log call costs a level comparison, nothing more.
-7. Thread-safe; an appender never interleaves two events' output.
-8. New appenders and formatters plug in without changing `Logger`.
+6. A disabled log call costs a level comparison, nothing more. <!-- match: disabled, cheap, level comparison, fast path -->
+7. Thread-safe; an appender never interleaves two events' output. <!-- match: thread-safe, interleave, concurrent -->
+8. New appenders and formatters plug in without changing `Logger`. <!-- match: new appenders, pluggable, plug in, open closed -->
 
 ## Step 1 — Entities
 

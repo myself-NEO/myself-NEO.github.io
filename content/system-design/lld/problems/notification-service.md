@@ -16,30 +16,38 @@ Design a notification service that other parts of a product call to tell users t
 7. Synchronous or queued?
 
 ````reveal title="Answers we'll assume"
-- **Email, SMS and push** now; new channels must be pluggable.
-- Users choose channels **per category**: `TRANSACTIONAL` (order updates, OTPs) and `MARKETING` (sales). Opting out of marketing entirely is allowed.
-- Templates have `{{variable}}` placeholders; `{{name}}` is filled from the user. A **missing variable rejects the request before anything is sent**.
-- Provider timeouts, throttling (429) and 5xx are **transient**: retry up to 3 attempts with exponential backoff. Bad numbers or invalid tokens are **permanent**: don't retry.
-- Each request carries an **ID**; a repeated ID is ignored (idempotency).
-- Audit and metrics subscribe to **delivery events**.
-- We design the synchronous core; queueing is discussed under concurrency.
-- The SMS vendor's SDK has its own interface (status codes, no exceptions) that we can't change.
+- **Q:** Which channels, and are more coming? <!-- match: channels, channel, email, sms, push, whatsapp -->
+  - **A:** **Email, SMS and push** now; new channels must be pluggable.
+- **Q:** Do users choose their channels, and per type of message? <!-- match: preferences, preference, opt out, opt-out, choose, category, categories, marketing, settings -->
+  - **A:** Yes, **per category**: `TRANSACTIONAL` (order updates, OTPs) and `MARKETING` (sales). Opting out of marketing entirely is allowed.
+- **Q:** How do templates work, and what if a variable is missing? <!-- match: templates, template, placeholder, variables, variable, missing -->
+  - **A:** Templates have `{{variable}}` placeholders; `{{name}}` is filled from the user. A **missing variable rejects the request before anything is sent**.
+- **Q:** Which failures are retried, and how many times? <!-- match: retry, retries, retryable, failure, transient, backoff, attempts -->
+  - **A:** Provider timeouts, throttling (429) and 5xx are **transient**: retry up to 3 attempts with exponential backoff. Bad numbers or invalid tokens are **permanent**: don't retry.
+- **Q:** Can callers send the same request twice? <!-- match: duplicate, twice, same request, idempotency, idempotent, dedup -->
+  - **A:** Yes. Each request carries an **ID**, and a repeated ID is ignored (idempotency).
+- **Q:** Does anyone need to know about deliveries? <!-- match: audit, metrics, tracking, events, monitoring, delivery status, logging -->
+  - **A:** Audit and metrics subscribe to **delivery events**.
+- **Q:** Is sending synchronous or queued? <!-- match: synchronous, sync, async, asynchronous, queue, queued, background -->
+  - **A:** We design the synchronous core; queueing is discussed under concurrency.
+- **Q:** Do the providers' SDKs fit our interfaces? <!-- match: vendor, sdk, provider, providers, third-party, integration -->
+  - **A:** The SMS vendor's SDK has its own interface (status codes, no exceptions) that we can't change.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Register templates and users (with contact details and preferences).
-2. `send(request)`: render the template, pick channels from the user's preferences for that category, deliver on each.
-3. Retry transient failures with backoff; stop on permanent failures.
-4. Ignore duplicate request IDs.
-5. Publish delivery events (sent, retrying, failed) to listeners.
+1. Register templates and users (with contact details and preferences). <!-- match: register, templates, users, preferences -->
+2. `send(request)`: render the template, pick channels from the user's preferences for that category, deliver on each. <!-- match: send, render, deliver -->
+3. Retry transient failures with backoff; stop on permanent failures. <!-- match: retry, backoff, transient -->
+4. Ignore duplicate request IDs. <!-- match: duplicate, idempotent, request id -->
+5. Publish delivery events (sent, retrying, failed) to listeners. <!-- match: events, listeners, observer, publish -->
 
 **Non-functional**
 
-6. New channels and providers plug in without changing `NotificationService` ([open/closed](lesson:open-closed)).
-7. Providers are behind interfaces; tests don't send real messages or sleep.
+6. New channels and providers plug in without changing `NotificationService` ([open/closed](lesson:open-closed)). <!-- match: new channel, pluggable, open closed -->
+7. Providers are behind interfaces; tests don't send real messages or sleep. <!-- match: interfaces, tests, fake, mock -->
 
 ## Step 1 — Entities
 

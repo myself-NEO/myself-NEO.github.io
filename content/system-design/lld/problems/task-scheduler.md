@@ -15,28 +15,34 @@ Design an in-process task scheduler: application code submits tasks to run **onc
 6. Do we need to persist tasks across restarts?
 
 ````reveal title="Answers we'll assume"
-- **One-off** (`schedule(delay)`) and **fixed-rate recurring** (`scheduleAtFixedRate(initialDelay, period)`).
-- Missed runs of a recurring task are **skipped**, not replayed in a burst; the next run is the next period boundary after now.
-- One-off tasks retry up to `maxAttempts` with **exponential backoff** (`b, 2b, 4b, ...`) and then end as `FAILED`. A recurring task retries the same way and, if it still fails, simply waits for its next period.
-- Cancelling a scheduled task prevents its future runs; a running task finishes its current run and is not rescheduled.
-- Workers are a pool supplied by the caller; different tasks run in parallel; the same task never overlaps itself.
-- In memory only; persistence is a follow-up.
+- **Q:** One-off and recurring tasks? Fixed rate or fixed delay? <!-- match: recurring, one-off, repeat, periodic, fixed rate, fixed delay, cron, interval -->
+  - **A:** **One-off** (`schedule(delay)`) and **fixed-rate recurring** (`scheduleAtFixedRate(initialDelay, period)`).
+- **Q:** If the scheduler falls behind, does a recurring task run all the missed times? <!-- match: missed, falls behind, catch up, behind, gc pause, skip, late -->
+  - **A:** No. Missed runs are **skipped**, not replayed in a burst; the next run is the next period boundary after now.
+- **Q:** How do retries work, and do recurring tasks retry too? <!-- match: retry, retries, backoff, attempts, failure, fails -->
+  - **A:** One-off tasks retry up to `maxAttempts` with **exponential backoff** (`b, 2b, 4b, ...`) and then end as `FAILED`. A recurring task retries the same way and, if it still fails, simply waits for its next period.
+- **Q:** What does cancel mean for a task that is running right now? <!-- match: cancel, cancellation, running, stop, interrupt, abort -->
+  - **A:** Cancelling prevents future runs; a running task finishes its current run and is not rescheduled.
+- **Q:** How many worker threads, and can tasks run in parallel? <!-- match: workers, worker, threads, thread pool, pool, parallel, concurrent, overlap -->
+  - **A:** Workers are a pool supplied by the caller; different tasks run in parallel; the same task never overlaps itself.
+- **Q:** Do tasks need to survive restarts? <!-- match: persist, persistence, restart, restarts, durable, database, crash -->
+  - **A:** In memory only; persistence is a follow-up.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `schedule(name, job, delay, retry)` and `scheduleAtFixedRate(name, job, initialDelay, period, retry)` return a handle.
-2. The handle exposes the task's state and `cancel()`.
-3. Due tasks run on worker threads, in due-time order.
-4. Retries with exponential backoff; recurring tasks continue after failures.
+1. `schedule(name, job, delay, retry)` and `scheduleAtFixedRate(name, job, initialDelay, period, retry)` return a handle. <!-- match: schedule, fixed rate, handle -->
+2. The handle exposes the task's state and `cancel()`. <!-- match: state, cancel, handle -->
+3. Due tasks run on worker threads, in due-time order. <!-- match: due time, worker threads, workers, order -->
+4. Retries with exponential backoff; recurring tasks continue after failures. <!-- match: retry, backoff -->
 
 **Non-functional**
 
-5. The dispatcher sleeps until the next due time — no busy polling — and wakes early when an earlier task arrives.
-6. Thread-safe submission from any thread.
-7. Deterministic tests: time and execution are injectable.
+5. The dispatcher sleeps until the next due time — no busy polling — and wakes early when an earlier task arrives. <!-- match: busy polling, poll, sleep, wake, wakes -->
+6. Thread-safe submission from any thread. <!-- match: thread-safe, any thread, concurrent submission -->
+7. Deterministic tests: time and execution are injectable. <!-- match: deterministic, clock, inject time, tests -->
 
 ## Step 1 — Data structure and waiting
 

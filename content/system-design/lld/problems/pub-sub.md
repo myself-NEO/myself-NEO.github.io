@@ -16,30 +16,39 @@ Design an in-process publish/subscribe library. Producers publish messages to na
 7. Push (callbacks) or pull (poll)?
 
 ````reveal title="Answers we'll assume"
-- **Fan-out:** every subscription gets every message (consumer groups that share work are a follow-up).
-- **Per-topic order** is preserved for each subscriber.
-- **At least once:** a subscriber's offset advances only **after** its handler finishes. Handlers that can't tolerate duplicates are made idempotent (we provide a de-duplicating wrapper keyed by message ID).
-- A failing message is retried up to N attempts; then it goes to the subscription's **dead-letter list** and the offset moves on, so one poison message can't block the stream forever.
-- Each topic has a **capacity**: the maximum number of messages the slowest subscriber may lag behind. When it's reached, `publish` follows the topic's **overflow policy** — block up to a timeout, or reject immediately.
-- New subscribers start from the **next** message.
-- **Push:** each subscription has a worker thread that calls its handler.
+- **Q:** Do all subscribers get every message, or do they share the work? <!-- match: fan-out, fanout, broadcast, every subscriber, queue, consumer group, share work, competing -->
+  - **A:** **Fan-out:** every subscription gets every message (consumer groups that share work are a follow-up).
+- **Q:** Are there ordering guarantees? <!-- match: order, ordering, ordered, sequence, fifo -->
+  - **A:** **Per-topic order** is preserved for each subscriber.
+- **Q:** Which delivery guarantee: at most once, at least once, exactly once? <!-- match: delivery guarantee, guarantee, at least once, at most once, exactly once, semantics, duplicates -->
+  - **A:** **At least once:** a subscriber's offset advances only **after** its handler finishes. Handlers that can't tolerate duplicates are made idempotent (we provide a de-duplicating wrapper keyed by message ID).
+- **Q:** What happens when a handler throws? Retries? A poison message? <!-- match: handler throws, throws, retry, retries, poison, dead letter, dlq, failure -->
+  - **A:** A failing message is retried up to N attempts; then it goes to the subscription's **dead-letter list** and the offset moves on, so one poison message can't block the stream forever.
+- **Q:** What if a subscriber is slow? <!-- match: slow, slow subscriber, backpressure, buffer, capacity, overflow, lag, block -->
+  - **A:** Each topic has a **capacity**: the maximum number of messages the slowest subscriber may lag behind. When it's reached, `publish` follows the topic's **overflow policy**: block up to a timeout, or reject immediately.
+- **Q:** Do new subscribers see old messages? <!-- match: new subscribers, old messages, history, replay, earlier -->
+  - **A:** No. New subscribers start from the **next** message.
+- **Q:** Push (callbacks) or pull (poll)? <!-- match: push, pull, poll, polling, callback, callbacks -->
+  - **A:** **Push:** each subscription has a worker thread that calls its handler.
+- **Q:** Do many threads publish at once? <!-- match: concurrent, concurrency, threads, thread-safe, publishers -->
+  - **A:** Yes: publishing must be thread-safe from many threads.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. Create topics with a capacity and an overflow policy.
-2. `publish(topic, id, payload)` appends a message with the next offset.
-3. `subscribe(topic, name, handler, maxAttempts)` starts delivery; `close()` stops it.
-4. Per-subscriber offsets, retries, dead letters; idempotent handler wrapper.
-5. `awaitDrained(topic)` for orderly shutdown and tests.
+1. Create topics with a capacity and an overflow policy. <!-- match: topics, capacity, overflow policy -->
+2. `publish(topic, id, payload)` appends a message with the next offset. <!-- match: publish, offset -->
+3. `subscribe(topic, name, handler, maxAttempts)` starts delivery; `close()` stops it. <!-- match: subscribe, close -->
+4. Per-subscriber offsets, retries, dead letters; idempotent handler wrapper. <!-- match: offsets, retries, dead letter, idempotent -->
+5. `awaitDrained(topic)` for orderly shutdown and tests. <!-- match: drained, await, shutdown -->
 
 **Non-functional**
 
-6. A slow or failing subscriber doesn't affect other subscribers' delivery.
-7. Memory per topic is bounded by its capacity.
-8. Thread-safe publishing from many threads.
+6. A slow or failing subscriber doesn't affect other subscribers' delivery. <!-- match: slow subscriber, independent, isolation -->
+7. Memory per topic is bounded by its capacity. <!-- match: bounded, memory, capacity -->
+8. Thread-safe publishing from many threads. <!-- match: thread-safe, many threads, concurrent publishing -->
 
 ## Step 1 — Offsets and the log
 

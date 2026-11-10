@@ -16,30 +16,39 @@ Design a movie ticket booking system like BookMyShow. Users browse shows, pick s
 7. Max seats per booking?
 
 ````reveal title="Answers we'll assume"
-- Catalogue browsing is simple (shows by movie); the focus is **booking for a show**.
-- Users **choose specific seats**. A booking is **all-or-nothing** across the chosen seats (at most 6).
-- Seats are **held for 10 minutes**; an expired hold returns the seats to the pool automatically.
-- Payment goes through an external **`PaymentGateway`** (it can fail or decline).
-- Price per seat type (REGULAR, PREMIUM); the pricing policy may change.
-- Cancellation allowed until the show starts, with a full refund (policy may change).
-- **No double booking, ever**, even with thousands of concurrent requests.
+- **Q:** Do we cover browsing movies and theatres, or just booking for a given show? <!-- match: browse, browsing, catalogue, catalog, theatres, theaters, movies, scope -->
+  - **A:** Catalogue browsing is simple (shows by movie); the focus is **booking for a show**.
+- **Q:** Do users choose specific seats, or get "best available"? <!-- match: seat selection, choose seats, pick seats, best available, select seats -->
+  - **A:** Users **choose specific seats**.
+- **Q:** How many seats can one booking have, and can it partly succeed? <!-- match: max seats, how many seats, limit, partial, all or nothing, maximum -->
+  - **A:** At most **6 seats**, and a booking is **all-or-nothing** across the chosen seats.
+- **Q:** How long is a seat held, and what happens when the hold expires? <!-- match: hold, held, expire, expiry, timeout, lock seats, reserve -->
+  - **A:** Seats are **held for 10 minutes**; an expired hold returns the seats to the pool automatically.
+- **Q:** Is payment in scope, or an external gateway? <!-- match: payment, pay, gateway, card -->
+  - **A:** Payment goes through an external **`PaymentGateway`** (it can fail or decline).
+- **Q:** How are seats priced? <!-- match: price, pricing, seat type, premium, dynamic, cost -->
+  - **A:** By seat type (REGULAR, PREMIUM); the pricing policy may change.
+- **Q:** Can bookings be cancelled and refunded? <!-- match: cancel, cancellation, refund -->
+  - **A:** Cancellation is allowed until the show starts, with a full refund (the policy may change).
+- **Q:** Can two users try to book the same seat at the same time? <!-- match: concurrent, concurrency, same seat, double booking, simultaneous, race, thousands -->
+  - **A:** Yes, and there must be **no double booking, ever**, even with thousands of concurrent requests.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. List the seat map of a show with seat status.
-2. Hold 1–6 chosen seats for a user (all or nothing).
-3. Confirm a hold by paying; produce a booking.
-4. Release a hold explicitly, or expire it after 10 minutes.
-5. Cancel a confirmed booking before the show starts (refund).
+1. List the seat map of a show with seat status. <!-- match: seat map, seat status, list seats, availability -->
+2. Hold 1–6 chosen seats for a user (all or nothing). <!-- match: hold, all or nothing -->
+3. Confirm a hold by paying; produce a booking. <!-- match: confirm, pay, booking -->
+4. Release a hold explicitly, or expire it after 10 minutes. <!-- match: release, expire, expiry -->
+5. Cancel a confirmed booking before the show starts (refund). <!-- match: cancel, refund -->
 
 **Non-functional**
 
-6. Correct under high concurrency: a seat is never held or booked by two users.
-7. Different shows don't contend with each other.
-8. Pricing and payment are pluggable; time is injectable.
+6. Correct under high concurrency: a seat is never held or booked by two users. <!-- match: concurrency, concurrent, double booking -->
+7. Different shows don't contend with each other. <!-- match: contend, contention, per show, per-show lock -->
+8. Pricing and payment are pluggable; time is injectable. <!-- match: pluggable, pricing, payment gateway, clock, inject time -->
 
 ## Step 1 — Entities
 

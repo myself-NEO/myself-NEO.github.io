@@ -28,7 +28,7 @@ export interface SavedItem {
 }
 
 /** What a note records; plain notes have no kind. */
-export type NoteKind = 'note' | 'tradeoff' | 'formula' | 'mistake';
+export type NoteKind = 'note' | 'tradeoff' | 'formula' | 'pattern' | 'mistake';
 
 export interface Note {
   id: string;

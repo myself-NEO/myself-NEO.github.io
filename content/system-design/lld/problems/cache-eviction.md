@@ -15,27 +15,33 @@ Design a generic in-memory cache: `get(key)` and `put(key, value)` with a fixed 
 6. Null keys or values?
 
 ````reveal title="Answers we'll assume"
-- **LRU and LFU** behind one interface; FIFO, random or size-aware policies may come later.
-- A `get` hit and a `put` overwrite both count as a use.
-- LFU ties are broken by **recency**: among equally-used keys, the one that reached that count first is evicted.
-- **Optional TTL per entry.** Expired entries are removed **lazily** when touched (a background sweep is a follow-up).
-- Thread-safe, provided **without** touching the policy code.
-- No nulls (they'd make `get` ambiguous).
+- **Q:** Which eviction policies, and will more be added? <!-- match: policies, policy, eviction, lru, lfu, fifo, algorithm, evict -->
+  - **A:** **LRU and LFU** behind one interface; FIFO, random or size-aware policies may come later.
+- **Q:** What counts as a "use": `get` only, or `put` on an existing key too? <!-- match: use, used, access, counts, get, put, overwrite, recency -->
+  - **A:** A `get` hit and a `put` overwrite both count as a use.
+- **Q:** How are LFU ties broken? <!-- match: ties, tie, tie-break, equally, same frequency, frequency -->
+  - **A:** By **recency**: among equally-used keys, the one that reached that count first is evicted.
+- **Q:** Is TTL per entry or per cache, and must expired entries be removed immediately? <!-- match: ttl, expiry, expire, expiration, time to live, per entry -->
+  - **A:** **Optional TTL per entry.** Expired entries are removed **lazily** when touched (a background sweep is a follow-up).
+- **Q:** Does it need to be thread-safe? <!-- match: thread-safe, concurrent, concurrency, threads, read-heavy -->
+  - **A:** Yes, provided **without** touching the policy code.
+- **Q:** Are null keys or values allowed? <!-- match: null, nulls, empty, missing value -->
+  - **A:** No nulls (they'd make `get` ambiguous).
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `get`, `put` (with optional TTL), `remove`, `size`, `stats` (hits, misses, evictions, expirations).
-2. When full, `put` of a new key evicts exactly one victim chosen by the policy.
-3. Expired entries behave as absent.
+1. `get`, `put` (with optional TTL), `remove`, `size`, `stats` (hits, misses, evictions, expirations). <!-- match: get, put, remove, stats -->
+2. When full, `put` of a new key evicts exactly one victim chosen by the policy. <!-- match: evict, eviction, victim, full, capacity -->
+3. Expired entries behave as absent. <!-- match: expired, expire, ttl -->
 
 **Non-functional**
 
-4. O(1) for every operation, for both policies.
-5. Generic in key and value types; policies pluggable.
-6. Thread-safe wrapper; tests use a controllable clock.
+4. O(1) for every operation, for both policies. <!-- match: o(1), constant time, constant -->
+5. Generic in key and value types; policies pluggable. <!-- match: generic, generics, pluggable, policy -->
+6. Thread-safe wrapper; tests use a controllable clock. <!-- match: thread-safe, wrapper, clock -->
 
 ## Step 1 — O(1) data structures
 

@@ -140,8 +140,8 @@ const UmlDiagram: React.FC<{ source: string; title?: string }> = ({ source, titl
 
       {classes.length > 0 && (
         <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
-          {classes.map((c) => (
-            <div key={c.name} className={`rounded-lg border bg-slate-950/60 ${KIND_ACCENT[c.kind]}`}>
+          {classes.map((c, i) => (
+            <div key={`${c.name}-${i}`} className={`rounded-lg border bg-slate-950/60 ${KIND_ACCENT[c.kind]}`}>
               <div className="px-3 py-2 text-center border-b border-slate-800">
                 {STEREOTYPE[c.kind] && <div className="text-[10px] text-slate-500 font-mono">{STEREOTYPE[c.kind]}</div>}
                 <div className={`font-mono font-semibold text-sm text-white ${c.kind === 'abstract' ? 'italic' : ''}`}>{c.name}</div>

@@ -7,11 +7,12 @@ import { notebookActions } from '../../learn/notebook';
 import { interviewActions, useInterviews } from '../../learn/interviews';
 import { lessonHref, problemHref, problemsHref } from '../../learn/routes';
 import { ProgressStat, SearchPanel, StageRoadmap, useTrackProgress } from '../../learn/LandingParts';
-import { ArrowIcon, Breadcrumbs, Chip, ClockIcon, LEVEL_LABEL, LevelBadge, ProgressBar, StatusIcon } from '../../learn/ui';
+import { ArrowIcon, Breadcrumbs, Chip, LEVEL_LABEL, LevelBadge, ProgressBar, StatusIcon } from '../../learn/ui';
 import { COMPARISON } from '../comparison';
 import { ROOT_HREF } from '../routes';
 import HldSectionNav, { HLD_INTERVIEW_HREF, interviewHref } from './HldSectionNav';
-import { hasBreakdown, hours, learningSequence } from './sequence';
+import { hasBreakdown, hours } from '../sequence';
+import LearningSequence from '../LearningSequence';
 
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
 
@@ -22,7 +23,6 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
   const interviews = useInterviews();
   const { lessons, lessonsDone, quizzesPassed, problemsDone, problemsStarted, problemsAttempted, nextLesson, hasProgress } = useTrackProgress(track);
   const allLessons = flattenLessons(track).map((l) => l.lesson);
-  const sequence = learningSequence(track);
   const totalMinutes = allLessons.reduce((sum, l) => sum + l.minutes, 0);
   const essentialMinutes = allLessons.filter((l) => l.essential).reduce((sum, l) => sum + l.minutes, 0);
   const practiceMinutes = track.problems.reduce((sum, p) => sum + p.minutes, 0);
@@ -257,46 +257,10 @@ const HldLanding: React.FC<{ track: Track }> = ({ track }) => {
         </section>
 
         {/* Sequence */}
-        <section aria-labelledby="sequence-heading" className="pb-14">
-          <h2 id="sequence-heading" className="text-2xl font-bold mb-2">
-            Recommended <span className="text-sky-500">learning sequence</span>
-          </h2>
-          <p className="text-slate-400 mb-6 max-w-3xl">
-            Practise problems as soon as their prerequisite lessons are behind you rather than saving them all for the end. Each problem
-            appears after the last stage it depends on.
-          </p>
-          <ol className="space-y-2">
-            {sequence.map((step) => (
-              <li key={step.stage.id} className="rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <p className="font-semibold text-slate-100">
-                    <span className="text-slate-400 mr-1.5">Stage {step.stage.number}</span>
-                    {step.stage.title}
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                    <ClockIcon /> ~{hours(step.minutes)} h · {step.lessons} lessons{step.written < step.lessons ? ` (${step.written} available)` : ''}
-                  </span>
-                </div>
-                {step.problems.length > 0 && (
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-violet-300">Then practise:</span>
-                    {step.problems.map((p) => (
-                      <a
-                        key={p.slug}
-                        href={problemHref(track, p.slug)}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:border-sky-500/50 hover:text-sky-300"
-                      >
-                        <StatusIcon status={problemStatus(progress, track.id, p.slug)} className="h-3.5 w-3.5" />
-                        {p.title}
-                        {!hasBreakdown(track, p.slug) && <span className="text-[10px] uppercase tracking-wider text-slate-400">soon</span>}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
+        <LearningSequence
+          track={track}
+          intro="Practise problems as soon as their prerequisite lessons are behind you rather than saving them all for the end. Each problem appears after the last stage it depends on."
+        />
 
         {/* Problems */}
         <section aria-labelledby="problems-heading" className="pb-14">

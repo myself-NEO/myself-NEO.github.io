@@ -14,26 +14,31 @@ Design the allocation core of a large multi-level parking garage with **many ent
 5. Can the same vehicle enter twice (cloned plates, sensor glitches)?
 
 ````reveal title="Answers we'll assume"
-- Tens of gates, several levels, thousands of spots; at peak, hundreds of requests per second.
-- A gate prefers the **level nearest to it**, then the next nearest. The policy must be pluggable (least-loaded level, reserved floors).
-- Spots are `SMALL`, `MEDIUM`, `LARGE`; a vehicle takes the **smallest** free spot that fits (motorcycle → small first; car → medium first; truck → large only).
-- **Never:** one spot given to two vehicles; one ticket used to exit twice; a free spot lost. **Approximate is fine:** the "free spaces" numbers on display boards.
-- A plate that is already inside is rejected.
+- **Q:** How many gates and levels, and how hot is the contention? <!-- match: gates, levels, spots, contention, load, peak, scale, requests per second -->
+  - **A:** Tens of gates, several levels, thousands of spots; at peak, hundreds of requests per second.
+- **Q:** Which spot should a vehicle get? <!-- match: which spot, nearest, closest, choose, allocation, policy, assign, level -->
+  - **A:** A gate prefers the **level nearest to it**, then the next nearest. The policy must be pluggable (least-loaded level, reserved floors).
+- **Q:** Which vehicle and spot sizes are there? <!-- match: sizes, size, vehicle types, small, medium, large, motorcycle, truck -->
+  - **A:** Spots are `SMALL`, `MEDIUM`, `LARGE`; a vehicle takes the **smallest** free spot that fits (motorcycle → small first; car → medium first; truck → large only).
+- **Q:** What must never happen, and what may be approximate? <!-- match: never, guarantee, guarantees, approximate, exact, invariants, correctness, consistency -->
+  - **A:** **Never:** one spot given to two vehicles, one ticket used to exit twice, or a free spot lost. **Approximate is fine:** the "free spaces" numbers on display boards.
+- **Q:** Can the same vehicle enter twice (cloned plates, sensor glitches)? <!-- match: same vehicle, twice, duplicate, plate, cloned, enter twice, already inside -->
+  - **A:** No: a plate that is already inside is rejected.
 ````
 
 ## Requirements
 
 **Functional**
 
-1. `park(vehicle, gate)` returns a ticket with a spot, or fails if nothing fits.
-2. `unpark(ticketId)` frees the spot exactly once.
-3. Free-space counts per level for display boards.
+1. `park(vehicle, gate)` returns a ticket with a spot, or fails if nothing fits. <!-- match: park, ticket -->
+2. `unpark(ticketId)` frees the spot exactly once. <!-- match: unpark, exactly once, exit -->
+3. Free-space counts per level for display boards. <!-- match: free space, counts, display boards, display -->
 
 **Non-functional**
 
-4. Safe under concurrent calls from all gates.
-5. No global lock: gates on different levels proceed in parallel.
-6. No deadlocks; no spot ever leaked or duplicated.
+4. Safe under concurrent calls from all gates. <!-- match: concurrent, thread-safe -->
+5. No global lock: gates on different levels proceed in parallel. <!-- match: global lock, parallel, per level, per-level lock -->
+6. No deadlocks; no spot ever leaked or duplicated. <!-- match: deadlock, deadlocks, leaked, leak, duplicated -->
 
 ## Step 1 — Find the shared state
 
